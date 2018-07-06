@@ -1,0 +1,434 @@
+\chapter{Basic Definitions}
+
+\section{Information Theory}
+
+The basic intuition behind information theory is that learning that an unlikely event has occurred is more informative than learning that a likely event has occurred \citep{Goodfellow-et-al-2016}. We define \newterm{self-information} of a random event $x$ as
+
+\begin{equation}
+I(x) = -\log P(x).
+\end{equation}
+
+The overall information in a probability distribution is quantified by \newterm{Shanon entropy}:
+
+\begin{equation}
+H(X) = \E_{X \sim P} [ I(X) ] = -\E_{X \sim P} [ log P(x) ]
+\end{equation}
+
+We can extend this to the case of a continuous random variable with a probability density function $f$, in which case we call $H(f)$ the \newterm{differential entropy} and define it as
+
+\begin{equation}
+H(f) = - \int_X f(x) log f(x) \dx
+\end{equation}
+
+\section{Calculus of Variations}
+
+Before we can derive the Gaussian distribution, we first introduce a few concepts from the calculus of variations.
+
+A \newterm{functional} is a mapping which assigns real numbers to each function belonging to some class \citep{gelfand2012calculus}. We can say that a functional is a special kind of function, where the argument is itself a function. In our case the functional will be the differential entropy $H(f)$. Similarly to derivatives and partial derivatives in real analysis, we can take \newterm{functional derivatives} of a functional $H(f)$ with respect
+
+As full derivation of functional derivatives is outside the scope of this thesis, we only present the following theorem without proof, and refer the reader to the above cited textbook for a proof \todo{find the proof}.
+
+For differentiable functions $f(\vx)$ and $g(y, \vx)$ with continuous derivatives, the following holds
+
+\begin{equation}
+\frac{\delta}{\delta f(\vx)} \int g(f(\vx), \vx) d \vx = \frac{\partial}{\partial y} g(f(\vx), \vx).
+\end{equation}
+
+\todo{rewrite, copied over from DLB} To gain some intuition for this identity, one can think of $f(\vx)$ as being a vector with uncountably many elements, indexed by a real vector $\vx$. In this (somewhat incomplete) view, the identity providing the functional derivatives is the same as what we would obtain for a vector $\vtheta \in \sR^n$ indexed by positive integers:
+
+\begin{equation}
+\frac{\partial}{\partial \theta_i} \sum_j g(\theta_j, j) = \frac{\partial}{\partial \theta_i} g(\theta_i, i).
+\end{equation}
+
+\section{Maximum Entropy Probability Distribution}
+
+In this section we derive the Gaussian distribution as a distribution which maximizes differential entropy when the mean and variance are fixed. Similarly as we would optimize a function by computing its gradient, setting it to zero and solving the equation, we can optimize a functional by solving for a function where the variational derivative is zero at every point.
+
+Because we want our resulting functional to be a probability distribution, we need its density to integrate to $1$, specifically
+
+\begin{equation}
+\int f(x) \dx = 1
+\end{equation}
+
+We also want the mean and variance to be fixed constants $\mu$ and $\sigma^2$ respectively. This gives us the following
+
+\begin{align}
+\int x f(x) \dx = \mu \\
+\int (x - \mu) ^2 f(x) \dx = \sigma^2
+\end{align}
+
+We can solve for all of these constraints simultaneously using Lagrange multipliers. The Lagrangian has the following form:
+
+\begin{align}
+\begin{split}
+\gL[f] ={}& H[f] + \lambda_1 \left( \int f(x) \dx - 1 \right) + \lambda_2 \left( \int x f(x) \dx - \mu \right) + \\
+ &+ \lambda_3 \left( \int (x - \mu)^2 f(x) \dx - \sigma^2 \right)
+\end{split} \\
+%
+\begin{split}
+={}& -\int f(x) \log f(x) \dx  + \lambda_1 \left( \int f(x) \dx - 1 \right) + \\
+&+ \lambda_2 \left( \int x p(x) \dx - \mu \right) + \lambda_3 \left( \int (x - \mu)^2  f(x) \dx - \sigma^2 \right)
+\end{split} \\
+%
+\begin{split}
+={}& \int ( - f(x) \log f(x) + \lambda_1 f(x) - \lambda_1 + \\
+&+ \lambda_2 x p(x) - \lambda_2 \mu + \lambda_3 (x - \mu)^2  f(x) - \lambda_3 \sigma^2 ) \dx \\
+\end{split} \\
+%
+\begin{split}
+={}& \int ( - f(x)\log f(x) + \lambda_1 f(x) + \lambda_2 x f(x) + \lambda_3 (x - \mu)^2  f(x) ) \dx + \\
+&- \lambda_1 - \lambda_2 \mu - \lambda_3 \sigma^2 \label{eq:gauss-lagrangian}
+\end{split}
+\end{align}
+
+\todo{check the functional derivative, so far only copied from DLB, fix alignment of = in 1.11} We set the following functional derivative of \eqref{eq:gauss-lagrangian} equal to $0$:
+
+\begin{equation}
+\forall x, \frac{\delta}{\delta f(x)} \gL = \lambda_1 + \lambda_2 x + \lambda_3 (x - \mu)^2 - 1 - \log f(x) = 0.
+\end{equation}
+
+Now simply solving for $f(x)$ we obtain:
+
+\begin{equation}
+f(x) = \exp \left( \lambda_1 + \lambda_2 x + \lambda_3 (x - \mu)^2 - 1 \right).
+\end{equation}
+
+\todo{rewrite, mostly written as in DLB}
+To solve the optimization problem we can choose any value for the $\lambda$. We set $\lambda_1 = 1 - \log \sigma \sqrt{2 \pi}$, $\lambda_2 = 0$, and $\lambda_3 = - \frac{1}{2 \sigma^2}$ to obtain the density of a Gaussian distribution
+
+\begin{equation}
+f(x) = \gN(x | \mu, \sigma^2).
+\end{equation}
+
+This derivation is one of the reason why a Gaussian distribution is so useful. \todo{rewrite, copied from DLB} Because the normal distribution has the maximum entropy, we impose the least possible amount of structure by making this assumption.
+
+\section{Multivariate Gaussian Distribution}
+
+In the previous section we derived the Gaussian distribution for a single variable $x$, which has the following density function: \todo{better explain the normalization constant}
+
+\begin{equation}
+\gN(x | \mu, \sigma^2) = \frac{1}{(2 \pi \sigma^2)^{1/2}} \exp \left( \frac{1}{2\sigma^2} (x - \mu)^2 \right) \label{eq:single-gaussian}
+\end{equation}
+
+where $\mu$ is the mean and $\sigma^2$ is the variance. In the case where $\vx$ is a $D$-dimensional vector, the multivariate Gaussian takes the following form:
+
+\begin{equation}
+\gN(x | \mu, \mSigma) = \frac{1}{(2 \pi)^{D/2} |\mSigma|^{1/2}} \exp \left( -\frac{1}{2} (\vx - \vmu)^T \mSigma^{-1} (\vx - \vmu) \right) \label{eq:multi-gaussian}
+\end{equation}
+
+where $\vmu$ is a $D$-dimensional vector, $\mSigma$ is a $D \times D$ covariance matrix, and $|\mSigma|$ is the determinant of $\mSigma$.
+
+We note here that the functional dependence of the Gaussian on $\vx$ is through the quadratic form
+
+\begin{equation}
+\Delta^2 = (\vx - \vmu)^T \mSigma^{-1} (\vx - \vmu)
+\end{equation}
+
+which appears in the exponent \citep{bishop2016pattern} \todo{rewrite and remove the quote, or keep it?}. The quantity $\Delta$ is called the \newterm{Mahalanobis distance} from $\vmu$ to $\vx$ and reduces to the Euclidean distance when $\mSigma$ is the identity matrix. We will make use of the quadratic form in the following section when we derive the conditional and marginal distribution of the multivariate Gaussian.
+
+Since $\mSigma$ is a covariance matrix we know it is positive definite \todo{why not only semidefinite? describe the degenerate case}, we can perform \newterm{eigendecomposition} on it to get $\mSigma = \mU \mLambda \mU^T$, where $\mU$ is an ortogonal matrix of eigenvectors, and $\mLambda$ is a diagonal matrix of eigenvalues. Basic matrix algebra gives us the following:
+
+\begin{equation}
+\mSigma^{-1} = (\mU^T)^{-1} \mLambda^{-1} \mU^{-1} = \mU \mLambda^{-1} \mU^T = \sum_{i = 1}^D \frac{1}{\lambda_i} \vu_i \vu_i^T
+\end{equation}
+
+where the second to last equality comes from $\mU$ being orthogonal ($\mU^{-1} = \mU^T$). We can use this to obtain a different form of the Mahalanobis distance: \todo{cite bishop?}
+
+\begin{align}
+(\vx - \vmu)^T \mSigma^{-1} (\vx - \vmu) &= (\vx - \vmu)^T \left( \sum_{i = 1}^D \frac{1}{\lambda_i} \vu_i \vu_i^T \right) (\vx - \vmu) \\
+&= \sum_{i = 1}^D (\vx - \vmu)^T \frac{1}{\lambda_i} \vu_i \vu_i^T (\vx - \vmu) \\
+&= \sum_{i = 1}^D \frac{y_i^2}{\lambda_i} \label{eq:mvn-ellipse}
+\end{align}
+
+where $y_i = u_{i}^{T} (\vx - \vmu)$ \todo{use a notation for definition}. The equation \eqref{eq:mvn-ellipse} has exactly the same form as a $D$-dimensional ellipse. From this we conclude that the contour lines of a multivariate Gaussian will be elliptical, where the eigenvectors determine the orientation of the ellipse, and the eigenvalues determine its radius \todo{better word?} along each eigenvector.
+
+\todo{complete the properties and derivation}
+
+\section{Conditional and Marginal Gaussian Distribution}
+
+In this section we derive the conditional $p(x_1 | x_2)$ and marginal $p(x_1)$ for a given joint distribution $p(x_1, x_2)$. One of the interesting properties of a multivariate Gaussian is that both the conditional and the marginal are also Gaussian and we can easily compute their parameters in closed from based on the parameters of the joint distribution.
+
+Supposed $\vx$ is a $D$-dimensional random vector with a Gaussian distribution $\gN(\vx | \vmu, \mSigma)$, and that $\vx$ is partitioned into two vectors $\vx_1$ and $\vx_2$ such that
+
+\begin{equation}
+\vx = \partx
+\end{equation}
+
+We also partition the mean vector $\vmu$ and the covariance matrix $\mSigma$ into a block matrix. We also define the inverse of the covariance matrix $\mLambda = \mSigma^{-1}$, which will simplify a few of the equations that follow. We will derive the exact form of $\mLambda$ and of its individual blocks later in this section. For now we simply use the fact that $\mSigma$ is positive-definite, and thus it is invertible. The matrix $\mLambda$ is also known as a \newterm{precision matrix}.
+
+\begin{equation}
+\vmu = \partmu,
+\mSigma = \partsigma, \mLambda = \mSigma^{-1} = \partlambda \label{eq:mvn-partition}
+\end{equation}
+
+Note that since $\mSigma$ is a symmetric matrix, $\ms{12}^T = \ms{21}$, and similarly $\ml{12}^T = \ml{21}$. Similarly, $\ms{11}$, $\ms{22}$, $\ml{11}$, and $\ml{22}$ are all symmetrical.
+
+Before we derive the parameters of the conditional, we show that the conditional distribution $p(x_1 | x_2)$ is a Gaussian. To do this, we take the joint distribution $p(x_1, x_2)$ and fix the value of $x_2$ \citep{bishop2016pattern}. Using the definition of conditional probability $p(x_1, x_2) = p(x_1 | x_2) p(x_2)$ we can see that after fixing the value of $x_2$, $p(x_2)$ is simply a normalization constant, and the remaining term $p(x_1 | x_2)$ is a function of $x_1$ which together with the normalization constant gives us the conditional probability distribution on $x_1$.
+
+We now use the partitioned form of the multivariate Gaussian defined by \eqref{eq:mvn-partition} to show that $p(x_1 | x_2)$ is actually a Gaussian. Let us begin by looking at the exponent in \eqref{eq:multi-gaussian}:
+
+\begin{align}
+-\frac{1}{2} (\vx - \vmu)^T \mLambda (\vx - \vmu) &= 
+-\frac{1}{2} \left(\partx - \partmu \right)^T \partlambda \left(\partx - \partmu \right) \\
+&= -\frac{1}{2} \partxmu^T \partlambda \partxmu
+\end{align}
+
+To make the next few equations easier to follow we set $\vy_1 = \vx_1 - \vmu_1$ and $\vy_2 = \vx_2 - \vmu_2$.
+
+\begin{align}
+\begin{split}
+-\frac{1}{2} \begin{bmatrix} \vy_1 \\ \vy_2 \end{bmatrix} ^T \partlambda \begin{bmatrix} \vy_1 \\ \vy_2 \end{bmatrix} ={}& -\frac{1}{2} \begin{bmatrix} \vy_1 \ml{11} + \vy_2 \ml{21} \\ \vy_1 \ml{12} + \vy_2 \ml{22} \end{bmatrix} ^T \begin{bmatrix} \vy_1 \\ \vy_2 \end{bmatrix}
+\end{split} \\
+%
+\begin{split}
+={}& -\frac{1}{2} \left( \vy_1^T \ml{11} \vy_1 + \vy_2^T \ml{21} \vy_1 + \vy_1^T \ml{12} \vy_2 + \vy_2^T \ml{22} \vy_2 \right)
+\end{split} \\
+%
+\begin{split}
+={}& -\frac{1}{2} (\vx_1 - \vmu_1)^T \ml{11} (\vx_1 - \vmu_1) {}+ \\
+  &-\frac{1}{2} (\vx_2 - \vmu_2)^T \ml{21} (\vx_1 - \vmu_1) {}+ \\
+  &-\frac{1}{2} (\vx_1 - \vmu_1)^T \ml{12} (\vx_2 - \vmu_2) {}+ \\
+  &-\frac{1}{2} (\vx_2 - \vmu_2)^T \ml{22} (\vx_2 - \vmu_2) \label{eq:mvn-quadratic-form}
+\end{split}
+\end{align}
+
+\todo{fix + alignment and equation numbering, fix spacing of + in 1.29}
+
+We see that this is a quadratic form in $x_1$, and hence the corresponding conditional distribution $p(x_1 | x_2)$ will be Gaussian. \todo{better explain, cite bishop again?}. We can use \eqref{eq:mvn-quadratic-form} to derive the parameters of $p(x_1 | x_2)$ since
+
+\todo{partition matrix inversion lemma}
+
+\citep{murphy2012machine}
+
+\section{Sum of Gaussians and Other Properties}
+
+\todo{better section name}
+
+\begin{defn}
+The \newterm{moment generating function} of a random variable $X$ is
+
+\begin{equation}
+M_X(t) = \E[e^{t X}].
+\end{equation}
+\end{defn}
+
+We state the following result without proof \todo{citace, pridat proof}.
+
+\begin{thm}
+Let $X$ and $Y$ be two random variables. If
+
+\begin{equation}
+M_X(t) = M_Y(t)
+\end{equation}
+
+for all $t \in (-\delta, \delta)$ for some $\delta > 0$, then $X$ and $Y$ have the same distribution. We'll use this theorem to show that the sum of Gaussian random variables has a Gaussian distribution.
+\end{thm}
+
+\begin{thm} \citep{mitzenmacher2017probability}\label{thm:sum-independent-gaussian}
+If $X$ and $Y$ are independent random variables, then
+
+\begin{equation}
+M_{X + Y}(t) = M_X(t) M_Y(t)
+\end{equation}
+\end{thm}
+\begin{proof}
+\begin{equation}
+M_{X + Y}(t) = \E[e^{t(X + Y)}] = \E[e^{tX} e^{tY}] = \E[e^{tX}] \E[e^{tY}] = M_X(t) M_Y(t)
+\end{equation}
+
+Here we have used that $X$ and $Y$ are independent -- and hence $e^{tX}$ and $e^{tY}$ are independent -- to conclude that $\E[e^{tX} e^{tY}] = \E[e^{tX}] \E[e^{tY}]$. \todo{prepsat? prakticky opsano}
+\end{proof}
+
+\begin{thm} Moment generating function of a Gaussian distribution
+
+\todo{doplnit}
+\todo{unify normal/gaussian naming}
+\end{thm}
+
+\begin{thm}[\citep{mitzenmacher2017probability}]
+Let $X$ and $Y$ be independent random variables with distributions $\gN(\mu_1, \sigma_1^2)$ and $\gN(\mu_2, \sigma_2^2)$, respectively. Then $X + Y$ is distributed according to the normal distribution $\gN(\mu_1 + \mu_2, \sigma_1^2 + \sigma_2^2)$.
+\end{thm}
+\begin{proof}
+The moment generating function of a sum of independent random variables is the product of their moment generating functions (Theorem \ref{thm:sum-independent-gaussian}). Thus,
+
+\begin{equation}
+M_{X + Y}(t) = M_X(t) M_Y(t) = e^{t^2 \sigma_1^2 / 2 + \mu_1 t} e^{t^2 \sigma_2^2 / 2 + \mu_2 t} = e^{t^2 (\sigma_1^2 + \sigma_1^2) / 2 + (\mu_1 + \mu_2) t}
+\end{equation}
+
+The rightmost expression is the moment generating function of a normal distribution. Theorem \ref{thm:sum-independent-gaussian} implies that $X + Y$ has a normal distribution with the corresponding parameters. \todo{opsano z \citep{mitzenmacher2017probability}}
+\end{proof}
+
+\citep{eisenberg2008sum} \todo{hintnout to other versions of the proof? maybe show them instead?}
+
+TODO notes:
+
+\begin{enumerate}
+\item sum of gaussians + other densities tends towards Gaussian (central limit theorem\
+\item sum of gaussians is a gaussian
+\item scaling a gaussian leads to a gaussian
+\end{enumerate}
+
+\begin{thm}[\citep{murphy2012machine}] (Inverse of a partitioned matrix). Consider a partitioned matrix
+
+\begin{equation}
+\mM = \begin{bmatrix} \mA & \mB \\ \mC & \mD \end{bmatrix}
+\end{equation}
+
+where we assume $\mA$ and $\mD$ are invertible \todo{staci to? nemusi byt i ty ostatni?}. We have
+
+\begin{equation}
+\mM^{-1} = \begin{bmatrix} \mI & \mZero \\ \mI & \mI \end{bmatrix}
+\end{equation}
+\end{thm}
+\begin{proof}
+All we need to do is perform a block \newterm{LDU decomposition} and we directly arrive at our solution. We begin by zeroing out $\mB$.
+
+\begin{equation} \label{eq:block-ld-part}
+\begin{bmatrix} \mI & -\mB \mD^{-1} & \\ \mZero & \mI \end{bmatrix}
+\begin{bmatrix}\mA & \mB \\ \mC & \mD \end{bmatrix} =
+\begin{bmatrix} \mA - \mB \mD^{-1} \mC & \mZero \\ \mC & \mD \end{bmatrix}
+\end{equation}
+
+The quantity in the top left block is called a \newterm{Schur complement} of $\mM$ wrt $\mD$. We denote it as follows, and also define a variant for the bottom right block
+
+\begin{align}
+\mM/\mD &= \mA - \mB \mD^{-1} \mC \\
+\mM/\mA &= \mD - \mC \mA^{-1} \mB
+\end{align}
+
+Substituting back into \eqref{eq:block-ld-part} we get the following
+
+\begin{equation}
+\begin{bmatrix} \mM/\mD & \mZero \\ \mC & \mD \end{bmatrix}
+\end{equation}
+
+We follow by eliminating the bottom left block in \eqref{eq:block-ld-part}
+
+\begin{equation} \label{eq:block-du-part}
+\begin{bmatrix} \mM/\mD & \mZero \\ \mC & \mD \end{bmatrix}
+\begin{bmatrix} \mI & \mZero \\ -\mD^{-1} \mC & \mI \end{bmatrix} =
+\begin{bmatrix} \mM/\mD & \mZero \\ \mZero & \mD \end{bmatrix}
+\end{equation}
+
+Putting together \eqref{eq:block-ld-part} and \eqref{eq:block-du-part} we get
+
+\begin{equation}
+\underbrace{\begin{bmatrix} \mI & -\mB \mD^{-1} & \\ \mZero & \mI \end{bmatrix}}_{\mX}
+\underbrace{\begin{bmatrix}\mA & \mB \\ \mC & \mD \end{bmatrix}}_{\mM}
+\underbrace{\begin{bmatrix} \mI & \mZero \\ -\mD^{-1} \mC & \mI \end{bmatrix}}_{\mZ} = 
+\underbrace{\begin{bmatrix} \mM/\mD & \mZero \\ \mZero & \mD \end{bmatrix}}_{\mW}
+\end{equation}
+
+Basic matrix algebra allows us to re-arrange the terms \todo{cite stolen from murphy?}, taking the inverse of both sides
+
+\begin{align}
+(\mX \mM \mZ)^{-1} &= \mW^{-1} \\
+\mZ^{-1} \mM^{-1} \mX^{-1} &= \mW^{-1} \\
+\mM^{-1} &= \mZ \mW^{-1} \mX
+\end{align}
+
+Which gives us the final form, making use of the fact that to invert a diagonal matrix we just need to invert its diagonal
+
+\begin{equation} \label{eq:block-inverse}
+\mM^{-1} = \begin{bmatrix} \mA & \mB \\ \mC & \mD \end{bmatrix}^{-1} =
+\begin{bmatrix} \mI & \mZero \\ -\mD^{-1} \mC & \mI \end{bmatrix}
+\begin{bmatrix} (\mM/\mD)^{-1} & \mZero \\ \mZero & \mD^{-1} \end{bmatrix}
+\begin{bmatrix} \mI & -\mB \mD^{-1} & \\ \mZero & \mI \end{bmatrix}
+\end{equation}
+
+\end{proof}
+
+\begin{thm} Conditional and marginal Gaussian parameters \citep{murphy2012machine} \todo{popsat vetu poradne}
+
+\begin{align}
+p(x_1, x_2) &= p(x_1 | x_2) p(x_2) \\
+&= \gN(x_1 | \vmu_{1|2}, \ms{1|2}) \gN(x_2 | \vmu_2, \ms{22})
+\end{align}
+
+the parameters are \todo{zkontrolovat kde je $\mu$ a chybi tam vector}
+
+\begin{align}
+\vmu_{1|2} &= \vmu_1 - \ms{12} \ms{22}^{-1} (\vx_2 - \vmu_2) \\
+\ms{1|2} &= \mSigma / \ms{22} = \ms{11} - \ms{12} \ms{22}^{-1} \ms{21}
+\end{align}
+\end{thm}
+
+\begin{proof}
+
+To make the equations more readable, we define 
+
+\begin{align}
+\vy_1 &= \vx_1 - \vmu_1 \\
+\vy_2 &= \vx_2 - \vmu_2
+\end{align}
+
+\todo{chybi tecka?}
+
+We then simply take the block definition of a multivariate Gaussian and multiply everything out
+
+\begin{align}
+E &= \exp \left\lbrace -\frac{1}{2}
+\begin{bmatrix} \vy_1 \\ \vy_2 \end{bmatrix}^T
+\partsigma
+\begin{bmatrix} \vy_1 \\ \vy_2 \end{bmatrix} \right\rbrace \\
+%
+&= \exp \left\lbrace -\frac{1}{2}
+\begin{bmatrix} \vy_1 \\ \vy_2 \end{bmatrix}^T
+\begin{bmatrix} \mI & \mZero \\ -\mSigma_{22}^{-1} \mSigma_{21} & \mI \end{bmatrix}
+\begin{bmatrix} (\mSigma/\mSigma_{22})^{-1} & \mZero \\ \mZero & \mSigma_{22}^{-1} \end{bmatrix}
+\begin{bmatrix} \mI & -\mSigma_{12} \mSigma_{22}^{-1} & \\ \mZero & \mI \end{bmatrix}
+\begin{bmatrix} \vy_1 \\ \vy_2 \end{bmatrix} \right\rbrace \\
+%
+&= \exp \left\lbrace -\frac{1}{2}
+\begin{bmatrix} \vy_1^T - \vy_2^T (\mSigma_{22}^{-1} \mSigma_{21}) \\
+\vy_2
+\end{bmatrix}^T
+\begin{bmatrix} (\mSigma/\mSigma_{22})^{-1} & \mZero \\ \mZero & \mSigma_{22}^{-1} \end{bmatrix} \begin{bmatrix} \vy_1 -\mSigma_{12} \mSigma_{22}^{-1} (\vy_2) \\ \vy_2 \end{bmatrix} \right\rbrace \\
+%
+&= \exp \left\lbrace -\frac{1}{2}
+\begin{bmatrix} (\vy_1^T - \vy_2^T \mSigma_{22}^{-1} \mSigma_{21}) (\mSigma/\mSigma_{22})^{-1} \\
+\vy_2^T \mSigma_{22}^{-1}
+\end{bmatrix}^T
+\begin{bmatrix} \vy_1 -\mSigma_{12} \mSigma_{22}^{-1} (\vy_2) \\ \vy_2 \end{bmatrix}
+\right\rbrace \\
+%
+&= \exp \left\lbrace -\frac{1}{2}
+(\vy_1^T - \vy_2^T \mSigma_{22}^{-1} \mSigma_{21}) (\mSigma/\mSigma_{22})^{-1} (\vy_1 -\mSigma_{12} \mSigma_{22}^{-1} \vy_2)
+\right\rbrace \times \\
+& \qquad\qquad \times \exp \left\lbrace -\frac{1}{2} \vy_2^T \mSigma_{22}^{-1} \vy_2 \right\rbrace \nonumber
+\end{align}
+
+We can immediately see that the second term is a quadratic form in $\vx_2$ and corresponds to $\gN(\vx_2 | \vmu_2, \mSigma_{22})$. Let us now consider the first term in isolation and move the terms around a little bit. We also make use of the fact that because $\mSigma_{22}$ is a positive-definite \todo{check this and maybe show a small proof?} matrix, its inverse is also symmetric, so $\mSigma^{-1^T}_{22} = \mSigma^{-1}_{22}$. We also know that $\mSigma^T_{12} = \mSigma_{21}$.
+
+\begin{align}
+E_{1|2} &= \exp \left\lbrace -\frac{1}{2}
+(\vy_1^T - \vy_2^T \mSigma_{22}^{-1} \mSigma_{21}) (\mSigma/\mSigma_{22})^{-1} (\vy_1 -\mSigma_{12} \mSigma_{22}^{-1} \vy_2) \right\rbrace \\
+&= \exp \left\lbrace -\frac{1}{2}
+(\vy_1 - \mSigma_{12}\mSigma_{22}^{-1} \vy_2)^T (\mSigma/\mSigma_{22})^{-1} (\vy_1 -\mSigma_{12} \mSigma_{22}^{-1} \vy_2) \right\rbrace \\
+&= \exp \left\lbrace -\frac{1}{2}
+(\vx_1 - \vmu_1 - \mSigma_{12}\mSigma_{22}^{-1} (\vx_2 - \vmu_2)^T (\mSigma/\mSigma_{22})^{-1} (\vx_1 - \vmu_1 -\mSigma_{12} \mSigma_{22}^{-1} (\vx_2 - \vmu_2)) \right\rbrace \label{eq:mvn-quadratic-form-12}
+\end{align}
+
+In \eqref{eq:mvn-quadratic-form-12} we again see a Gaussian density with
+
+\begin{align}
+\vmu_{1|2} &= \vmu_1 - \mSigma_{12}\mSigma_{22}^{-1} (\vx_2 - \vmu_2) \\
+\mSigma_{1|2} &= (\mSigma/\mSigma_{22})^{-1} =  \ms{11} - \ms{12} \ms{22}^{-1} \ms{21}
+\end{align}
+\end{proof}
+
+\section{Sampling from a Gaussian}
+
+\section{Gaussian Processes}
+
+\newterm{Gaussian Process} is a \newterm{stochastic process} (a collection of random variables), such that every subset of those random variables has a multivariate Gaussian distribution.
+
+\begin{equation}
+f(x) \sim \gG \gP (m(x), \kappa(x, x'))
+\end{equation} \todo{finish}
+
+\todo{describe prior over functions}
+
+\section{Noise-less Gaussian Process Regression}
+
+\section{Noisy Gaussian Process Regression}
