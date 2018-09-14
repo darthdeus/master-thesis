@@ -419,9 +419,37 @@ In \eqref{eq:mvn-quadratic-form-12} we again see a Gaussian density with
 
 \section{Sampling from a Gaussian}
 
+Before we can get to sampling, let us show how linear transformations affect the covariance of a random variable. Let $cov[\mX] = \mSigma$, it follows that:
+
+\begin{align}
+cov[\mA \mX] &= E[(\mA \mX - E[\mA \mX])(\mA \mX - E[\mA \mX])^T] \\
+&= E[(\mA \mX - \mA E[\mX])(\mA \mX - \mA E[\mX])^T] \\
+&= E[\mA (\mX - E[\mX])(\mX - E[\mX])^T \mA^T] \\
+&= \mA E[(\mX - E[\mX])(\mX - E[\mX])^T] \mA^T \\
+&= \mA cov[\mX] \mA^T \\
+&= \mA \Sigma \mA^T
+\end{align}
+
+Now using a Cholesky decomposition \todo{ref}, we get $\mA = \mL \mL^T$, from which it simply follows that:
+
+\begin{align}
+\mX \sim N(0, \mI) \\
+\mL \mX \sim N(0, \mL \mI \mL^T) = N(0, \mL \mL^T) = N(0, \mSigma)
+\end{align}
+
+This allows us to take sample from a Gaussian with identity covariance and transform it to one with arbitrary covariance matrix. To draw samples from an isotropic Gaussian we can use inverse transform sampling \todo{ref}, or the Box-Muller transform \todo{ref}.
+
+\section{Linear Gaussian transform}
+
+\begin{align}
+P(\vx \in \mM) = \int_\mM \frac{1}{(2 \pi)^{D/2} |\mSigma|^{1/2}|} exp \left(-\frac{1}{2} (\vx - \vmu)^T \mSigma^{-1} (\vx - \vmu) \right) d \vx \\
+P(\vx \in \mA^{-1} \mM) = \int_{\mA^{-1} \mM} \frac{1}{(2 \pi)^{D/2} |\mSigma|^{1/2}} \exp \left(-\frac{1}{2} (\vu - \vmu)^T \mSigma^{-1} (\vu - \vmu) \right) d \vu \\
+\vu = \mA \vx
+\end{align}
+
 \section{Gaussian Processes}
 
-\newterm{Gaussian Process} is a \newterm{stochastic process} (a collection of random variables), such that every subset of those random variables has a multivariate Gaussian distribution.
+\newterm{Gaussian Process} is a \newterm{stochastic process} (a collection of random variables), such that every subset of those random variables has a multivariate Gaussian distribution. It is defined by a mean function $m(x)$ and a covariance funciton $\kappa(x, x')$. Formally, we write \todo{osklive GP}:
 
 \begin{equation}
 f(x) \sim \gG \gP (m(x), \kappa(x, x'))
