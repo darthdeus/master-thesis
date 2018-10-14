@@ -1,0 +1,90 @@
+
+\chapter{Gaussian Processes}
+
+\newterm{Gaussian Process} is a \newterm{stochastic process} (a collection of random variables), such that every subset of those random variables has a multivariate Gaussian distribution. It is defined by a mean function $m(x)$ and a covariance funciton $\kappa(x, x')$. Formally, we write \todo{osklive GP}:
+
+\begin{equation}
+f(x) \sim \gN \gG \gP (m(x), \kappa(x, x'))
+\end{equation} \todo{finish}
+
+\todo{describe prior over functions}
+
+\section{Noise-less Gaussian Process Regression}
+
+\section{Noisy Gaussian Process Regression}
+
+
+
+\chapter{TODO Bucket}
+
+
+\begin{thm}[\citep{murphy2012machine}] (Inverse of a partitioned matrix). Consider a partitioned matrix
+
+\begin{equation}
+\mM = \begin{bmatrix} \mA & \mB \\ \mC & \mD \end{bmatrix}
+\end{equation}
+
+where we assume $\mA$ and $\mD$ are invertible \todo{staci to? nemusi byt i ty ostatni?}. We have
+
+\begin{equation}
+\mM^{-1} = \begin{bmatrix} \mI & \mZero \\ \mI & \mI \end{bmatrix}
+\end{equation}
+\end{thm}
+
+\begin{proof}
+All we need to do is perform a block \newterm{LDU decomposition} and we directly arrive at our solution. We begin by zeroing out $\mB$.
+
+\begin{equation} \label{eq:block-ld-part}
+\begin{bmatrix} \mI & -\mB \mD^{-1} & \\ \mZero & \mI \end{bmatrix}
+\begin{bmatrix}\mA & \mB \\ \mC & \mD \end{bmatrix} =
+\begin{bmatrix} \mA - \mB \mD^{-1} \mC & \mZero \\ \mC & \mD \end{bmatrix}
+\end{equation}
+
+The quantity in the top left block is called a \newterm{Schur complement} of $\mM$ wrt $\mD$. We denote it as follows, and also define a variant for the bottom right block
+
+\begin{align}
+\mM/\mD &= \mA - \mB \mD^{-1} \mC \\
+\mM/\mA &= \mD - \mC \mA^{-1} \mB
+\end{align}
+
+Substituting back into \eqref{eq:block-ld-part} we get the following
+
+\begin{equation}
+\begin{bmatrix} \mM/\mD & \mZero \\ \mC & \mD \end{bmatrix}
+\end{equation}
+
+We follow by eliminating the bottom left block in \eqref{eq:block-ld-part}
+
+\begin{equation} \label{eq:block-du-part}
+\begin{bmatrix} \mM/\mD & \mZero \\ \mC & \mD \end{bmatrix}
+\begin{bmatrix} \mI & \mZero \\ -\mD^{-1} \mC & \mI \end{bmatrix} =
+\begin{bmatrix} \mM/\mD & \mZero \\ \mZero & \mD \end{bmatrix}
+\end{equation}
+
+Putting together \eqref{eq:block-ld-part} and \eqref{eq:block-du-part} we get
+
+\begin{equation}
+\underbrace{\begin{bmatrix} \mI & -\mB \mD^{-1} & \\ \mZero & \mI \end{bmatrix}}_{\mX}
+\underbrace{\begin{bmatrix}\mA & \mB \\ \mC & \mD \end{bmatrix}}_{\mM}
+\underbrace{\begin{bmatrix} \mI & \mZero \\ -\mD^{-1} \mC & \mI \end{bmatrix}}_{\mZ} = 
+\underbrace{\begin{bmatrix} \mM/\mD & \mZero \\ \mZero & \mD \end{bmatrix}}_{\mW}
+\end{equation}
+
+Basic matrix algebra allows us to re-arrange the terms \todo{cite stolen from murphy?}, taking the inverse of both sides
+
+\begin{align}
+(\mX \mM \mZ)^{-1} &= \mW^{-1} \\
+\mZ^{-1} \mM^{-1} \mX^{-1} &= \mW^{-1} \\
+\mM^{-1} &= \mZ \mW^{-1} \mX
+\end{align}
+
+Which gives us the final form, making use of the fact that to invert a diagonal matrix we just need to invert its diagonal
+
+\begin{equation} \label{eq:block-inverse}
+\mM^{-1} = \begin{bmatrix} \mA & \mB \\ \mC & \mD \end{bmatrix}^{-1} =
+\begin{bmatrix} \mI & \mZero \\ -\mD^{-1} \mC & \mI \end{bmatrix}
+\begin{bmatrix} (\mM/\mD)^{-1} & \mZero \\ \mZero & \mD^{-1} \end{bmatrix}
+\begin{bmatrix} \mI & -\mB \mD^{-1} & \\ \mZero & \mI \end{bmatrix}
+\end{equation}
+
+\end{proof}
