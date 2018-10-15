@@ -88,3 +88,14 @@ Which gives us the final form, making use of the fact that to invert a diagonal 
 \end{equation}
 
 \end{proof}
+
+
+
+\section{TODO Linear Gaussian transform - change of variables}
+
+\begin{align}
+P(\vx \in \mM) = \int_\mM \frac{1}{(2 \pi)^{D/2} |\mSigma|^{1/2}|} exp \left(-\frac{1}{2} (\vx - \vmu)^T \mSigma^{-1} (\vx - \vmu) \right) d \vx \\
+P(\vx \in \mA^{-1} \mM) = \int_{\mA^{-1} \mM} \frac{1}{(2 \pi)^{D/2} |\mSigma|^{1/2}} \exp \left(-\frac{1}{2} (\vu - \vmu)^T \mSigma^{-1} (\vu - \vmu) \right) d \vu \\
+\vu = \mA \vx
+\end{align}
+
