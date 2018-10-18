@@ -63,7 +63,15 @@
 
 \usepackage{hyperref}
 \usepackage{url}
-    
+
+
+\usepackage{mathtools}
+\DeclarePairedDelimiterX{\infdivx}[2]{(}{)}{%
+  #1\;\delimsize\|\;#2%
+}
+\newcommand{\kldiv}{D_{KL}\infdivx}
+\DeclarePairedDelimiter{\norm}{\lVert}{\rVert}
+
 
 \newlength{\notationgap}
 \setlength{\notationgap}{1pc}
@@ -141,6 +149,7 @@ Abstract.
 \include{chap01}
 \include{chap02}
 \include{chap03}
+\include{chap04}
 
 \include{epilog}
 

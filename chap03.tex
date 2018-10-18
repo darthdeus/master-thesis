@@ -7,6 +7,24 @@
 f(x) \sim \gN \gG \gP (m(x), \kappa(x, x'))
 \end{equation} \todo{finish}
 
+Bayesian inference ...
+
+\begin{equation}
+    \text{posterior} = \frac{\text{likelihood} \times \text{prior}}{\text{evidence}}
+\end{equation},
+
+where evidence is also called \newterm{marginal likelihood}. More concretely, we usually want to compute the posterior distribution over the parameters $\vw$ given the inputs $\mX$ and outputs $\vy$
+
+\begin{equation}
+    p(\vw | \vy, \mX) = \frac{p(\vy | \vw, \mX) p(\vw)}{p(\vy | \mX)}
+\end{equation}.
+
+The marginal likelihood is independent of the weights and acts as a normalizing constant. We compute it using marginalization
+
+\begin{equation}
+    p(\vy | \mX) = \int p(\vy | \vw, \mX) p(\vw) d \vw.
+\end{equation}
+
 \todo{describe prior over functions}
 
 \section{Noise-less Gaussian Process Regression}
