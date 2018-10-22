@@ -1,36 +1,72 @@
 
 \chapter{Gaussian Processes}
 
-\newterm{Gaussian Process} is a \newterm{stochastic process} (a collection of random variables), such that every subset of those random variables has a multivariate Gaussian distribution. It is defined by a mean function $m(x)$ and a covariance funciton $\kappa(x, x')$. Formally, we write \todo{osklive GP}:
+\begin{defn}
+    For any set $S$, a \newterm{Gaussian process} (GP) on S is a set of random variables ($Z_t : t \in S)$ such that $\forall n \in \sN, \forall t_1, \dots, t_n \in S$ the random vector $(Z_{t_1}, \dots, Z_{t_n})$ is a Gaussian.
+\end{defn}
 
-\begin{equation}
-f(x) \sim \gN \gG \gP (m(x), \kappa(x, x'))
-\end{equation} \todo{finish}
+Example: Random lines, $S = \mR, Z_t = t \mW, \mW \sim N(0, 1)$ by the affine property.
 
-Bayesian inference ...
+\begin{thm}[Existence of Gaussian Processes]
+    For any set $S$, any mean fn $\mu : S \rightarrow \sR$, and any covariance fn $k : S \times S \rightarrow \sR$, there exists a GP $(Z_t)$ on $S$ such that $E Z_t = \mu(t), cov(Z_s, Z_t) = k(s, t), \forall s,t \in S$.
+\end{thm}
 
-\begin{equation}
-    \text{posterior} = \frac{\text{likelihood} \times \text{prior}}{\text{evidence}}
-\end{equation},
+Note: It is enough to specify the pairwise covariances and don't need to define it on every subset. This is a special property of Gaussian properties, and does not hold for a general stochastic process.
 
-where evidence is also called \newterm{marginal likelihood}. More concretely, we usually want to compute the posterior distribution over the parameters $\vw$ given the inputs $\mX$ and outputs $\vy$
+Examples of Gaussian Processes:
 
-\begin{equation}
-    p(\vw | \vy, \mX) = \frac{p(\vy | \vw, \mX) p(\vw)}{p(\vy | \mX)}
-\end{equation}.
+\begin{itemize}
+    \item Random planes: $S = \mR^d, \mu(x) = 0, k(x,y) = x^T y$.
+    \item Std. Brownian Motion: $S = [0, \infty), \mu(t) = 0, k(s, t) = min(s, t)$. (also somehow includes that it is continuous with $P = 1$).
+    \item Squared exp: $S = \mR, \mu(x) = 0, k(x,y) = e^{-\alpha ||x - y||^2}, \alpha > 0$ (should be infinitely differentiable with $P = 1$) (Gaussian kernel).
+    \item Orenstein-Uhlenbeck: $S = [0, \infty), \mu(t) = 0, k(s, t) = e^{-\alpha |s - t|}, \alpha > 0$ (Laplace kernel).
+    \item A periodic GP: $S = \mR, \mu(t) = 0, k(x, y) = e^{-\alpha \sin(\beta\pi(x - y))^2}, \alpha, \beta > 0$.
+    \item A Symmetric GP: $S = \mR, \mu(t) = 0, k(x, y) = e^{-\alpha min(|x-y|, |x+y|)^2}, \alpha>0$.
+\end{itemize}
 
-The marginal likelihood is independent of the weights and acts as a normalizing constant. We compute it using marginalization
+\includegraphics[width=0.7\textwidth]{img/kernels}
 
-\begin{equation}
-    p(\vy | \mX) = \int p(\vy | \vw, \mX) p(\vw) d \vw.
-\end{equation}
+\includegraphics[width=0.7\textwidth]{img/symmetric-kernel}
 
-\todo{describe prior over functions}
+Image stolen from https://www.cs.toronto.edu/~duvenaud/cookbook/
+
+
+\begin{tcolorbox}
+    \newterm{Gaussian Process} is a \newterm{stochastic process} (a collection of random variables), such that every subset of those random variables has a multivariate Gaussian distribution. It is defined by a mean function $m(x)$ and a covariance funciton $\kappa(x, x')$. Formally, we write \todo{osklive GP}:
+    
+    \begin{equation}
+    f(x) \sim \gN \gG \gP (m(x), \kappa(x, x'))
+    \end{equation} \todo{finish}
+    
+    Bayesian inference ...
+    
+    \begin{equation}
+        \text{posterior} = \frac{\text{likelihood} \times \text{prior}}{\text{evidence}}
+    \end{equation},
+    
+    where evidence is also called \newterm{marginal likelihood}. More concretely, we usually want to compute the posterior distribution over the parameters $\vw$ given the inputs $\mX$ and outputs $\vy$
+    
+    \begin{equation}
+        p(\vw | \vy, \mX) = \frac{p(\vy | \vw, \mX) p(\vw)}{p(\vy | \mX)}
+    \end{equation}.
+    
+    The marginal likelihood is independent of the weights and acts as a normalizing constant. We compute it using marginalization
+    
+    \begin{equation}
+        p(\vy | \mX) = \int p(\vy | \vw, \mX) p(\vw) d \vw.
+    \end{equation}
+    
+    \todo{describe prior over functions}
+\end{tcolorbox}
+
+
+\section{GP from scratch again}
+
+
 
 \section{Noise-less Gaussian Process Regression}
 
 \section{Noisy Gaussian Process Regression}
-
 
 
 \chapter{TODO Bucket}
