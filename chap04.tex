@@ -1,387 +1,99 @@
-\section{Information Theory}
+\chapter{Bayesian Optimization}
+
+Black box optimization of $f(x)$ where the evaluation is costly. Using GP as a surrogate model. We use an \newterm{acquisition function} to find where the next sample should be taken.
+
+\section{Acquisition functions}
+
+In each step, the objective function $f$ is sampled at $x_t = \argmax_x u(x|D_{1:t-1})$ where $u$ is the acquisition function and $D_{1:t-1} = ((x_1,y_1),\ldots,(x_{t-1},y_{t-1}))$.
 
 \begin{defn}
-    \newterm{Information} is $I = -\log p(x)$
-\end{defn}
-
-\begin{defn}
-    \newterm{Entropy} is the functional $H[p] = - \sum p(x) \log p(x) = E_p[log p(x)]$.
-\end{defn}
-
-\begin{defn}
-    \newterm{Differential Entropy} is the functional $H[p] = - \int p(x) \log p(x) \dx$
-\end{defn}
-
-\begin{defn}
-    \newterm{KL Divergence} (also known as \newterm{relative entropy} between a distribution $p$ and $q$ is
-    
-    \begin{align}
-        \kldiv{p}{q} &= -\int p(x) \log q(x) + \int p(x) \log p(x) \dx  \\
-        &= H[p, q] - H[p]
-    \end{align}
-\end{defn}
-
-We can further simplify this as
-
-\begin{align}
-    \kldiv{p}{q} &= -\int p(x) \log q(x) + \int p(x) \log p(x) \dx  \\
-    &= \int p(x) (\log p(x) - \log q(x)) \dx \\
-    &= \int p(x) \log \frac{p(x)}{q(x)} \dx \\
-    &= - \int p(x) \log \frac{q(x)}{p(x)} \dx.
-\end{align}
-
-Note that last two equations differ only in the minus sign, which flips the fraction.
-
-\begin{thm}
-The KL-divergence is invariant under parameter transformations \todo{proof}.
-% https://en.wikipedia.org/wiki/Kullback%E2%80%93Leibler_divergence
-\end{thm}
-
-\begin{tcolorbox}
-    Looking at the definition of entropy for each, we can view $\kldiv{p}{q}$ as sort of $H[q] - H[p]$, which would be
-    
-    \begin{align}
-        H[q] - H[p] &= -\int q(x) \log q(x) \dx - \left( -\int p(x) \log p(x) \dx \right)
-    \end{align}
-    
-    But since KL-divergence can be thought of as relative distance with respect to $p$, this turns into
-    
-    \begin{align}
-        -\int p(x) \log q(x) \dx - \left( -\int p(x) \log p(x) \dx \right) = H[p, q] - H[p].
-    \end{align}
-\end{tcolorbox}
-
-\subsection{Properties of the KL-divergence}
-
-\begin{thm}
-The KL-divergence is always positive.
-\end{thm}
-
-\begin{proof}
-    % https://stats.stackexchange.com/questions/335197/why-kl-divergence-is-non-negative
-    \begin{align}
-        0 \leq \kldiv{p}{q} = - \int p(x) \log \frac{q(x)}{p(x)} \dx
-    \end{align}
-\end{proof}
-
-\begin{thm}
-$\kldiv{p}{q} \neq \kldiv{q}{p}$
-\end{thm}
-
-
-\begin{tcolorbox}
-Explain KL-divergence as a relative distance. 
-
-\includegraphics[width=0.7\textwidth]{img/kldivergence-relative}
-\end{tcolorbox}
-
-
-
-\subsection{Relationship between $\log p(x)$ and $D_{KL}$}
-
-Let's say we have a distribution $p(z | x)$ which we don't know, and we want to use $q(z)$ to estimate it. We use the KL-divergence to measure the quality of the esimate, that is $\kldiv{q(z)}{p(z|x)}$.
-
-\begin{align}
-    \label{eq:kldiv}
-    \kldiv{q(z)}{p(z|x)} = - \int q(z) \log \frac{p(z|x)}{q(z)} \dz
-\end{align}
-
-We know from conditional probability that
-
-\begin{equation}
-    \frac{p(x,z)}{p(x)} = p(x|z)
-\end{equation}
-
-and plugging that back into \ref{eq:kldiv} we get
-
-\begin{align}
-    \kldiv{q(z)}{p(z|x)} &= - \int q(z) \log \frac{p(z|x)}{q(z)} \dz \\
-    &= - \int q(z) \log \left( \frac{p(x,z)}{p(x)}  \frac{1}{q(z)} \right) \dz \\
-    &= - \int q(z) \left( \log \frac{p(x,z)}{q(z)} + \log \frac{1}{p(x)} \right) \dz \\
-    &= - \int q(z) \log \frac{p(x,z)}{q(z)} \dz - \int q(z) \log \frac{1}{p(x)} \dz \\
-    &= - \int q(z) \log \frac{p(x,z)}{q(z)} \dz + \int q(z) \log p(x) \dz \\
-    &= - \int q(z) \log \frac{p(x,z)}{q(z)} \dz + \log p(x) \int q(z) \dz \\
-    &= - \int q(z) \log \frac{p(x,z)}{q(z)} \dz + \log p(x)
-\end{align}
-
-and moving the first term to the left side of the equation gives us
-
-\begin{equation}
-    \kldiv{q(z)}{p(z|x)} + \int q(z) \log \frac{p(x,z)}{q(z)} \dz = \log p(x).
-\end{equation}
-
-We call the second quantity on the left the \newterm{variational lower bound} (also known as ELBO for \newterm{expected lower bound}) and we denote it as $\gL$. For clarity, let us denote $D_{KL} = \kldiv{q(z)}{p(z|x)}$ in the rest of this section.
-
-\begin{equation}
-    D_{KL} + \gL = \log p(x).
-\end{equation}
-
-Here we make a few observations. First of all, note that $\gL = -D_{KL}$ \todo{je tohle fakt pravda?}, which is always negative. The initial KL-divergence is always positive, and since $0 < p(x) < 1$ \todo{tohle ale neni nutne pravda pro density? pro diskretni to ale plati ... tzn domyslet continuous case} we get $\log ([0; 1])$ on the right, which is always negative.
-
-\begin{equation}
-    \underbrace{D_{KL}}_{\text{always +}} + \underbrace{\gL}_{\text{always -}} = \underbrace{\log p(x)}_{\text{always -}}
-\end{equation}
-
-Because we started with $p(z|x)$ we know $x$ is some fixed value which does not change as we optimize $q(z)$ to approximate it. This means the right side $\log p(x)$ is also fixed. As a result, changing $\gL$ will change the value of $D_{KL}$ which matches our intuition.
-
-A key insight here is that increasing $\gL$ immediately decreases $D_{KL}$, because $\gL$ is negative, $D_{KL}$ is positive, and $\log p(x)$ does not change as $q(z)$ changes. As a result, directly optimizing $\gL$ allows us to indirectly lower $D_{KL}$ and improve our estimate $q(z)$ of $p(z|x)$.
-
-\subsection{Useful inequalities}
-
-\begin{thm}[Log-sum inequality]
-TODO
-% https://en.wikipedia.org/wiki/Log_sum_inequality
-\end{thm}
-
-\begin{thm}[Gibbs' inequality]
-TODO
-% https://en.wikipedia.org/wiki/Gibbs%27_inequality
-\end{thm}
-
-\begin{thm}[Jensen inequality]
-% https://en.wikipedia.org/wiki/Jensen's_inequality
-\end{thm}
-
-
-
-\section{Expectation-Maximization (EM) algorithm}
-
-MLE (or MAP) when some data is missing (hidden).
-
-\begin{itemize}
-    \item Given: $X = (x_1, \dots, x_n)$
-    \item Model: $(X, Z) \sim p_\theta$ for some (unknown) $\theta \in \Theta$. \item Typically $p_\theta$ is from the exponential family.
-    \item Goal: $\theta_{\text{MLE}} = argmax_\theta p_\theta(x)$
-    \item Issue: $p_\theta = \int_\theta p_\theta(x,z)$ is difficult to maximize. This could mean $p_\theta$ is multi-modal for example, and differentiating leads to an implicit equation which is impossible to solve analytically.
-    \item Alg: initialize $\theta_0 \in \Theta$, for $t = 0,1,2,\dots$ do:
-        \begin{itemize}
-            \item E-step: $Q(\theta, \theta_t) = E_{\theta_t} [\log p_\theta(X, Z) | X = x]$.
-            \item M-step: $\theta_{t+1} = argmax_\theta Q(\theta, \theta_t)$.
-        \end{itemize}
-        
-    \item Pros:
-        \begin{itemize}
-            \item $p_{\theta_{t+1}}(x) \geq p_{\theta_t}(x)$.
-            \item Works well in practice.
-        \end{itemize}
-    
-    \item Cons:
-        \begin{itemize}
-            \item Not guaranteed to give $\theta_{\text{MLE}}$, because it might get stuck in local optima.
-            \item MLE might overfit, but it is possible to do MAP.
-            \item Convergence can be slow.
-            \item Specialized to exponential families
-        \end{itemize}
-\end{itemize}
-
-Now the derivation:
-
-\begin{itemize}
-    \item Goal: $\arg \max_\theta p_\theta(x)$
-    \item Specialize: $p_\theta(x, z) = e^{g(\theta)^T s(x,z)} h(x, z) / c(\theta)$.
-    \item Note that the MLE is invariant under reparameterization \todo{proof}. As such, it is sufficient to consider $\theta = g(\theta)$.
-    \item Natural form: $p_\theta(x, z) = e^{\theta^T s(x,z)} h(x,z) / c(\theta)$.
-\end{itemize}
-
-\begin{equation}
-    0 = \frac{\partial}{\partial \theta_i} \log p_\theta(x) = \frac{1}{p_\theta(x)} \sum_z \frac{\partial}{\partial \theta_i} p_\theta(x, z)
-\end{equation}
-
-\begin{align}
-    \frac{\partial}{\partial \theta_i} p_\theta(x, z) &= \frac{\partial}{\partial \theta_i} e^{\theta^T s - \log c(\theta)} \underbrace{h(x,z)}_{\text{constant}} \\
-    &= \left(s_i(x,z) - \frac{\partial}{\partial \theta_i} \log c(\theta) \right) e^{\theta^T s(x,z)} h(x,z) \\
-    &= \left(s_i(x,z) - \frac{\partial}{\partial \theta_i} \log c(\theta) \right) p_\theta(x, z)
-\end{align}
-
-Now using the property of the exponential family \todo{proof} we get the expected value of the i-th sufficient statistic.
-
-\begin{equation}
-    \frac{\partial}{\partial \theta_i} \log c(\theta) = E_\theta[s_i(X, Z)]
-\end{equation}
-
-Now continuing our previous derivation
-
-\begin{align}
-    0 &= \frac{1}{p_\theta(x)} \sum_z \frac{\partial}{\partial \theta_i} p_\theta(x, z) \\
-    &= \frac{1}{p_\theta(x)} \sum_z \left( s_i(x,z) - E_\theta[s_i(X, Z)] \right) p_\theta(x, z) \\
-    &= \sum_z s_i(x, z) p_\theta(z | x) - \sum_z  E_\theta[s_i(X, Z)] p(z | x) \\
-    &= \sum_z s_i(x, z) p_\theta(z | x) - E_\theta[s_i(X, Z)] \\
-    &= E_\theta[s_i(X, Z) | X=x] - E_\theta[s_i(X, Z)].
-\end{align}
-
-As a result, we get an implicit equation
-
-\begin{equation}
-    E_\theta[s_i(X, Z) | X=x] = E_\theta[s_i(X, Z)].
-\end{equation}
-
-The above equation can't be solved analytically. This leads us to an iterative approach \todo{why?}.
-
-Algorithm:
-
-\begin{itemize}
-    \item Let $\theta_0 \in \Theta$
-    \item For $t = 1, 2, 3, \dots$
-    \item Solve $E_{\theta_{t-1}}[s_i(X,Z) | X=x) = E_{\theta_t}[s_i(X,Z)$ for $\theta_t$.
-\end{itemize}
-
----
-
-\begin{itemize}
-    \item $Q(\theta, \theta_0) = E_{\theta_0} [ \log p_\theta(X,Z) | X = x]$
-    \item $p_\theta(x, z) = e^{\theta^T s(x,z) - \log c(\theta)} h(x,z)$
-    \item $\log p_\theta(x, z) = \theta^T s(x,z) - \log c(\theta) + \log h(x,z)$
-    \item $E[\log p_\theta(X,Z) | X=x] = \theta^T E_{\theta_0}[s(X, Z) | X=x] - \log c(\theta) + const$
-    \item $0 = \frac{\partial}{\partial \theta_i} E_{\theta_0}[s_i(X, Z) | X=x] - E_\theta[s_i(X,Z)$
-    \item and we get exactly as what we had before.
-\end{itemize}
-
-
-\section{Estimators}
-
-Assume $D = (X_1, X_2, \dots, X_n)$.
-
-\begin{defn}
-    A \newterm{statistic} is a random variable $\rS$ that is a function of the data $D$ (i.e. $S = f(D)$).
-\end{defn}
-
-\begin{defn}
-    An \newterm{estimator} is a statistic intended to approximate a parameter generating the distribution of the data $D$.
-\end{defn}
-
-Notation:
-
-\begin{itemize}
-    \item $\hat{\theta}$ denotes an estimator of $\theta$.
-    \item $\hat{\theta_n}$ emphasizes the dependence of the estimator on $n$.
-\end{itemize}
-
-\begin{defn}
-    The \newterm{bias} of an estimator $\hat{\theta}$ is
+    \newterm{Expected improvement} $EI(x)$ is defined as
     
     \begin{equation}
-        bias(\hat{\theta}) = E \hat{\theta} - \theta.
+        EI(x) = E_{Y \sim \gN(\mu, \sigma^2)} [max(f(x) - f(x^+), 0)]
     \end{equation}
-\end{defn}
-
-\begin{defn}
-    An estimator is \newterm{unbiased} if $bias(\hat{\theta}) = 0$.
     
-    \todo{zkusit ukazat u sample mean unbiased a sample variance biased}
+    where $f(x^+)$ is the value of the best sample so far and $x^+ = \argmax_{x_i \in x_{1:t}} f(x_i)$.
 \end{defn}
 
-\subsection{Decision theory terminology}
+\section{Algorithm}
+
+Iteratively for $t = 1,2,\ldots:$ {TODO NANDO}
 
 \begin{itemize}
-    \item Decision rule $\delta$
-        \begin{itemize}
-            \item State is unknown $s$.
-            \item Data $D$ is observed (or $X$).
-            \item Action $a = \delta(D)$ is chosen using the data $D$.
-            \item Loss $L(s, a)$ is incured as a result of choosing the action.
-        \end{itemize}
-    \item Estimators - Estimator fn $g$
-        \begin{itemize}
-            \item Parameters $\theta$
-            \item Data $D$
-            \item Estimator/Estimate $\hat{\theta} = g(D)$. Estimator is a random variable (in which case $\hat{\theta}$ is also random variable. Estimate is a value of the estimator for particular data.
-            \item Loss $L(\theta, \hat{\theta})$.
-        \end{itemize}
-            \begin{itemize}
-                \item Target value $Y$
-                \item Observe point $X$
-                \item Prediction $\hat{Y} = f(X)$
-                \item Loss $L(Y, \hat{Y})$
-            \end{itemize}
-    \item Regression/Classification - Prediction fn $f$
-\end{itemize}
-
-TODO: unity notation between random variable and a specific value (sample) of the variable.
-
-
-\subsection{Loss and Risk}
-
-$D = (X_1, \dots, X_n), D \sim p_\theta, \theta \sim \pi, \hat{\theta} = f(D) = \delta(D)$.
-
-$Loss = L(\theta, f(D))$, but since $\theta$ and $D$ are random variables, this is not well defined. We can either:
-
-\begin{itemize}
-    \item \newterm{Bayesian expected loss} is $p(\pi, f(D)) = E[L(\theta, f(D)) | D]$, averaging over $\theta$.
-    \item \newterm{Frequentist risk} is $R(\theta, f) = E[L(\theta, f(D)) | \theta]$, averaging over $D$.
-\end{itemize}
-
-\includegraphics[width=0.7\textwidth]{img/loss-and-risk}
-
-\begin{itemize}
-    \item Bayesian: Assume prior $\pi$
-        \begin{itemize}
-            \item Case 1: Know $D$. Choose $f(D)$ to minimize $p(\pi, f(D))$.
-            \item Case 2: (Conditional Bayes). Don't know $D$. Choose $f$ to minimize $r(\pi, f)$.
-        \end{itemize}
-        
-    \item Frequentist: Introduce a further principle to guide the choice.
-        \begin{enumerate}
-            \item Unbiasedness
-            \item Admissibility
-            \item Minimax (minimizing the maximum possible risk)
-            \item Invariance
-        \end{enumerate}
+    \item Solve $x_t = \argmax_x u(x|D_{1:t-1})$ by combining the attributes of the posterior distribution in a utility function $u$.
+    \item Sample the objective function $y_t = f(x_t) + \epsilon_t$.
+    \item Augment the data $D_{1:t} = \set{D_{1:t-1}, (x_t, y_t)}$ and update the GP surrogate model based on the new data.
 \end{itemize}
 
 
-\subsection{Bias-Variance Decomposition}
+\subsection{Probability of Improvement}
 
-$MSE = bias^2 + var$
+We add a small term $\xi$ because otherwise $PI(x^+) = \frac{1}{2}.$
 
-\begin{defn}
-    The \newterm{mean-squared error} (\newterm{MSE}) of an estimator $\hat\theta = f(D)$ for $\theta$ is $MSE(\hat\theta) = E[(\hat\theta - \theta)^2 | \theta]$. This is just risk $r(\theta, f)$ under square loss.
-\end{defn}
+\begin{align}
+    PI(x) &= P(f(x) \geq \mu^+ + \xi) \\
+          &= \Phi \left(\frac{\mu(x) - \mu^+ - \xi}{\sigma(x)} \right)
+\end{align}
 
-Recall: $bias(\hat\theta) = E \hat\theta - \theta$.
+where $\Phi$ is the CDF of a Gaussian. If we knew up front what is the best value $f(x^*)$ we can model that directly by $P(f(x) \geq f(x^*))$.
 
-\begin{thm}
-    $MSE(\hat\theta) = bias(\hat\theta)^2 + var(\hat\theta)$.
-\end{thm}
 
-\begin{proof}
-    Let $\mu = E\hat\theta$, then
+\subsection{Expected utility}
 
-    \begin{align}
-        E[(\hat\theta - \theta)^2] &= E[(\hat\theta - \mu + \mu - \theta)^2] \\
-        &= E[((\hat\theta - \mu) + (\mu - \theta))^2] \\
-        &= E[(\hat\theta - \mu)^2 + 2 (\hat\theta - \mu)(\mu - \theta) + (\mu - \theta)^2] \quad \text{making use of $\mu = E\hat\theta$}\\
-        &= E(\hat\theta - \mu)^2 + (\mu - \theta)^2 \\
-        &= var(\hat\theta) + bias(\hat\theta)^2
-    \end{align}
-\end{proof}
+At iteration $n+1$, choose the point that minimizes the distance to the objective evaluated at the maximum $x^*$.
 
-\begin{defn}
-    Given decision rules $\delta, \delta'$ we say $\delta$ \newterm{dominates} $\delta'$ if $R(\theta, \delta) \leq R(\theta, \delta') \forall \theta$, and $R(\theta, \delta) < R(\theta, \delta')$ for some $\theta$.
-\end{defn}
+\begin{align}
+    x_{n+1} &= \argmin_x E(\norm{ \underbrace{f_{n+1}(x)}_{\text{GP}} - \underbrace{f(x^*)}_{\text{true}\ f} } | D_n) \\
+            &=\argmin_x \int \norm{f_{n+1}(x) - f(x^*)} p(f_{n+1} | D_n) \diff f_{n+1}
+\end{align}
 
-\begin{defn}
-    A decision rule $\delta$ is \newterm{inadmissable} if there is another decision rule that dominates $\delta$. Otherwise, $\delta$ is \newterm{admissable}.
-\end{defn}
+We however don't know the true objective at the maximum. Instead we use (Mockus et al., 1978 ??? TODO ref) where $f^{\max} = \mu^+ + \xi$
 
-\subsection{Bayesian Decision Theory}
+\begin{equation}
+    x = \argmax_x E(\max\set{0, f_{n+1}(x) - f^{max}}|D_n)
+\end{equation}
 
-\begin{align*}
-    p(\pi, \delta(D)) &= E[L(\theta, \delta(D)) | D] \\
-    r(\pi, \delta) &= E[L(\theta, \delta(D))] \\
-    &= E[E[L(\theta, \delta(D)] | D] \\
-    &= E[p(\pi, \delta(D))]
-\end{align*}
+which can be solved analytically with
 
-\begin{tcolorbox}
-    Informally: (\url{https://en.wikipedia.org/wiki/Bayes_estimator#Generalized_Bayes_estimators})
-    
-    \begin{itemize}
-        \item A \newterm{generalized Bayes rule} is a decision rule $\delta$ minimizing $p(\theta, \delta(D))$ for each $D$.
-        \item A \newterm{Bayes rule} minimizes $r(\theta, \delta)$.
-        \item $GBR \implies BR$, but $BR \nRightarrow GBR$.
-        \item If $r(\pi, \delta) = \inf \forall \delta$, then anything is a BR, but a GBR still makes sense.
-        \item On sets of $\pi$-measure $0$, then BR is arbitrary, but GBR is still sensible.
-    \end{itemize}
-\end{tcolorbox}
+\begin{align}
+    EI(x) &= \begin{cases}
+        (\mu(x) - \mu^+ - \xi) \Phi(Z) + \sigma(x)\varphi(Z) & if \sigma(x) > 0 \\
+        0 & if \sigma(x) = 0
+    \end{cases} \\
+    Z &= \frac{\mu(x) - \mu^+ - \xi}{\sigma(x)}
+\end{align}
 
-Complete class theorems: Under mild conditions, every GBR (for a proper $\pi$) is admissible. Furthermore, ever admissible decision rule is a GBR for some prior $\pi$ (possibly improper).
+where $\phi(\cdot)$ and $\Phi(\cdot)$ denote the PDF and CDF of a normalized Gaussian.
+
+
+\subsection{GP-UCB}
+
+Define the \newterm{regret} and \newterm{cumulative regret} as follows:
+
+\begin{align}
+    r(x) &= f(x^*) - f(x) \\
+    R_T &= r(x_1) + \cdots + r(x_T).
+\end{align}
+
+The GP-UCB criterion is as follows:
+
+\begin{align}
+    GP-UCB(x) = \mu(x) + \sqrt{\nu \beta} \sigma(x)
+\end{align}
+
+with $\nu = 1$ and $\beta_t = 2 \log(t^{d/2 + 2}\pi^2 / 3 \delta)$ where it can be shown with high probability that this method has no regret, i.e. $\lim_{T \rightarrow \infty} R_T / T = 0$. (Srinivas et at, 2010 TODO REF). (NOTE, if the set of points is not infinite, $\beta$ ends up being different).
+
+
+\subsection{Thompson sampling}
+
+Draw a random sample (function) from the posterior, optimize to find its max, evaluate the true $f(x)$ at the found max.
+
+\includegraphics[width=0.9\textwidth]{img/acquisition-functions.png}
+
+\includegraphics[width=0.9\textwidth]{img/portfolios-of-acquisition-functions.png}
+
+
+\subsection{Max LCB}
+
+There is no point in sampling where UCB is lower than $\max LCB$ (with high probability).
