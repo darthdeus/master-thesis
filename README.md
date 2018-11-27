@@ -85,3 +85,4 @@ Zásadní změny oproti verzi z roku 2011
 
  - Matematická sekce vydávala svou vlastní verzi staré šablony
    s ukázkovým textem a makry. Tyto ukázky jsme integrovali.
+
