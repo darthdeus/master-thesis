@@ -11,13 +11,13 @@ I(x) = -\log P(x).
 The overall information in a probability distribution is quantified by \newterm{Shannon entropy}:
 
 \begin{equation}
-H(X) = \E_{X \sim P} [ I(X) ] = -\E_{X \sim P} [ log P(x) ]
+H(X) = \E_{X \sim P} [ I(X) ] = -\E_{X \sim P} [ \log P(x) ]
 \end{equation}
 
 We can extend this to the case of a continuous random variable with a probability density function $f$, in which case we call $H(f)$ the \newterm{differential entropy} and define it as
 
 \begin{equation}
-H(f) = - \int_X f(x) log f(x) \dx
+H(f) = - \int_X f(x) \log f(x) \dx
 \end{equation}
 
 \section{Calculus of Variations}
