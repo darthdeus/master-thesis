@@ -4,351 +4,461 @@
 \section{Univariate Gaussian distribution}
 
 \begin{defn}
-    Random variable $X$ has a \newterm{Univariate Gaussian distribution}, written as $\rX \sim \gN(\mu, \sigma^2), \mu \in \sR, \sigma^2 > 0$, which means $X$ has a density
-    
-    \begin{equation}
-        f(x) = \frac{1}{\sqrt{2 \pi \sigma^2}} \exp{ \left\{ -\frac{1}{2\sigma^2} (x - \mu)^2 \right\}}.
-    \end{equation}
+  Random variable $X$ has a \newterm{Univariate Gaussian distribution},
+  written as $\rX \sim \gN(\mu, \sigma^2), \mu \in \sR, \sigma^2 > 0$, which
+  means $X$ has a density
+
+  \begin{equation}
+    f(x) = \frac{1}{\sqrt{2 \pi \sigma^2}} \exp{\left\{ -\frac{1}{2\sigma^2} (x - \mu)^2 \right\}}.
+  \end{equation}
 \end{defn}
 
 \begin{defn}
-    \newterm{Degenerate Univariate Gaussian} is:
-    
-    \begin{equation}
-        \rX \sim \gN(\mu, 0)
-    \end{equation}
-    
-    if $\rX \equiv \mu$ (i.e.\ $X(\omega) = \mu, \forall \omega \in \Omega$)
+  \newterm{Degenerate Univariate Gaussian} is:
+
+  \begin{equation}
+    \rX \sim \gN(\mu, 0)
+  \end{equation}
+
+  if $\rX \equiv \mu$ (i.e.\ $X(\omega) = \mu, \forall \omega \in \Omega$)
 \end{defn}
 
 \begin{defn}
-    {TODO co to vubec znamena "has a density"?}
-    
-    A random variable $\rX \in \sR^n$ is a \newterm{multivariate Gaussian} if any linear combination of its components is univariate Gaussian, i.e. $\va^T \mX = \sum_{i=1}^n \va_i \mX_i$ is Gaussian ($\forall \va \in \mR^n$).
+  {TODO co to vubec znamena "has a density"?}
+
+  A random variable $\rX \in \sR^n$ is a \newterm{multivariate Gaussian} if
+  any linear combination of its components is univariate Gaussian, i.e.
+  $\va^T \mX = \sum_{i=1}^n \va_i \mX_i$ is Gaussian ($\forall \va \in
+  \mR^n$).
 \end{defn}
 
 \begin{defn}
-    $\rX \sim \gN(\vmu, \mSigma)$ means $X$ is a Gaussian with $E[\rX_i] = \vmu_i$, and $cov(\rX_i, \rX_j) = \mSigma_{ij}$. Note that this implies that $\mSigma$ is positive semi-definite.
+  $\rX \sim \gN(\vmu, \mSigma)$ means $X$ is a Gaussian with $E[\rX_i] =
+  \vmu_i$, and $cov(\rX_i, \rX_j) = \mSigma_{ij}$. Note that this implies
+  that $\mSigma$ is positive semi-definite.
 \end{defn}
 
 \begin{rem}
-    Note that $\vmu$ and $\mSigma$ uniquely determine the distribution $\gN(\vmu, \mSigma)$
+  Note that $\vmu$ and $\mSigma$ uniquely determine the distribution
+  $\gN(\vmu, \mSigma)$
 \end{rem}
 
 \begin{defn}
-    $\rX \sim \gN(\vmu, \mSigma)$ is \newterm{degenerate multivariate Gaussian}, if $\det \mSigma = \mZero$.
+  $\rX \sim \gN(\vmu, \mSigma)$ is \newterm{degenerate multivariate
+  Gaussian}, if $\det \mSigma = \mZero$.
 \end{defn}
 
 \begin{rem}
-    $\rX_1, \dots, \rX_n$ are independent with $\rX_i \sim \gN(\mu_i, \sigma_i^2)$ iff $\rX = (\rX_1, \dots, \rX_n) \sim \gN(\vmu, \mSigma)$, where $\vmu = (\mu_1, \dots, \mu_n)$ and $\mSigma = diag(\sigma_1^2, \dots, \sigma_n^2)$
+  $\rX_1, \dots, \rX_n$ are independent with $\rX_i \sim \gN(\mu_i,
+  \sigma_i^2)$ iff $\rX = (\rX_1, \dots, \rX_n) \sim \gN(\vmu, \mSigma)$,
+  where $\vmu = (\mu_1, \dots, \mu_n)$ and $\mSigma = diag(\sigma_1^2, \dots,
+  \sigma_n^2)$
 \end{rem}
 
 \begin{thm}
-    If $\rX \in \mR^n$ is Gaussian, then $\rX_i, \rX_j$ are independent iff $cov(\rX_i, \rX_j) = 0$. Note this is not true in general, and is a special property of the Gaussian.
+  If $\rX \in \mR^n$ is Gaussian, then $\rX_i, \rX_j$ are independent iff
+  $cov(\rX_i, \rX_j) = 0$. Note this is not true in general, and is a special
+  property of the Gaussian.
 \end{thm}
 
 \begin{thm}
-    $\rX_1, \dots, \rX_n$ each univariate Gaussian \emph{does not imply} $\rX = (\rX_1, \dots, \rX_n)$ is a multivariate Gaussian.
+  $\rX_1, \dots, \rX_n$ each univariate Gaussian \emph{does not imply} $\rX =
+  (\rX_1, \dots, \rX_n)$ is a multivariate Gaussian.
 \end{thm}
 
 \begin{thm}
-    A Gaussian random variable $\rX \sim \gN(\vmu, \mSigma)$ has a density iff it is non-degenerate (i.e.\ $\det \mSigma \neq 0$, alternatively $\mSigma$ is positive-definite).
-    
-    And in this case,
-    
-    \begin{equation}
-        f(\vx) = \frac{1}{\sqrt{\det(2 \pi \mSigma)}} \exp{ \left\{ - \frac{1}{2} (\vx - \vmu)^T \mSigma^{-1} (\vx - \vmu) \right\} }
-    \end{equation}
-    
-    Note that $\det(2 \pi \mSigma) = (2\pi)^n \det(\mSigma)$. Alternatively $(2 \pi)^{n/2} (\det \mSigma)^{1/2}$ {TODO check and proof}. Also note that $\det \mSigma \neq$ implies that $\mSigma$ is invertible, which conincides with the density requiring an invertible $\mSigma$.
-    
-    Also note that if $n = 1$, then $\mSigma = \sigma^2$, $cov(X, X) = \sigma^2 x$, $\mSigma^{-1} = \frac{1}{\sigma^2}$, and hence the multivariate Gaussian formula becomes the univariate one.
-    
-    \begin{equation}
-        \frac{1}{\sqrt{2 \pi \sigma^2}} \exp{\left\{ - \frac{1}{2} \frac{1}{\sigma^2} (x - \mu)^2\right\}}
-    \end{equation}
+  A Gaussian random variable $\rX \sim \gN(\vmu, \mSigma)$ has a density iff
+  it is non-degenerate (i.e.\ $\det \mSigma \neq 0$, alternatively $\mSigma$
+  is positive-definite).
+
+  And in this case,
+
+  \begin{equation}
+    f(\vx) = \frac{1}{\sqrt{\det(2 \pi \mSigma)}} \exp{ \left\{ - \frac{1}{2} (\vx - \vmu)^T \mSigma^{-1} (\vx - \vmu) \right\} }
+  \end{equation}
+
+  Note that $\det(2 \pi \mSigma) = (2\pi)^n \det(\mSigma)$. Alternatively $(2
+  \pi)^{n/2} (\det \mSigma)^{1/2}$ {TODO check and proof}. Also note that
+  $\det \mSigma \neq$ implies that $\mSigma$ is invertible, which conincides
+  with the density requiring an invertible $\mSigma$.
+
+  Also note that if $n = 1$, then $\mSigma = \sigma^2$, $cov(X, X) = \sigma^2
+  x$, $\mSigma^{-1} = \frac{1}{\sigma^2}$, and hence the multivariate
+  Gaussian formula becomes the univariate one.
+
+  \begin{equation}
+    \frac{1}{\sqrt{2 \pi \sigma^2}} \exp{\left\{ - \frac{1}{2} \frac{1}{\sigma^2} (x - \mu)^2\right\}}
+  \end{equation}
 \end{thm}
 
 \begin{defn}
-    The \newterm{moment generating function} of a random variable $X$ is
-    
-    \begin{equation}
+  The \newterm{moment generating function} of a random variable $X$ is
+
+  \begin{equation}
     M_X(t) = \E[e^{t X}].
-    \end{equation}
+  \end{equation}
 \end{defn}
 
 We state the following result without proof {TODO citace, pridat proof}.
 
 \begin{thm}
-    Let $X$ and $Y$ be two random variables. If
-    
-    \begin{equation}
+  Let $X$ and $Y$ be two random variables. If
+
+  \begin{equation}
     M_X(t) = M_Y(t)
-    \end{equation}
-    
-    for all $t \in (-\delta, \delta)$ for some $\delta > 0$, then $X$ and $Y$ have the same distribution. We'll use this theorem to show that the sum of Gaussian random variables has a Gaussian distribution.
+  \end{equation}
+
+  for all $t \in (-\delta, \delta)$ for some $\delta > 0$, then $X$ and $Y$
+  have the same distribution. We'll use this theorem to show that the sum of
+  Gaussian random variables has a Gaussian distribution.
 \end{thm}
 
 \begin{thm}
-    \citep{mitzenmacher2017probability}\label{thm:sum-independent-gaussian}
-    If $X$ and $Y$ are independent random variables, then
-    
-    \begin{equation}
+  \citep{mitzenmacher2017probability}\label{thm:sum-independent-gaussian}
+  If $X$ and $Y$ are independent random variables, then
+
+  \begin{equation}
     M_{X + Y}(t) = M_X(t) M_Y(t)
+  \end{equation}
+
+  \begin{proof}
+    \begin{equation}
+      M_{X + Y}(t) = \E[e^{t(X + Y)}] = \E[e^{tX} e^{tY}] = \E[e^{tX}] \E[e^{tY}] = M_X(t) M_Y(t)
     \end{equation}
-    
-    \begin{proof}
-        \begin{equation}
-        M_{X + Y}(t) = \E[e^{t(X + Y)}] = \E[e^{tX} e^{tY}] = \E[e^{tX}] \E[e^{tY}] = M_X(t) M_Y(t)
-        \end{equation}
-        
-        Here we have used that $X$ and $Y$ are independent -- and hence $e^{tX}$ and $e^{tY}$ are independent -- to conclude that $\E[e^{tX} e^{tY}] = \E[e^{tX}] \E[e^{tY}]$. {TODO prepsat? prakticky opsano}
-    \end{proof}
+
+    Here we have used that $X$ and $Y$ are independent -- and hence
+    $e^{tX}$ and $e^{tY}$ are independent -- to conclude that $\E[e^{tX}
+    e^{tY}] = \E[e^{tX}] \E[e^{tY}]$. {TODO prepsat? prakticky opsano}
+  \end{proof}
 \end{thm}
 
 
 \begin{thm}
-    Moment generating function of a Gaussian distribution is
-    
-    \begin{equation}
-        M_X(t) = e^{t \mu + \frac{1}{2}\sigma^2 t^2}.
-    \end{equation}
+  Moment generating function of a Gaussian distribution is
+
+  \begin{equation}
+    M_X(t) = e^{t \mu + \frac{1}{2}\sigma^2 t^2}.
+  \end{equation}
 \end{thm}
 
 \begin{thm}
-    Let $X$ and $Y$ be independent random variables with distributions $\gN(\mu_1, \sigma_1^2)$ and $\gN(\mu_2, \sigma_2^2)$, respectively. Then $X + Y$ is distributed according to the normal distribution $\gN(\mu_1 + \mu_2, \sigma_1^2 + \sigma_2^2)$.
-    
-    \begin{proof}
-    The moment generating function of a sum of independent random variables is the product of their moment generating functions (Theorem \ref{thm:sum-independent-gaussian}). Thus,
-    
-    \begin{equation}
+  Let $X$ and $Y$ be independent random variables with distributions
+  $\gN(\mu_1, \sigma_1^2)$ and $\gN(\mu_2, \sigma_2^2)$, respectively. Then
+  $X + Y$ is distributed according to the normal distribution $\gN(\mu_1 +
+  \mu_2, \sigma_1^2 + \sigma_2^2)$.
+
+\end{thm}
+
+\begin{proof}
+  The moment generating function of a sum of independent random variables is
+  the product of their moment generating functions (Theorem
+  \ref{thm:sum-independent-gaussian}). Thus,
+
+  \begin{equation}
     M_{X + Y}(t) = M_X(t) M_Y(t) = e^{t^2 \sigma_1^2 / 2 + \mu_1 t} e^{t^2 \sigma_2^2 / 2 + \mu_2 t} = e^{t^2 (\sigma_1^2 + \sigma_1^2) / 2 + (\mu_1 + \mu_2) t}
-    \end{equation}
-    
-    The rightmost expression is the moment generating function of a normal distribution. Theorem \ref{thm:sum-independent-gaussian} implies that $X + Y$ has a normal distribution with the corresponding parameters. {TODO opsano z \citep{mitzenmacher2017probability}}
-    \end{proof}
+  \end{equation}
+
+  The rightmost expression is the moment generating function of a normal
+  distribution. Theorem \ref{thm:sum-independent-gaussian} implies that $X +
+  Y$ has a normal distribution with the corresponding parameters. {TODO
+  opsano z \citep{mitzenmacher2017probability}}
+\end{proof}
+
+\begin{thm}
+  If random vectors $\mX, \mY \in \sR^n$ where $\mX \sim \gN(\vmu_x,
+  \mSigma_x)$ and $\mY \sim \gN(\vmu_y, \mSigma_y)$ are independent, then
+
+  \begin{equation}
+    \mX + \mY \sim \gN(\vmu_x + \vmu_y, \mSigma_x + \mSigma_y)
+  \end{equation}
 \end{thm}
 
 \begin{thm}
-    If random vectors $\mX, \mY \in \sR^n$ where $\mX \sim \gN(\vmu_x, \mSigma_x)$ and $\mY \sim \gN(\vmu_y, \mSigma_y)$ are independent, then
-    
-    \begin{equation}
-        \mX + \mY \sim \gN(\vmu_x + \vmu_y, \mSigma_x + \mSigma_y)
-    \end{equation}
+  $cov(\mX + \mY) = cov(\mX) + cov(\mY)$ for independent $\mX$ and $\mY$.
 \end{thm}
 
-\begin{thm}
-    $cov(\mX + \mY) = cov(\mX) + cov(\mY)$ for independent $\mX$ and $\mY$.
+\begin{proof}
+  \begin{align}
+    cov(\mX + \mY) &= E((\mX + \mY) (\mX + \mY)^T) - E(\mX + \mY)E(\mX + \mY)^T \\
+                   &= E\mX\mX^T + E\mX\mY^T + E\mY\mX^T + E\mY\mY^T \\
+                   &\quad - (E\mX E\mX^T + E\mX E\mY^T + E\mY E\mX^T + E \mY E\mY^T)
+  \end{align}
 
-    \begin{proof}
-    \begin{align}
-        cov(\mX + \mY) &= E((\mX + \mY) (\mX + \mY)^T) - E(\mX + \mY)E(\mX + \mY)^T \\
-        &= E\mX\mX^T + E\mX\mY^T + E\mY\mX^T + E\mY\mY^T \\
-          &\quad - (E\mX E\mX^T + E\mX E\mY^T + E\mY E\mX^T + E \mY E\mY^T)
-    \end{align}
-    
-    Because $\mX, \mY$ are independent, $E \mX \mY^T = E \mX E \mY^T$, and we get:
-    
-    \begin{align}
-        &= E\mX\mX^T + E\mX \mY^T + E\mY\mX^T + E\mY\mY^T \\
-          &\quad - (E\mX E\mX^T + E\mX E\mY^T + E\mY E\mX^T + \mY E\mY^T) \\
-        &= E\mX\mX^T - E\mX E\mX^T + E\mY \mY^T - E\mY E\mY^T \\
-        &= cov(\mX) + cov(\mY)
-    \end{align}
-    \end{proof}
-\end{thm}
-    
+  Because $\mX, \mY$ are independent, $E \mX \mY^T = E \mX E \mY^T$, and we get:
+
+  \begin{align}
+      &= E\mX\mX^T + E\mX \mY^T + E\mY\mX^T + E\mY\mY^T \\
+      &\quad - (E\mX E\mX^T + E\mX E\mY^T + E\mY E\mX^T + \mY E\mY^T) \\
+      &= E\mX\mX^T - E\mX E\mX^T + E\mY \mY^T - E\mY E\mY^T \\
+      &= cov(\mX) + cov(\mY)
+  \end{align}
+\end{proof}
+
 \begin{thm}
-    Given a random variable $\mX$ with $cov[\mX] = \mSigma$, it follows from the definition of covariance that $cov[\mA \mX] = \mA \mSigma \mA^T$.
-    
-    \begin{proof}
-    \begin{align}
+  Given a random variable $\mX$ with $cov[\mX] = \mSigma$, it follows from
+  the definition of covariance that $cov[\mA \mX] = \mA \mSigma \mA^T$.
+\end{thm}
+
+\begin{proof}
+  \begin{align}
     \label{eq:gaussian-ax}
     cov[\mA \mX] &= E[(\mA \mX - E[\mA \mX])(\mA \mX - E[\mA \mX])^T] \\
-    &= E[(\mA \mX - \mA E[\mX])(\mA \mX - \mA E[\mX])^T] \\
-    &= E[\mA (\mX - E[\mX])(\mX - E[\mX])^T \mA^T] \\
-    &= \mA E[(\mX - E[\mX])(\mX - E[\mX])^T] \mA^T \\
-    &= \mA cov[\mX] \mA^T \\
-    &= \mA \Sigma \mA^T
-    \end{align}
-    \end{proof}
-\end{thm}
+                 &= E[(\mA \mX - \mA E[\mX])(\mA \mX - \mA E[\mX])^T] \\
+                 &= E[\mA (\mX - E[\mX])(\mX - E[\mX])^T \mA^T] \\
+                 &= \mA E[(\mX - E[\mX])(\mX - E[\mX])^T] \mA^T \\
+                 &= \mA cov[\mX] \mA^T \\
+                 &= \mA \Sigma \mA^T
+  \end{align}
+\end{proof}
 
 \begin{thm}
-    Given a random variable $\mX \sim \gN(\mZero, \mI)$, covariance matrix $\mSigma = \mL \mL^T$ {TODO note cholesky decomp}, we show that
-    
-    \begin{equation}
-        \mL \mX \sim \gN(\mZero, \mSigma).
-    \end{equation}
-    
-    \begin{proof}
-    We can immediately use \eqref{eq:gaussian-ax}.
-    
-    \begin{align}
-    \mL \mX \sim N(0, \mL \mI \mL^T) = N(0, \mL \mL^T) = N(0, \mSigma)
-    \end{align}
-    \end{proof}
+  Given a random variable $\mX \sim \gN(\mZero, \mI)$, covariance matrix
+  $\mSigma = \mL \mL^T$ {TODO note cholesky decomp}, we show that
+
+  \begin{equation}
+    \mL \mX \sim \gN(\mZero, \mSigma).
+  \end{equation}
 \end{thm}
 
-Since samples from $\gN(\mZero, \mI)$ can be generated independently, all we need to take samples from an arbitrary Gaussian is to have the ability to generate independent samples (which can be achieved for example using the Box-Muller transform {TODO define? ref?}) and a procedure for Cholesky decomposition.
+\begin{proof}
+  We can immediately use \eqref{eq:gaussian-ax}.
+
+  \begin{align}
+    \mL \mX \sim N(0, \mL \mI \mL^T) = N(0, \mL \mL^T) = N(0, \mSigma)
+  \end{align}
+\end{proof}
+
+Since samples from $\gN(\mZero, \mI)$ can be generated independently, all we
+need to take samples from an arbitrary Gaussian is to have the ability to
+generate independent samples (which can be achieved for example using the
+Box-Muller transform {TODO define? ref?}) and a procedure for Cholesky
+decomposition.
 
 \begin{defn}
-    \newterm{Affine transformation}:
-    
-    \begin{equation}
-        f(\vx) = \mA \vx + \vb
-    \end{equation}
+  \newterm{Affine transformation}:
+
+  \begin{equation}
+    f(\vx) = \mA \vx + \vb
+  \end{equation}
 \end{defn}
-    
+
 \begin{thm}
-    \newterm{Affine property}: Any affine transformation of a Gaussian is a Gaussian. In particular
-    
-    \begin{equation}
-        \rX \sim \gN(\vmu, \mSigma) \implies \mA \rX + \vb \sim \gN(\mA \vmu + \vb, \mA \mSigma \mA^T)
-    \end{equation}
-    
-    for any $\vmu \in \mR^n, \mSigma \in \mR^{n \times n}$ positive semi-definite, and any $\mA \in \mR^{m \times n}, \vb \in \mR^m$.
+  \newterm{Affine property}: Any affine transformation of a Gaussian is a
+  Gaussian. In particular
+
+  \begin{equation}
+    \rX \sim \gN(\vmu, \mSigma) \implies \mA \rX + \vb \sim \gN(\mA \vmu + \vb, \mA \mSigma \mA^T)
+  \end{equation}
+
+  for any $\vmu \in \mR^n, \mSigma \in \mR^{n \times n}$ positive
+  semi-definite, and any $\mA \in \mR^{m \times n}, \vb \in \mR^m$.
 \end{thm}
 
 \begin{rem}
-    (Constructing) $\rX_1, \dots, \rX_n \sim \gN(0, 1)$ independent $\implies \rX \sim \gN(0, \mI)$, which also implies $\mA \rX + \vmu \sim \gN(\vmu, \mSigma)$ where $\mSigma = \mA \mA^T$ (for any $\vmu \in \mR^n, \mA \in \mR^{m \times n}$).
+  (Constructing) $\rX_1, \dots, \rX_n \sim \gN(0, 1)$ independent $\implies
+  \rX \sim \gN(0, \mI)$, which also implies $\mA \rX + \vmu \sim \gN(\vmu,
+  \mSigma)$ where $\mSigma = \mA \mA^T$ (for any $\vmu \in \mR^n, \mA \in
+  \mR^{m \times n}$).
 \end{rem}
-    
+
 \begin{thm}
-    \newterm{Sphering}: If $\mSigma$ is positive-definite, then:
-    
-    \begin{equation}
-        \mY \sim \gN(\vmu, \mSigma) \implies \mA^{-1} (\mY - \vmu) \sim \gN(0, \mI) \text{where} \mSigma = \mA \mA^T
-    \end{equation}
-    
-    The random variable $\mA^-1 (\mY - \vmu)$ is then a unit sphere in $n$-dimensional space.
+  \newterm{Sphering}: If $\mSigma$ is positive-definite, then:
+
+  \begin{equation}
+    \mY \sim \gN(\vmu, \mSigma) \implies \mA^{-1} (\mY - \vmu) \sim \gN(0, \mI)
+    \text{where} \mSigma = \mA \mA^T
+  \end{equation}
+
+  The random variable $\mA^-1 (\mY - \vmu)$ is then a unit sphere in
+  $n$-dimensional space.
 \end{thm}
 
 \begin{tcolorbox}
-    Let $\mX \sim \gN(0, \mI)$. Let $\mSigma$ be a covariance matrix, and $\vmu \in \mR^n$. Covariance matrix is always positive semi-definite, which means its eigenvalues are non-negative {TODO better text}. Because $\mSigma$ is a real, symmetric, positive semi-definite matrix it can be written as $\mSigma = \mQ \mLambda \mQ^T$ where $\mQ$ is an orthogonal matrix of eigenvectors, and $\mLambda$ is a diagonal matrix of eigenvalues.
-    
-    TODO proof in appendix
-    
-    We can then do a simple algebraic manipulation to get the square root of $\mSigma = \mA \mA^T$. 
-    
-    TODO equivalent to cholesky decomp?
-    
-    \begin{equation}
-        \mSigma = \mQ \mLambda \mQ^T = \mQ \mLambda^{1/2} \mLambda^{1/2} \mQ = (\mQ \mLambda^{1/2}) (\mQ \mLambda^{1/2})^T = \mA \mA^T
-    \end{equation}
-    
-    Now we can do $\mY = \mA \mX + \vmu \implies \mY \sim \gN(\vmu, \mSigma)$.
-    
-    Draw level sets of $\mX \sim \gN(0, \mI)$, $\mLambda^{1/2} \mX \sim \gN(0, \mLambda)$, $\mQ \mLambda^{1/2} \mX \sim \gN(0, \mSigma)$. $\mQ$ contains the eigenvectors of $\mSigma$, and multiplication by $\mQ$ rotates (every orthogonal matrix is equivalent to a rotation  {TODO proof appendix}) the variable so that the axes are aligned to the eigenvectors. In other words, $\mQ$ is a change of basis from the eigenvector basis to the canonical basis, causing the rotation. $\mQ \mLambda^{1/2} \mX + \vmu \sim \gN(\vmu, \mSigma)$, in which case $\vmu$ simply shifts the whole coordinate space by $\vmu$, which in the case of a Gaussian only affects the mean {TODO proof}.
-    
-    In summary, the eigenvalues in $\mLambda$ scale, $\mQ$ rotates in the direction of the eigenvectors, and $\vmu$ shifts the origin.
-    
-    \begin{equation}
-        (\vx - \vmu)^T \mSigma^{-1} (\vx - \vmu) = (\vx - \vmu)^T \mQ \mLambda^{-1} \mQ (\vx - \vmu)
-    \end{equation}
-    
-    \begin{equation}
-        \mLambda^{-1} = \begin{bmatrix}
-            \lambda_1^{-1} & & \\
-            & \ddots & \\
-            & & \lambda_n^{^-1}
-        \end{bmatrix}
-    \end{equation}
-    
-    TODO: Note the order of eigenvalues: large eigenvalue of $\mSigma$ is the direction with the ???smallest??? variance?
+  Let $\mX \sim \gN(0, \mI)$. Let $\mSigma$ be a covariance matrix, and $\vmu
+  \in \mR^n$. Covariance matrix is always positive semi-definite, which means
+  its eigenvalues are non-negative {TODO better text}. Because $\mSigma$ is a
+  real, symmetric, positive semi-definite matrix it can be written as
+  $\mSigma = \mQ \mLambda \mQ^T$ where $\mQ$ is an orthogonal matrix of
+  eigenvectors, and $\mLambda$ is a diagonal matrix of eigenvalues.
+
+  TODO proof in appendix
+
+  We can then do a simple algebraic manipulation to get the square root of $\mSigma = \mA \mA^T$.
+
+  TODO equivalent to cholesky decomp?
+
+  \begin{equation}
+    \mSigma = \mQ \mLambda \mQ^T = \mQ \mLambda^{1/2} \mLambda^{1/2} \mQ = (\mQ
+    \mLambda^{1/2}) (\mQ \mLambda^{1/2})^T = \mA \mA^T
+  \end{equation}
+
+  Now we can do $\mY = \mA \mX + \vmu \implies \mY \sim \gN(\vmu, \mSigma)$.
+
+  Draw level sets of $\mX \sim \gN(0, \mI)$, $\mLambda^{1/2} \mX \sim \gN(0,
+  \mLambda)$, $\mQ \mLambda^{1/2} \mX \sim \gN(0, \mSigma)$. $\mQ$ contains the
+  eigenvectors of $\mSigma$, and multiplication by $\mQ$ rotates (every
+  orthogonal matrix is equivalent to a rotation  {TODO proof appendix}) the
+  variable so that the axes are aligned to the eigenvectors. In other words,
+  $\mQ$ is a change of basis from the eigenvector basis to the canonical basis,
+  causing the rotation. $\mQ \mLambda^{1/2} \mX + \vmu \sim \gN(\vmu,
+  \mSigma)$, in which case $\vmu$ simply shifts the whole coordinate space by
+  $\vmu$, which in the case of a Gaussian only affects the mean {TODO proof}.
+
+  In summary, the eigenvalues in $\mLambda$ scale, $\mQ$ rotates in the
+  direction of the eigenvectors, and $\vmu$ shifts the origin.
+
+  \begin{equation}
+    (\vx - \vmu)^T \mSigma^{-1} (\vx - \vmu) = (\vx - \vmu)^T \mQ \mLambda^{-1} \mQ (\vx - \vmu)
+  \end{equation}
+
+  \begin{equation}
+    \mLambda^{-1} = \begin{bmatrix}
+      \lambda_1^{-1} & & \\
+                     & \ddots & \\
+                     & & \lambda_n^{^-1}
+    \end{bmatrix}
+  \end{equation}
+
+  TODO: Note the order of eigenvalues: large eigenvalue of $\mSigma$ is the
+  direction with the ???smallest??? variance?
 \end{tcolorbox}
 
 
 \begin{tcolorbox}
-    The term $(\vx - \vmu)^T \mSigma^{-1}(\vx - \vmu)$ is called a Mahalanobis distance, and is also a quadratic form in $x$. A general quadratic form is $\vx^T \mA \vx$. {TODO rewrite, derive that gaussian is a hyper-ellipsoid}.
-    
-    Prove, that when $\mA$ is positive semi-definite, the shape is an ellipsoid. {TODO small appendix on quadratic forms and Mahalanobis distance}.
-    
-    We can think of a gaussian as $\exp{\left\{ \text{quadratic form} \right\} }$. {TODO prove that covariance matrix is positive semi-definite}. {TODO prove, that if individual components have positive variances, the joint will be diagonal positive definite}.
-    
-        
-    We note here that the functional dependence of the Gaussian on $\vx$ is through the quadratic form
-    
-    \begin{equation}
-        \Delta^2 = (\vx - \vmu)^T \mSigma^{-1} (\vx - \vmu)
-    \end{equation}
-    
-    which appears in the exponent \citep{bishop2016pattern} {TODO rewrite and remove the quote, or keep it?}. The quantity $\Delta$ is called the \newterm{Mahalanobis distance} from $\vmu$ to $\vx$ and reduces to the Euclidean distance when $\mSigma$ is the identity matrix. We will make use of the quadratic form in the following section when we derive the conditional and marginal distribution of the multivariate Gaussian.
-    
-    Since $\mSigma$ is a covariance matrix we know it is positive definite {TODO why not only semidefinite? describe the degenerate case}, we can perform \newterm{eigendecomposition} on it to get $\mSigma = \mU \mLambda \mU^T$, where $\mU$ is an ortogonal matrix of eigenvectors, and $\mLambda$ is a diagonal matrix of eigenvalues. Basic matrix algebra gives us the following:
-    
-    \begin{equation}
-    \mSigma^{-1} = (\mU^T)^{-1} \mLambda^{-1} \mU^{-1} = \mU \mLambda^{-1} \mU^T = \sum_{i = 1}^D \frac{1}{\lambda_i} \vu_i \vu_i^T
-    \end{equation}
-    
-    where the second to last equality comes from $\mU$ being orthogonal ($\mU^{-1} = \mU^T$). We can use this to obtain a different form of the Mahalanobis distance:
-    
-    \begin{align}
+  The term $(\vx - \vmu)^T \mSigma^{-1}(\vx - \vmu)$ is called a Mahalanobis
+  distance, and is also a quadratic form in $x$. A general quadratic form is
+  $\vx^T \mA \vx$. {TODO rewrite, derive that gaussian is a hyper-ellipsoid}.
+
+  Prove, that when $\mA$ is positive semi-definite, the shape is an ellipsoid.
+  {TODO small appendix on quadratic forms and Mahalanobis distance}.
+
+  We can think of a gaussian as $\exp{\left\{ \text{quadratic form} \right\}
+    }$. {TODO prove that covariance matrix is positive semi-definite}. {TODO
+    prove, that if individual components have positive variances, the joint will be
+  diagonal positive definite}.
+
+  We note here that the functional dependence of the Gaussian on $\vx$ is
+  through the quadratic form
+
+  \begin{equation}
+    \Delta^2 = (\vx - \vmu)^T \mSigma^{-1} (\vx - \vmu)
+  \end{equation}
+
+  which appears in the exponent \citep{bishop2016pattern} {TODO rewrite and
+  remove the quote, or keep it?}. The quantity $\Delta$ is called the
+  \newterm{Mahalanobis distance} from $\vmu$ to $\vx$ and reduces to the
+  Euclidean distance when $\mSigma$ is the identity matrix. We will make use of
+  the quadratic form in the following section when we derive the conditional
+  and marginal distribution of the multivariate Gaussian.
+
+  Since $\mSigma$ is a covariance matrix we know it is positive definite {TODO
+  why not only semidefinite? describe the degenerate case}, we can perform
+  \newterm{eigendecomposition} on it to get $\mSigma = \mU \mLambda \mU^T$,
+  where $\mU$ is an ortogonal matrix of eigenvectors, and $\mLambda$ is a
+  diagonal matrix of eigenvalues. Basic matrix algebra gives us the following:
+
+  \begin{equation}
+    \mSigma^{-1} = (\mU^T)^{-1} \mLambda^{-1} \mU^{-1} = \mU \mLambda^{-1}
+    \mU^T = \sum_{i = 1}^D \frac{1}{\lambda_i} \vu_i \vu_i^T
+  \end{equation}
+
+  where the second to last equality comes from $\mU$ being orthogonal
+  ($\mU^{-1} = \mU^T$). We can use this to obtain a different form of the
+  Mahalanobis distance:
+
+  \begin{align}
     (\vx - \vmu)^T \mSigma^{-1} (\vx - \vmu) &= (\vx - \vmu)^T \left( \sum_{i = 1}^D \frac{1}{\lambda_i} \vu_i \vu_i^T \right) (\vx - \vmu) \\
-    &= \sum_{i = 1}^D (\vx - \vmu)^T \frac{1}{\lambda_i} \vu_i \vu_i^T (\vx - \vmu) \\
-    &= \sum_{i = 1}^D \frac{y_i^2}{\lambda_i} \label{eq:mvn-ellipse}
-    \end{align}
-    
-    where $y_i = u_{i}^{T} (\vx - \vmu)$ {TODO use a notation for definition}. The equation \eqref{eq:mvn-ellipse} has exactly the same form as a $D$-dimensional ellipse. From this we conclude that the contour lines of a multivariate Gaussian will be elliptical, where the eigenvectors determine the orientation of the ellipse, and the eigenvalues determine its radius {TODO better word?} along each eigenvector.
-    
-    {TODO complete the properties and derivation}
+                                             &= \sum_{i = 1}^D (\vx - \vmu)^T \frac{1}{\lambda_i} \vu_i \vu_i^T (\vx - \vmu) \\
+                                             &= \sum_{i = 1}^D \frac{y_i^2}{\lambda_i} \label{eq:mvn-ellipse}
+  \end{align}
+
+  where $y_i = u_{i}^{T} (\vx - \vmu)$ {TODO use a notation for definition}.
+  The equation \eqref{eq:mvn-ellipse} has exactly the same form as a
+  $D$-dimensional ellipse. From this we conclude that the contour lines of a
+  multivariate Gaussian will be elliptical, where the eigenvectors determine
+  the orientation of the ellipse, and the eigenvalues determine its radius
+  {TODO better word?} along each eigenvector.
+
+  {TODO complete the properties and derivation}
 \end{tcolorbox}
-
-
-
-
 
 \section{Conditional and Marginal Gaussian Distribution}
 
-In this section we derive the conditional $p(x_1 | x_2)$ and marginal $p(x_1)$ for a given joint distribution $p(x_1, x_2)$. One of the interesting properties of a multivariate Gaussian is that both the conditional and the marginal are also Gaussian and we can easily compute their parameters in closed from based on the parameters of the joint distribution.
+In this section we derive the conditional $p(x_1 | x_2)$ and marginal $p(x_1)$
+for a given joint distribution $p(x_1, x_2)$. One of the interesting properties
+of a multivariate Gaussian is that both the conditional and the marginal are
+also Gaussian and we can easily compute their parameters in closed from based
+on the parameters of the joint distribution.
 
-Supposed $\vx$ is a $D$-dimensional random vector with a Gaussian distribution $\gN(\vx | \vmu, \mSigma)$, and that $\vx$ is partitioned into two vectors $\vx_1$ and $\vx_2$ such that
+Supposed $\vx$ is a $D$-dimensional random vector with a Gaussian distribution
+$\gN(\vx | \vmu, \mSigma)$, and that $\vx$ is partitioned into two vectors
+$\vx_1$ and $\vx_2$ such that
 
 \begin{equation}
-    \vx = \partx
+  \vx = \partx
 \end{equation}
 
-We also partition the mean vector $\vmu$ and the covariance matrix $\mSigma$ into a block matrix. We also define the inverse of the covariance matrix $\mLambda = \mSigma^{-1}$, which will simplify a few of the equations that follow. We will derive the exact form of $\mLambda$ and of its individual blocks later in this section. For now we simply use the fact that $\mSigma$ is positive-definite, and thus it is invertible. The matrix $\mLambda$ is also known as a \newterm{precision matrix}.
+We also partition the mean vector $\vmu$ and the covariance matrix $\mSigma$
+into a block matrix. We also define the inverse of the covariance matrix
+$\mLambda = \mSigma^{-1}$, which will simplify a few of the equations that
+follow. We will derive the exact form of $\mLambda$ and of its individual
+blocks later in this section. For now we simply use the fact that $\mSigma$ is
+positive-definite, and thus it is invertible. The matrix $\mLambda$ is also
+known as a \newterm{precision matrix}.
 
 \begin{equation}
-    \vmu = \partmu,
-    \mSigma = \partsigma, \mLambda = \mSigma^{-1} = \partlambda \label{eq:mvn-partition}
+  \vmu = \partmu,
+  \mSigma = \partsigma, \mLambda = \mSigma^{-1} = \partlambda \label{eq:mvn-partition}
 \end{equation}
 
-Note that since $\mSigma$ is a symmetric matrix, $\ms{12}^T = \ms{21}$, and similarly $\ml{12}^T = \ml{21}$. Similarly, $\ms{11}$, $\ms{22}$, $\ml{11}$, and $\ml{22}$ are all symmetrical.
+Note that since $\mSigma$ is a symmetric matrix, $\ms{12}^T = \ms{21}$, and
+similarly $\ml{12}^T = \ml{21}$. Similarly, $\ms{11}$, $\ms{22}$, $\ml{11}$,
+and $\ml{22}$ are all symmetrical.
 
-Before we derive the parameters of the conditional, we show that the conditional distribution $p(x_1 | x_2)$ is a Gaussian. To do this, we take the joint distribution $p(x_1, x_2)$ and fix the value of $x_2$ \citep{bishop2016pattern}. Using the definition of conditional probability $p(x_1, x_2) = p(x_1 | x_2) p(x_2)$ we can see that after fixing the value of $x_2$, $p(x_2)$ is simply a normalization constant, and the remaining term $p(x_1 | x_2)$ is a function of $x_1$ which together with the normalization constant gives us the conditional probability distribution on $x_1$.
+Before we derive the parameters of the conditional, we show that the
+conditional distribution $p(x_1 | x_2)$ is a Gaussian. To do this, we take the
+joint distribution $p(x_1, x_2)$ and fix the value of $x_2$
+\citep{bishop2016pattern}. Using the definition of conditional probability
+$p(x_1, x_2) = p(x_1 | x_2) p(x_2)$ we can see that after fixing the value of
+$x_2$, $p(x_2)$ is simply a normalization constant, and the remaining term
+$p(x_1 | x_2)$ is a function of $x_1$ which together with the normalization
+constant gives us the conditional probability distribution on $x_1$.
 
-We now use the partitioned form of the multivariate Gaussian defined by \eqref{eq:mvn-partition} to show that $p(x_1 | x_2)$ is actually a Gaussian. Let us begin by looking at the exponent in \eqref{eq:multi-gaussian}:
+We now use the partitioned form of the multivariate Gaussian defined by
+\eqref{eq:mvn-partition} to show that $p(x_1 | x_2)$ is actually a Gaussian.
+Let us begin by looking at the exponent in \eqref{eq:multi-gaussian}:
 
 \begin{align}
-    -\frac{1}{2} (\vx - \vmu)^T \mLambda (\vx - \vmu) &= 
-    -\frac{1}{2} \left(\partx - \partmu \right)^T \partlambda \left(\partx - \partmu \right) \\
-    &= -\frac{1}{2} \partxmu^T \partlambda \partxmu
+  -\frac{1}{2} (\vx - \vmu)^T \mLambda (\vx - \vmu) &=
+  -\frac{1}{2} \left(\partx - \partmu \right)^T \partlambda \left(\partx - \partmu \right) \\
+                                                    &= -\frac{1}{2} \partxmu^T \partlambda \partxmu
 \end{align}
 
 To make the next few equations easier to follow we set $\vy_1 = \vx_1 - \vmu_1$ and $\vy_2 = \vx_2 - \vmu_2$.
 
 \begin{align}
-    \begin{split}
+  \begin{split}
     -\frac{1}{2} \begin{bmatrix} \vy_1 \\ \vy_2 \end{bmatrix} ^T \partlambda \begin{bmatrix} \vy_1 \\ \vy_2 \end{bmatrix} ={}& -\frac{1}{2} \begin{bmatrix} \vy_1 \ml{11} + \vy_2 \ml{21} \\ \vy_1 \ml{12} + \vy_2 \ml{22} \end{bmatrix} ^T \begin{bmatrix} \vy_1 \\ \vy_2 \end{bmatrix}
-    \end{split} \\
-    %
-    \begin{split}
+  \end{split} \\
+  %
+  \begin{split}
     ={}& -\frac{1}{2} \left( \vy_1^T \ml{11} \vy_1 + \vy_2^T \ml{21} \vy_1 + \vy_1^T \ml{12} \vy_2 + \vy_2^T \ml{22} \vy_2 \right)
-    \end{split} \\
-    %
-    \begin{split}
+  \end{split} \\
+  %
+  \begin{split}
     ={}& -\frac{1}{2} (\vx_1 - \vmu_1)^T \ml{11} (\vx_1 - \vmu_1) {}+ \\
-      &-\frac{1}{2} (\vx_2 - \vmu_2)^T \ml{21} (\vx_1 - \vmu_1) {}+ \\
-      &-\frac{1}{2} (\vx_1 - \vmu_1)^T \ml{12} (\vx_2 - \vmu_2) {}+ \\
-      &-\frac{1}{2} (\vx_2 - \vmu_2)^T \ml{22} (\vx_2 - \vmu_2) \label{eq:mvn-quadratic-form}
-    \end{split}
+       &-\frac{1}{2} (\vx_2 - \vmu_2)^T \ml{21} (\vx_1 - \vmu_1) {}+ \\
+       &-\frac{1}{2} (\vx_1 - \vmu_1)^T \ml{12} (\vx_2 - \vmu_2) {}+ \\
+       &-\frac{1}{2} (\vx_2 - \vmu_2)^T \ml{22} (\vx_2 - \vmu_2) \label{eq:mvn-quadratic-form}
+  \end{split}
 \end{align}
 
 {TODO fix + alignment and equation numbering, fix spacing of + in 1.29}
 
-We see that this is a quadratic form in $x_1$, and hence the corresponding conditional distribution $p(x_1 | x_2)$ will be Gaussian. {TODO better explain, cite bishop again?}. We can use \eqref{eq:mvn-quadratic-form} to derive the parameters of $p(x_1 | x_2)$ since
+We see that this is a quadratic form in $x_1$, and hence the corresponding
+conditional distribution $p(x_1 | x_2)$ will be Gaussian. {TODO better explain,
+cite bishop again?}. We can use \eqref{eq:mvn-quadratic-form} to derive the
+parameters of $p(x_1 | x_2)$ since
 
 {TODO partition matrix inversion lemma}
 
@@ -361,31 +471,32 @@ TODODODODODODO
 
 
 \begin{thm}
-    Conditional and marginal Gaussian parameters \citep{murphy2012machine} {TODO popsat vetu poradne}
-    
-    \begin{align}
+  Conditional and marginal Gaussian parameters \citep{murphy2012machine} {TODO popsat vetu poradne}
+
+  \begin{align}
     p(x_1, x_2) &= p(x_1 | x_2) p(x_2) \\
-    &= \gN(x_1 | \vmu_{1|2}, \ms{1|2}) \gN(x_2 | \vmu_2, \ms{22})
-    \end{align}
-    
-    the parameters are {TODO zkontrolovat kde je $\mu$ a chybi tam vector}
-    
-    \begin{align}
+                &= \gN(x_1 | \vmu_{1|2}, \ms{1|2}) \gN(x_2 | \vmu_2, \ms{22})
+  \end{align}
+
+  the parameters are {TODO zkontrolovat kde je $\mu$ a chybi tam vector}
+
+  \begin{align}
     \vmu_{1|2} &= \vmu_1 - \ms{12} \ms{22}^{-1} (\vx_2 - \vmu_2) \\
     \ms{1|2} &= \mSigma / \ms{22} = \ms{11} - \ms{12} \ms{22}^{-1} \ms{21}
-    \end{align}
+  \end{align}
 \end{thm}
 
 \begin{proof}
-    To make the equations more readable, we define 
-    
+    To make the equations more readable, we define
+
     \begin{align}
         \vy_1 &= \vx_1 - \vmu_1 \\
         \vy_2 &= \vx_2 - \vmu_2.
     \end{align}
-    
-    We then simply take the block definition of a multivariate Gaussian and multiply everything out
-    
+
+    We then simply take the block definition of a multivariate Gaussian and
+    multiply everything out
+
     \begin{align}
         E &= \exp \left\lbrace -\frac{1}{2}
         \begin{bmatrix} \vy_1 \\ \vy_2 \end{bmatrix}^T
@@ -417,9 +528,15 @@ TODODODODODODO
         \right\rbrace \times \\
         & \qquad\qquad \times \exp \left\lbrace -\frac{1}{2} \vy_2^T \mSigma_{22}^{-1} \vy_2 \right\rbrace \nonumber
     \end{align}
-    
-    We can immediately see that the second term is a quadratic form in $\vx_2$ and corresponds to $\gN(\vx_2 | \vmu_2, \mSigma_{22})$. Let us now consider the first term in isolation and move the terms around a little bit. We also make use of the fact that because $\mSigma_{22}$ is a positive-definite {TODO check this and maybe show a small proof?} matrix, its inverse is also symmetric, so $\mSigma^{-1^T}_{22} = \mSigma^{-1}_{22}$. We also know that $\mSigma^T_{12} = \mSigma_{21}$.
-    
+
+    We can immediately see that the second term is a quadratic form in $\vx_2$
+    and corresponds to $\gN(\vx_2 | \vmu_2, \mSigma_{22})$. Let us now consider
+    the first term in isolation and move the terms around a little bit. We also
+    make use of the fact that because $\mSigma_{22}$ is a positive-definite
+    {TODO check this and maybe show a small proof?} matrix, its inverse is also
+    symmetric, so $\mSigma^{-1^T}_{22} = \mSigma^{-1}_{22}$. We also know that
+    $\mSigma^T_{12} = \mSigma_{21}$.
+
     \begin{align}
         E_{1|2} &= \exp \left\lbrace -\frac{1}{2}
         (\vy_1^T - \vy_2^T \mSigma_{22}^{-1} \mSigma_{21}) (\mSigma/\mSigma_{22})^{-1} (\vy_1 -\mSigma_{12} \mSigma_{22}^{-1} \vy_2) \right\rbrace \\
@@ -428,11 +545,11 @@ TODODODODODODO
         &= \exp \left\lbrace -\frac{1}{2}
         (\vx_1 - \vmu_1 - \mSigma_{12}\mSigma_{22}^{-1} (\vx_2 - \vmu_2)^T (\mSigma/\mSigma_{22})^{-1} (\vx_1 - \vmu_1 -\mSigma_{12} \mSigma_{22}^{-1} (\vx_2 - \vmu_2)) \right\rbrace \label{eq:mvn-quadratic-form-12}
     \end{align}
-    
+
     In \eqref{eq:mvn-quadratic-form-12} we again see a Gaussian density with
-    
+
     MEAN JE SPATNE, MINuS
-    
+
     \begin{align}
         \vmu_{1|2} &= \vmu_1 - \mSigma_{12}\mSigma_{22}^{-1} (\vx_2 - \vmu_2) \\
         \mSigma_{1|2} &= (\mSigma/\mSigma_{22})^{-1} =  \ms{11} - \ms{12} \ms{22}^{-1} \ms{21}
@@ -443,14 +560,18 @@ TODODODODODODO
 
 \begin{tcolorbox}
     \section{Marginal and Conditional distribution}
-    
-    If $\mX = (\mX_1, \mX_2) \in \sR^2$ are jointly Gaussian, then $\mX_1, \mX_2$ individually are also Gaussian. {TODO write it as a theorem}
-    
+
+    If $\mX = (\mX_1, \mX_2) \in \sR^2$ are jointly Gaussian, then $\mX_1,
+    \mX_2$ individually are also Gaussian. {TODO write it as a theorem}
+
     \begin{proof}
-        By the affine property, $\mA \mX + \vb$ is always a Gaussian. Let us set $\mA = (\mI 0), \vb = 0$. We get $\gN(\mA \vmu + \vb, \mA \mSigma \mA^T)$ and see that both $\mX_1$ and $\mX_2$ are Gaussian.
-        
-        More generally $\mX \sim \gN(\vmu, \mSigma), \va = (1, \dots, k), b = (k+1, \dots, n), 1 \leq k \leq n$.
-        
+        By the affine property, $\mA \mX + \vb$ is always a Gaussian. Let us
+        set $\mA = (\mI 0), \vb = 0$. We get $\gN(\mA \vmu + \vb, \mA \mSigma
+        \mA^T)$ and see that both $\mX_1$ and $\mX_2$ are Gaussian.
+
+        More generally $\mX \sim \gN(\vmu, \mSigma), \va = (1, \dots, k), b =
+        (k+1, \dots, n), 1 \leq k \leq n$.
+
         \begin{align}
             \mX &= \begin{bmatrix} \mX_a \\ \mX_b \end{bmatrix},
             \mX_a = \begin{bmatrix} \mX_1 \\ \vdots \\ \mX_k \end{bmatrix},
@@ -461,41 +582,48 @@ TODODODODODODO
                 \mSigma_{ba} & \mSigma_{bb}
             \end{bmatrix}
         \end{align}
-        
+
         We then show that:
-        
+
         \begin{equation}
             \mX_a \sim \gN(\vmu_a, \mSigma_{aa})
         \end{equation}
-        
-        This is true because can use the affine property with a projection matrix on the first $k$ dimensions.
-        
+
+        This is true because can use the affine property with a projection
+        matrix on the first $k$ dimensions.
+
         \begin{equation}
             \mA = \begin{bmatrix} \mI_k 0 \end{bmatrix}, \quad \mA \in \sR^{k \times n}
         \end{equation}
-        
-        By construction, $\mA \mX = \mX_a \sim \gN(\mA \vmu, \mA \mSigma \mA^T)$, where $\mA \vmu = \mu_a$, and $\mA \mSigma \mA^T = \mSigma_{aa}$, and thus $\mX_a \sim \gN(\vmu_a, \mSigma_{aa})$.
+
+        By construction, $\mA \mX = \mX_a \sim \gN(\mA \vmu, \mA \mSigma
+        \mA^T)$, where $\mA \vmu = \mu_a$, and $\mA \mSigma \mA^T =
+        \mSigma_{aa}$, and thus $\mX_a \sim \gN(\vmu_a, \mSigma_{aa})$.
     \end{proof}
-    
+
     \begin{thm}
-        Same as before, we have $\mX_1, \mX_2$ which are jointly Gaussian, and we'll derive the conditional distribution $p(\rx_1 | \rx_2)$.
+        Same as before, we have $\mX_1, \mX_2$ which are jointly Gaussian, and
+        we'll derive the conditional distribution $p(\rx_1 | \rx_2)$.
     \end{thm}
-    
+
     \begin{align}
         \mX_1 | \mX_2 & \sim \gN(m, D) \\
         m &= \vmu_a + \ms{ab} \ms{bb}^{-1} ( \rx_b - \vmu_b) \\
         D &= \ms{aa} - \ms{ab} \ms{bb}^{-1} \ms{ba}
     \end{align}
-    
-    Ma ($\vmu_a$) gets in a cab ($\ms{ab}$), sees it is a bb gun ($\ms{bb}$), inverts the bb gun and turns it back on the cabby guy ($\ms{bb}^{-1}$), xses the cabby ($\rx_b)$, and then ma gets her money back ($- \vmu_b)$.
-    
+
+    Ma ($\vmu_a$) gets in a cab ($\ms{ab}$), sees it is a bb gun ($\ms{bb}$),
+    inverts the bb gun and turns it back on the cabby guy ($\ms{bb}^{-1}$),
+    xses the cabby ($\rx_b)$, and then ma gets her money back ($- \vmu_b)$.
+
     \begin{equation}
         \det \begin{bmatrix}
             \mSigma_{aa} & \mSigma_{ab} \\
             \mSigma_{ba} & \mSigma_{bb}
         \end{bmatrix} = \ms{aa} \ms{bb} - \ms{ab} \ms{ba}
     \end{equation}
-    
-    and then we try to move $\ms{bb}$ in the right term, it goes in the middle, and we get $\ms{aa} - \ms{ab} \ms{bb}^{-1} \ms{ba}$.
+
+    and then we try to move $\ms{bb}$ in the right term, it goes in the middle,
+    and we get $\ms{aa} - \ms{ab} \ms{bb}^{-1} \ms{ba}$.
 
 \end{tcolorbox}

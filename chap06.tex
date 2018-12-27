@@ -3,99 +3,116 @@
 \section{Cholesky Decomposition}
 
 \begin{defn}
-    The \newterm{Cholesky decomposition} is a decomposition of a positive-definite matrix into a product of a lower triangular matrix and its conjugate transpose. Since we will only work with symmetric positive-definite matrices we omit the conjugacy and define Cholesky decomposition as
+  The \newterm{Cholesky decomposition} is a decomposition of a
+  positive-definite matrix into a product of a lower triangular matrix and
+  its conjugate transpose. Since we will only work with symmetric
+  positive-definite matrices we omit the conjugacy and define Cholesky
+  decomposition as
 
-        \begin{equation}
-            \mA = \mL \mL^T
-        \end{equation}
-        
-    where $\mL$ is a lower triangular matrix called the \newterm{Cholesky factor}.
+  \begin{equation}
+    \mA = \mL \mL^T
+  \end{equation}
+
+  where $\mL$ is a lower triangular matrix called the \newterm{Cholesky factor}.
 \end{defn}
 
-Because of its numerical stability, Cholesky decomposition is useful for solving systems of linear equations $\mA \vx = \vb$ where $\mA$ is symmetric and positive definite. We do this by first solving the triangular system $\mL \vy = \vb$ by forward substitution, and then the triangular system $\mL^T \vx = \vy$ by back substitution. This works because
+Because of its numerical stability, Cholesky decomposition is useful for
+solving systems of linear equations $\mA \vx = \vb$ where $\mA$ is symmetric
+and positive definite. We do this by first solving the triangular system $\mL
+\vy = \vb$ by forward substitution, and then the triangular system $\mL^T \vx =
+\vy$ by back substitution. This works because
 
 \begin{align}
-    \mA \vx &= \vb \qquad \text{assuming $\mA$ is symmetric positive-definite} \\
-    \mL\mL^T \vx &= \vb \\
-    \mL \vy &= \vb \\
-    \mL^T \vx &= \vy \qquad \text{which if we back-substitute $\vy$} \\
-    \mL (\mL^T \vx) &= \vy \qquad \text{using associativity} \\
-    (\mL \mL^T) \vx &= \mA \vx = \vy.
+  \mA \vx &= \vb \qquad \text{assuming $\mA$ is symmetric positive-definite} \\
+  \mL\mL^T \vx &= \vb \\
+  \mL \vy &= \vb \\
+  \mL^T \vx &= \vy \qquad \text{which if we back-substitute $\vy$} \\
+  \mL (\mL^T \vx) &= \vy \qquad \text{using associativity} \\
+  (\mL \mL^T) \vx &= \mA \vx = \vy.
 \end{align}
 
-For brevity, we'll apply the MATLAB {TODO ref} backslash operator where $\mA \backslash \vb = \vx$, which allows us to write the above as $\vx = \mL^T \backslash (\mL \backslash b)$.
+For brevity, we'll apply the MATLAB {TODO ref} backslash operator where $\mA
+\backslash \vb = \vx$, which allows us to write the above as $\vx = \mL^T
+\backslash (\mL \backslash b)$.
 
 
 \section{TODO Bucket}
 
-\begin{thm}[\citep{murphy2012machine}] (Inverse of a partitioned matrix). Consider a partitioned matrix
+\begin{thm}[\citep{murphy2012machine}] (Inverse of a partitioned matrix).
+  Consider a partitioned matrix
 
-\begin{equation}
-\mM = \begin{bmatrix} \mA & \mB \\ \mC & \mD \end{bmatrix}
-\end{equation}
+  \begin{equation}
+    \mM = \begin{bmatrix} \mA & \mB \\ \mC & \mD \end{bmatrix}
+  \end{equation}
 
-where we assume $\mA$ and $\mD$ are invertible {TODO staci to? nemusi byt i ty ostatni?}. We have
+  where we assume $\mA$ and $\mD$ are invertible {TODO staci to? nemusi byt i
+  ty ostatni?}. We have
 
-\begin{equation}
-\mM^{-1} = \begin{bmatrix} \mI & \mZero \\ \mI & \mI \end{bmatrix}
-\end{equation}
+  \begin{equation}
+    \mM^{-1} = \begin{bmatrix} \mI & \mZero \\ \mI & \mI \end{bmatrix}
+  \end{equation}
 \end{thm}
 
 \begin{proof}
-All we need to do is perform a block \newterm{LDU decomposition} and we directly arrive at our solution. We begin by zeroing out $\mB$.
+  All we need to do is perform a block \newterm{LDU decomposition} and we
+  directly arrive at our solution. We begin by zeroing out $\mB$.
 
-\begin{equation} \label{eq:block-ld-part}
-\begin{bmatrix} \mI & -\mB \mD^{-1} & \\ \mZero & \mI \end{bmatrix}
-\begin{bmatrix}\mA & \mB \\ \mC & \mD \end{bmatrix} =
-\begin{bmatrix} \mA - \mB \mD^{-1} \mC & \mZero \\ \mC & \mD \end{bmatrix}
-\end{equation}
+  \begin{equation} \label{eq:block-ld-part}
+    \begin{bmatrix} \mI & -\mB \mD^{-1} & \\ \mZero & \mI \end{bmatrix}
+    \begin{bmatrix}\mA & \mB \\ \mC & \mD \end{bmatrix} =
+    \begin{bmatrix} \mA - \mB \mD^{-1} \mC & \mZero \\ \mC & \mD \end{bmatrix}
+  \end{equation}
 
-The quantity in the top left block is called a \newterm{Schur complement} of $\mM$ wrt $\mD$. We denote it as follows, and also define a variant for the bottom right block
+  The quantity in the top left block is called a \newterm{Schur complement} of
+  $\mM$ wrt $\mD$. We denote it as follows, and also define a variant for the
+  bottom right block
 
-\begin{align}
-\mM/\mD &= \mA - \mB \mD^{-1} \mC \\
-\mM/\mA &= \mD - \mC \mA^{-1} \mB
-\end{align}
+  \begin{align}
+    \mM/\mD &= \mA - \mB \mD^{-1} \mC \\
+    \mM/\mA &= \mD - \mC \mA^{-1} \mB
+  \end{align}
 
-Substituting back into \eqref{eq:block-ld-part} we get the following
+  Substituting back into \eqref{eq:block-ld-part} we get the following
 
-\begin{equation}
-\begin{bmatrix} \mM/\mD & \mZero \\ \mC & \mD \end{bmatrix}
-\end{equation}
+  \begin{equation}
+    \begin{bmatrix} \mM/\mD & \mZero \\ \mC & \mD \end{bmatrix}
+  \end{equation}
 
-We follow by eliminating the bottom left block in \eqref{eq:block-ld-part}
+  We follow by eliminating the bottom left block in \eqref{eq:block-ld-part}
 
-\begin{equation} \label{eq:block-du-part}
-\begin{bmatrix} \mM/\mD & \mZero \\ \mC & \mD \end{bmatrix}
-\begin{bmatrix} \mI & \mZero \\ -\mD^{-1} \mC & \mI \end{bmatrix} =
-\begin{bmatrix} \mM/\mD & \mZero \\ \mZero & \mD \end{bmatrix}
-\end{equation}
+  \begin{equation} \label{eq:block-du-part}
+    \begin{bmatrix} \mM/\mD & \mZero \\ \mC & \mD \end{bmatrix}
+    \begin{bmatrix} \mI & \mZero \\ -\mD^{-1} \mC & \mI \end{bmatrix} =
+    \begin{bmatrix} \mM/\mD & \mZero \\ \mZero & \mD \end{bmatrix}
+  \end{equation}
 
-Putting together \eqref{eq:block-ld-part} and \eqref{eq:block-du-part} we get
+  Putting together \eqref{eq:block-ld-part} and \eqref{eq:block-du-part} we get
 
-\begin{equation}
-\underbrace{\begin{bmatrix} \mI & -\mB \mD^{-1} & \\ \mZero & \mI \end{bmatrix}}_{\mX}
-\underbrace{\begin{bmatrix}\mA & \mB \\ \mC & \mD \end{bmatrix}}_{\mM}
-\underbrace{\begin{bmatrix} \mI & \mZero \\ -\mD^{-1} \mC & \mI \end{bmatrix}}_{\mZ} = 
-\underbrace{\begin{bmatrix} \mM/\mD & \mZero \\ \mZero & \mD \end{bmatrix}}_{\mW}
-\end{equation}
+  \begin{equation}
+    \underbrace{\begin{bmatrix} \mI & -\mB \mD^{-1} & \\ \mZero & \mI \end{bmatrix}}_{\mX}
+    \underbrace{\begin{bmatrix}\mA & \mB \\ \mC & \mD \end{bmatrix}}_{\mM}
+    \underbrace{\begin{bmatrix} \mI & \mZero \\ -\mD^{-1} \mC & \mI \end{bmatrix}}_{\mZ} =
+    \underbrace{\begin{bmatrix} \mM/\mD & \mZero \\ \mZero & \mD \end{bmatrix}}_{\mW}
+  \end{equation}
 
-Basic matrix algebra allows us to re-arrange the terms {TODO cite stolen from murphy?}, taking the inverse of both sides
+  Basic matrix algebra allows us to re-arrange the terms {TODO cite stolen from
+  murphy?}, taking the inverse of both sides
 
-\begin{align}
-(\mX \mM \mZ)^{-1} &= \mW^{-1} \\
-\mZ^{-1} \mM^{-1} \mX^{-1} &= \mW^{-1} \\
-\mM^{-1} &= \mZ \mW^{-1} \mX
-\end{align}
+  \begin{align}
+    (\mX \mM \mZ)^{-1} &= \mW^{-1} \\
+    \mZ^{-1} \mM^{-1} \mX^{-1} &= \mW^{-1} \\
+    \mM^{-1} &= \mZ \mW^{-1} \mX
+  \end{align}
 
-Which gives us the final form, making use of the fact that to invert a diagonal matrix we just need to invert its diagonal
+  Which gives us the final form, making use of the fact that to invert a
+  diagonal matrix we just need to invert its diagonal
 
-\begin{equation} \label{eq:block-inverse}
-\mM^{-1} = \begin{bmatrix} \mA & \mB \\ \mC & \mD \end{bmatrix}^{-1} =
-\begin{bmatrix} \mI & \mZero \\ -\mD^{-1} \mC & \mI \end{bmatrix}
-\begin{bmatrix} (\mM/\mD)^{-1} & \mZero \\ \mZero & \mD^{-1} \end{bmatrix}
-\begin{bmatrix} \mI & -\mB \mD^{-1} & \\ \mZero & \mI \end{bmatrix}
-\end{equation}
+  \begin{equation} \label{eq:block-inverse}
+    \mM^{-1} = \begin{bmatrix} \mA & \mB \\ \mC & \mD \end{bmatrix}^{-1} =
+    \begin{bmatrix} \mI & \mZero \\ -\mD^{-1} \mC & \mI \end{bmatrix}
+    \begin{bmatrix} (\mM/\mD)^{-1} & \mZero \\ \mZero & \mD^{-1} \end{bmatrix}
+    \begin{bmatrix} \mI & -\mB \mD^{-1} & \\ \mZero & \mI \end{bmatrix}
+  \end{equation}
 
 \end{proof}
 
@@ -104,7 +121,7 @@ Which gives us the final form, making use of the fact that to invert a diagonal 
 \section{TODO Linear Gaussian transform - change of variables}
 
 \begin{align}
-P(\vx \in \mM) = \int_\mM \frac{1}{(2 \pi)^{D/2} |\mSigma|^{1/2}|} exp \left(-\frac{1}{2} (\vx - \vmu)^T \mSigma^{-1} (\vx - \vmu) \right) d \vx \\
-P(\vx \in \mA^{-1} \mM) = \int_{\mA^{-1} \mM} \frac{1}{(2 \pi)^{D/2} |\mSigma|^{1/2}} \exp \left(-\frac{1}{2} (\vu - \vmu)^T \mSigma^{-1} (\vu - \vmu) \right) d \vu \\
-\vu = \mA \vx
+  P(\vx \in \mM) = \int_\mM \frac{1}{(2 \pi)^{D/2} |\mSigma|^{1/2}|} exp \left(-\frac{1}{2} (\vx - \vmu)^T \mSigma^{-1} (\vx - \vmu) \right) d \vx \\
+  P(\vx \in \mA^{-1} \mM) = \int_{\mA^{-1} \mM} \frac{1}{(2 \pi)^{D/2} |\mSigma|^{1/2}} \exp \left(-\frac{1}{2} (\vu - \vmu)^T \mSigma^{-1} (\vu - \vmu) \right) d \vu \\
+  \vu = \mA \vx
 \end{align}
