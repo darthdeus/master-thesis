@@ -74,7 +74,9 @@
   And in this case,
 
   \begin{equation}
-    f(\vx) = \frac{1}{\sqrt{\det(2 \pi \mSigma)}} \exp{ \left\{ - \frac{1}{2} (\vx - \vmu)^T \mSigma^{-1} (\vx - \vmu) \right\} }
+    \label{eq:mvn-definition}
+    f(\vx) = \frac{1}{\sqrt{\det(2 \pi \mSigma)}} \exp{ \left\{ - \frac{1}{2}
+    (\vx - \vmu)^T \mSigma^{-1} (\vx - \vmu) \right\} }
   \end{equation}
 
   Note that $\det(2 \pi \mSigma) = (2\pi)^n \det(\mSigma)$. Alternatively $(2
@@ -426,7 +428,7 @@ constant gives us the conditional probability distribution on $x_1$.
 
 We now use the partitioned form of the multivariate Gaussian defined by
 \eqref{eq:mvn-partition} to show that $p(x_1 | x_2)$ is actually a Gaussian.
-Let us begin by looking at the exponent in \eqref{eq:multi-gaussian}:
+Let us begin by looking at the exponent in \eqref{eq:mvn-definition}:
 
 \begin{align}
   -\frac{1}{2} (\vx - \vmu)^T \mLambda (\vx - \vmu) &=

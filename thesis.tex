@@ -26,7 +26,7 @@
 % \let\openright=\cleardoublepage
 
 %% Generate PDF/A-2u
-\usepackage[a-2u]{pdfx}
+% \usepackage[a-2u]{pdfx}
 
 %% Character encoding: usually latin2, cp1250 or utf8:
 \usepackage[utf8]{inputenc}
@@ -63,15 +63,15 @@
 
 \usepackage{hyperref}
 \usepackage{url}
-% \usepackage{unicode-math}
 
 
-\usepackage{mathtools}
-\DeclarePairedDelimiterX{\infdivx}[2]{(}{)}{%
-  #1\;\delimsize\|\;#2%
-}
+% \usepackage{mathtools}
+% \DeclarePairedDelimiterX{\infdivx}[2]{(}{)}{%
+%   #1\;\delimsize\|\;#2%
+% }
+% \DeclarePairedDelimiter{\norm}{\lVert}{\rVert}
+
 \newcommand{\kldiv}{D_{KL}\infdivx}
-\DeclarePairedDelimiter{\norm}{\lVert}{\rVert}
 
 \usepackage{braket}
 
@@ -79,6 +79,8 @@
 \setlength{\notationgap}{1pc}
 
 \input{math_commands.tex}
+
+\usepackage{unicode-math}
 
 %%% Basic information on the thesis
 
