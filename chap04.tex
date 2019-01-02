@@ -52,10 +52,12 @@ value $f(x^*)$ we can model that directly by $P(f(x) \geq f(x^*))$.
 At iteration $n+1$, choose the point that minimizes the distance to the
 objective evaluated at the maximum $x^*$.
 
-\begin{align}
-  x_{n+1} &= \argmin_x E(\norm{ \underbrace{f_{n+1}(x)}_{\text{GP}} - \underbrace{f(x^*)}_{\text{true}\ f} } | D_n) \\
-          &=\argmin_x \int \norm{f_{n+1}(x) - f(x^*)} p(f_{n+1} | D_n) \diff f_{n+1}
-\end{align}
+TODO undefined control sequence !
+
+% \begin{align}
+%   x_{n+1} &= \argmin_x E(\norm{\underbrace{f_{n+1}(x)}_{\text{GP}} - \underbrace{f(x^*)}_{\text{true}\ f} } | D_n) \\
+%           &= \argmin_x \int \norm{f_{n+1}(x) - f(x^*)} p(f_{n+1} | D_n) \diff f_{n+1}
+% \end{align}
 
 We however don't know the true objective at the maximum. Instead we use (Mockus
 et al., 1978 ??? TODO ref) where $f^{\max} = \mu^+ + \xi$
