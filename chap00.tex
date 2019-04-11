@@ -1,0 +1,14 @@
+\section{Bayesian Optimization}
+
+Consider the problem of optimizing an arbitrary Lipschitz continuous function
+$f: 𝓧 → ℝ$ where $𝓧 ⊂ ℝ^d, d ∈ ℕ$. We call $f$ the \emph{objective function}
+and treat it as a black box. That is, we make no assumption on its analytical
+form, or on our ability to compute its derivatives. The only assumption is on
+its continuity in order to approximate it with a regression model. Our goal is
+to find the global minimum $\bf{x}_\text{opt}$ over the set $𝓧$, that is
+
+$$
+  \bf{x}_\text{opt} = \arg\min_{\bf{x} ∈ 𝓧} f(\bf{x}).
+$$
+
+
