@@ -14,6 +14,8 @@
 % \openright makes the following text appear on a right-hand page
 \let\openright=\clearpage
 
+% \overfullrule=1mm
+
 %% Settings for two-sided (duplex) printing
 % \documentclass[12pt,a4paper,twoside,openright]{report}
 % \setlength\textwidth{145mm}
@@ -28,7 +30,6 @@
 %% Generate PDF/A-2u
 % \usepackage[a-2u]{pdfx}
 
-%% Character encoding: usually latin2, cp1250 or utf8:
 \usepackage[utf8]{inputenc}
 
 %% Prefer Latin Modern fonts
@@ -40,12 +41,13 @@
 %% Further useful packages (included in most LaTeX distributions)
 \usepackage{amsmath}        % extensions for typesetting of math
 % TODO: pick a font
+% \usepackage{amsfonts}       % math fonts
 \usepackage[charter]{mathdesign}
-%\usepackage{millennial}
+% \usepackage{millennial}
 \usepackage[makeroom]{cancel}
 
+\usepackage{microtype}
 \usepackage[usenames]{xcolor}  % typesetting in color
-% \usepackage{amsfonts}       % math fonts
 \usepackage{amsthm}         % theorems, definitions, etc.
 \usepackage{bbding}         % various symbols (squares, asterisks, scissors, ...)
 \usepackage{bm}             % boldface symbols (\bm)
@@ -78,20 +80,13 @@
 \newlength{\notationgap}
 \setlength{\notationgap}{1pc}
 
-\input{math_commands.tex}
+% \input{math_commands.tex}
 
-% \usepackage{unicode-math}
+\usepackage{unicode-math}
 
-%%% Basic information on the thesis
-
-% Thesis title in English (exactly as in the formal assignment)
-\def\ThesisTitle{Thesis title}
-
-% Author of the thesis
-\def\ThesisAuthor{Jakub Arnold}
-
-% Year when the thesis is submitted
-\def\YearSubmitted{YEAR}
+\def\ThesisTitle{Bayesian Optimization of Hyperparameters Using Gaussian Processes}
+\def\ThesisAuthor{Bc. Jakub Arnold}
+\def\YearSubmitted{2019}
 
 % Name of the department or institute, where the work was officially assigned
 % (according to the Organizational Structure of MFF UK in English,
@@ -124,7 +119,7 @@ Abstract.
 
 % 3 to 5 keywords (recommended), each enclosed in curly braces
 \def\Keywords{%
-{key} {words}
+  {gaussian process} {bayesian optimization} {global optimization} {neural network}
 }
 
 %% The hyperref package for clickable links in PDF and also for storing
@@ -143,22 +138,20 @@ Abstract.
 
 \include{title}
 
-%%% A page with automatically generated table of contents of the master thesis
-
 \tableofcontents
 
-%%% Each chapter is kept in a separate file
 \include{preface}
 \include{notation}
-\include{chap01}
-\include{chap02}
-\include{chap03}
-\include{chap04}
-\include{chap06}
+\include{chap00}
+
+% \include{chap01}
+% \include{chap02}
+% \include{chap03}
+% \include{chap04}
+% \include{chap06}
 
 \include{epilog}
 
-%%% Bibliography
 \include{bibliography}
 
 %%% Figures used in the thesis (consider if this is needed)
