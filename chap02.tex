@@ -144,7 +144,7 @@ We state the following result without proof {TODO citace, pridat proof}.
 \end{thm}
 
 \begin{thm}
-  Let $X$ and $Y$ be independent random variables with distributions
+  Let $X$ and $Y$ be two independent random variables with distributions
   $\gN(\mu_1, \sigma_1^2)$ and $\gN(\mu_2, \sigma_2^2)$, respectively. Then
   $X + Y$ is distributed according to the normal distribution $\gN(\mu_1 +
   \mu_2, \sigma_1^2 + \sigma_2^2)$.
@@ -321,8 +321,8 @@ decomposition.
     \end{bmatrix}
   \end{equation}
 
-  TODO: Note the order of eigenvalues: large eigenvalue of $\mSigma$ is the
-  direction with the ???smallest??? variance?
+  TODO: Note the order of eigenvalues: the large eigenvalue of $\mSigma$ is the
+  direction with the largest variance.
 \end{tcolorbox}
 
 
@@ -466,12 +466,6 @@ parameters of $p(x_1 | x_2)$ since
 
 \citep{murphy2012machine}
 
-
-
-
-TODODODODODODO
-
-
 \begin{thm}
   Conditional and marginal Gaussian parameters \citep{murphy2012machine} {TODO popsat vetu poradne}
 
@@ -544,8 +538,10 @@ TODODODODODODO
         (\vy_1^T - \vy_2^T \mSigma_{22}^{-1} \mSigma_{21}) (\mSigma/\mSigma_{22})^{-1} (\vy_1 -\mSigma_{12} \mSigma_{22}^{-1} \vy_2) \right\rbrace \\
         &= \exp \left\lbrace -\frac{1}{2}
         (\vy_1 - \mSigma_{12}\mSigma_{22}^{-1} \vy_2)^T (\mSigma/\mSigma_{22})^{-1} (\vy_1 -\mSigma_{12} \mSigma_{22}^{-1} \vy_2) \right\rbrace \\
-        &= \exp \left\lbrace -\frac{1}{2}
-        (\vx_1 - \vmu_1 - \mSigma_{12}\mSigma_{22}^{-1} (\vx_2 - \vmu_2)^T (\mSigma/\mSigma_{22})^{-1} (\vx_1 - \vmu_1 -\mSigma_{12} \mSigma_{22}^{-1} (\vx_2 - \vmu_2)) \right\rbrace \label{eq:mvn-quadratic-form-12}
+        &= \exp \{ -\frac{1}{2}
+        (\vx_1 - \vmu_1 - \mSigma_{12}\mSigma_{22}^{-1} (\vx_2 - \vmu_2)^T (\mSigma/\mSigma_{22})^{-1} \\
+        & \hspace{40pt} (\vx_1 - \vmu_1 -\mSigma_{12} \mSigma_{22}^{-1} (\vx_2 - \vmu_2)) \}
+        \label{eq:mvn-quadratic-form-12}
     \end{align}
 
     In \eqref{eq:mvn-quadratic-form} we again see a Gaussian density with
