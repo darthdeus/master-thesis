@@ -1,7 +1,10 @@
 \chapter{Introduction}
+
 intro (2 stranky)
   - co jous hyperparam, ze to model neumi nastavit, atd.
   - proc chceme delat black box, ...
+
+\input{chapters/introduction.tex}
 
 \section{Our Contributions}
 - co jsme udelali
@@ -9,24 +12,27 @@ intro (2 stranky)
 
 \chapter{Bayesian Optimization overview}
 
-- intro co mam
-- acq fce
+\input{chapters/bayesian-optimization-overview.tex}
 
 \section{Related work}
 \section{Hyperparam vs. Architecture Search}
 \section{Diskretni hyperparam vs onehot vs ...}
 
-
 \chapter{Gaussian Processes}
 
-- ucbnicove
 - uvod, proc to delame
+- ucbnicove
 - kernely existujou
+
+\input{chapters/gaussian-processes.tex}
+
 
 \chapter{Bayesian Optimization in depth}
 
 - bopt alg
 - jaky kernely v bayes opt., co pouzivame, proc (ref)
+
+\input{chapters/bayesian-optimization-indepth.tex}
 
 
 \chapter{Software}
@@ -34,6 +40,8 @@ intro (2 stranky)
 - co umime
 - vizualizace
 - jak se to pousti, runnery, serializace
+
+\input{chapters/software.tex}
 
 \chapter{Experiments}
 
@@ -47,51 +55,19 @@ intro (2 stranky)
 
 - interpretace vysledku
 
+\input{chapters/experiments.tex}
+
 
 
 - parser
 - tokenizer/segmentace
 - speech recognition
 - opennmt lemmatizace
-- reinforce_with_baseline
+- $reinforce_with_baseline$
 
 
 
 
-
-\section{Bayesian Optimization}
-
-Consider the problem of optimizing an arbitrary continuous function $f: 𝓧 → ℝ$
-where $𝓧 ⊂ ℝ^d, d ∈ ℕ$. We call $f$ the \emph{objective function} and treat it
-as a black box, making no assumption on its analytical form, or on our ability
-to compute its derivatives. Our goal is to find the global minimum
-$\symbf{x}_\text{opt}$ over the set $𝓧$, that is
-$$
-\symbf{x}_\text{opt} = \arg\min_{\symbf{x} ∈ 𝓧} f(\symbf{x}).
-$$
-
-We also assume that the evaluation of $f$ is expensive, as the goal of Bayesian
-optimization is to find the optimum as quickly as possible.  Consider the case
-when evaluating $f$ means performing a computation that is not only time
-consuming, but for example also costs a lot of money. We might only have a
-fixed budget which puts a hard limit on the number of evaluations we can
-perform.
-
-If the function can be evaluated cheaply, other global optimization approaches
-such as simulated annealing or evolution strategies could potentially yield
-better results (TODO ref).
-
-
-Bayesian optimization techniques are some of the most efficient approaches in
-terms of the number of function evaluations required. Much of the efficiency
-stems from the ability to incorporate prior belief about the problem and to
-trade of exploration and exploitation of the search space. [Nando 2012] It is
-called Bayesian because it combines the prior knowledge $p(f)$ about the
-function together with the data in the form of the likelihood $p(x|f)$ to
-formulate a posterior distribution on the set of possible functions $p(f|x)$.
-We will use the posterior distribution to figure out which point should be
-evaluated next to give a likely improvement over the currently obtained
-maximum.
 
 ---
 

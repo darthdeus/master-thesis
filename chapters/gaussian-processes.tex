@@ -1,0 +1,52 @@
+\begin{defn}
+  A random variable $\rX$ has a \newterm{univariate Gaussian distribution},
+  written as $\rX ∼ 𝓝(μ, σ^2)$, when its density is
+  $$
+    p(x) = \frac{1}{\sqrt{2πσ²}} \exp{\left\{ -\frac{1}{2σ²} (x - μ)² \right\}}.
+  $$
+  The parameters $μ$ and $σ$ are its \emph{mean} and \emph{standard deviation}.
+\end{defn}
+
+\begin{defn}
+  % TODO: napsat jinak
+  We say $\rX$ has a \newterm{degenerate Gaussian distribution} when $\rX ∼ 𝓝(μ, 0)$.
+\end{defn}
+
+% TODO: \mX vs \rX pro vicerozmerne rv
+\begin{defn}
+  A random variable $\mX \in ℝ^n$ has a \newterm{multivariate Gaussian distribution} if
+  any linear combination of its components is a univariate Gaussian, i.e.
+  $\va^T \rX = ∑_{i=1}^n \va_i \mX_i$ is a Gaussian for all $\va ∈ ℝ^n$.
+  % TODO: tucne μ a Σ
+  % TODO: cov sequence?
+  We then write $\mX ∼ 𝓝(μ, Σ)$ where $𝔼[\mX_i] = μ_i$
+  and $cov(\mX_i, \mX_j) = Σ_{ij}$.
+\end{defn}
+
+
+\begin{rem}
+  The parameters $μ$ and $Σ$ uniquely determine the distribution $𝓝(μ, Σ)$.
+\end{rem}
+
+\begin{defn}
+  A random variable $\mX ∼ 𝓝(μ, Σ)$ has a \newterm{degenerate multivariate Gaussian distribution}
+  if $\det Σ = \mZero$.
+\end{defn}
+
+\begin{rem}
+  Given a random variable $\mX ∼ 𝓝(μ, Σ)$, random variables $\mX_1, \ldots,
+  \mX_n$ are independent with distributions $\mX_i ∼ 𝓝(μ_i, σ_i^2)$ if and only
+  if $μ = (μ_1, \ldots, μ_n)$ and $Σ = diag(σ₁², \ldots, σₙ²)$.
+\end{rem}
+
+\begin{thm}
+  If a random variable $\mX ∈ ℝⁿ$ is a multivariate Gaussian, then $\rX_i,
+  \rX_j$ are independent if and only if $cov(\rX_i, \rX_j) = 0$. Note that his
+  is not true for any random variable, as it is a special property of the
+  multivariate Gaussian.
+\end{thm}
+
+\begin{proof}
+  TODO
+\end{proof}
+
