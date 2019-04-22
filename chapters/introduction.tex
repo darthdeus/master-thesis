@@ -2,7 +2,7 @@ A machine learning algorithm is an algorithm that can learn from data. A
 commonly used definition is: "A computer program is said to learn form
 experience $E$ with respect to some class of tasks $T$ and performance measure
 $P$, if its performance at tasks in $T$, as measured by $P$, improves with
-experience $E$ \ref{mitchell1997}. We only provide this definition for
+experience $E$ \citep{mitchell-mldef}. We only provide this definition for
 completeness and our following definitions will assume an intuitive translation
 to this definition.
 
@@ -18,7 +18,7 @@ parameters that the learning algorithm can not learn itself, and they usually
 control the its behavior. A parameter could be chosen to be a hyperparameter
 because it would not be reasonable to infer its value from the training data.
 An example could be the type of optimizer being used to train a neural network
-(e.g. SGD \ref{sgd} or Adam \ref{adam}). The machine learning practicioner
+(e.g. SGD or Adam \citep{kingma2014adam}). The machine learning practicioner
 would not consider the optimizer to be a property of the data distribution, and
 as a reasult treat it as a hyperparameter set externally, rather than trying to
 infer it.
@@ -27,16 +27,16 @@ It could also be set as a hyperparameter simply for practical reasons, where in
 theory the parameter could be learned from the data, but optimizing it directly
 would be too difficult. An example here could be the learning rate of a
 stochastic gradient descent optimizer. Even automatic differentiation
-\ref{autodiff} allows us to compute the gradient flow through arbitrary code,
+\citep{maclaurin2015autograd} allows us to compute the gradient flow through arbitrary code,
 in practice it is not being used to compute the gradients of hyperparameters
 like the parameters of an optimizer, e.g. the learning rate. Instead, the
 learning rate is treated as a hyperparameter and is set ahead of time, or
-according to a fixed schedule. Even when early stopping \ref{early-stopping} or
+according to a fixed schedule. Even when early stopping or
 other heuristic methods are employed, it would still be treated as a
 hyperparameter from the perspective of the learning algorithm.
 
 Bayesian statistics allows us to take a principled approach to setting
-hyperparameters.  We would simply set a prior distribution on each
+hyperparameters. We would simply set a prior distribution on each
 hyperparameter and marginalize over them, but unfortunately this has two
 problems. Firstly, the prior distribution almost always has a parameter of its
 own, such as the rate of a poisson distribution. We could go one step further
@@ -50,17 +50,16 @@ jinak lol}).
 
 There are however cases when the bayesian approach does work. Either the model
 is small and simple enough so that the integral can be actually computed, or
-its properties (such as conditional independence in LDA \ref{lda}) allow is to
+its properties (such as conditional independence in LDA \citep{lda-blei2003latent}) allow us to
 perform more efficient MCMC sampling, or the model could actually have an
 analytic solution to the marginalization. The last case is something we will
 make use of later on when we introduce Gaussian Processes.
 
-Unfortunately, in the field of deep learning \ref{dlb} and neural networks, our models
-are almost always so large that just computing a point estimate of the
+Unfortunately, in the field of deep learning \citep{dlbook} and neural networks, our
+models are almost always so large that just computing a point estimate of the
 parameters is right at the edge of our computational limits
-\ref{neco-velkyho?}. For that reason we do not usually employ bayesian methods
-with regards to model hyperparameters, but look for alternative -- less
-computationally heavy -- approaches.
+\ref{neco-velkyho?}. For that reason we do not usually employ bayesian methods,
+but look for alternative -- less computationally heavy -- approaches.
 
 A simple approach to hyperparameter tuning is either via random search, where
 each parameter is sampled randomly from a given prior distribution, or via grid
@@ -144,7 +143,7 @@ value, and our uncertainty in that value.
 We implemented a tool for optimizing arbitrary programs' hyperparameters using
 bayesian optimization, including a scheduler which runs the evaluations on a
 cluster, and a web interface visualizing the results. We do not provide any
-theoretical extensions to bayesian optimization, as the benefit is only in
+theoretical extensions to bayesian optimization -- the benefit is only in
 implementation. This work however also serves as a thorough introduction to the
 theoretical background, specifically on gaussian processes (GP \todo{zkratku
 zacinat na zacatku}). Understanding the theoretical aspects of GPs allows the
