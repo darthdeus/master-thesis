@@ -31,14 +31,14 @@ maximum. This improvement is defined by an \newterm{acquisition function},
 example of an acquisition function is the \newterm{probability of improvement},
 which simply represents the probability of improving our objective compared to
 the previously achieved maximum. We will show a few other examples of
-acquisition functions in a later section \ref{section-acq-fn}.
+acquisition functions in a later \autoref{section:acq-fn}.
 
 The optimization procedure is sequential, using a bayesian posterior update at
 each step, refining its model as more data are available. At each step the we
 maximize the acquisition function in order to obtain the next sample point
 $x_{i+1}$. We then evaluate $f(x_{i+1})$ to obtain $y_{i+1}$, and incorporate
 it into the dataset. This processs is repeated for as many evaluations as we
-can perform. See algorithm \ref{alg:bopt} for pseudocode.
+can perform. See algorithm \autoref{alg:bopt} for pseudocode.
 
 \begin{algorithm}
   \label{alg:bopt}
@@ -49,7 +49,7 @@ can perform. See algorithm \ref{alg:bopt} for pseudocode.
     Find $x_{i+1}$ by maximizing the acquisition function. \;
     Evaluate $y_{i+1} = f(\rx(x_{i+1})$. \;
     Add the sample to the dataset $𝓓_{i+1} = 𝓓_i \cup (\rx_{i+1}, y_{i+1})$. \;
-    Update the Gaussian Process. \;
+    Update the probabilistic model. \;
   }
   \caption{Bayesian Optimization, \cite{nando-bopt-tutorial}}
 \end{algorithm}
@@ -120,13 +120,74 @@ treatment of GPs until chapter~\ref{chapter:gp}.
 %
 % In order to compute the posterior distribution $p(f|x)$ over functions, we need
 
+\section{Hyperparam vs. Architecture Search}
 
+Using our earlier definition, any parameter which the model does not learn on
+its own could be considered a hyperparameter. This definition is broad enough
+to allow a lot of flexibility, but some hyperparameters are better for the
+framework of bayesian optimization than others. Discrete and categorical
+hyperparameters require special consideration. Bayesian optimization itself is
+flexible in the sense that it allows for an arbitrary probabilistic model, but
+the specific choice does matter when we consider discrete values. In the case
+of GPs, the model itself does not have the ability to directly work with
+anything but continuous real valued vectors.
 
+There has been some recent work \citep{integer-valued-gp} showing better
+approaches for handling integer valued variables. This is done by simply
+rounding the appropriate values before computing their covariance. As the
+kernel will see the values as equivalent, their covariance will be maximized,
+and the GP will be forced to predict a constant value over each integer region.
+While this approach does help a little bit with integer valued variables, it
+does not work for categorical (nominal) variables, which lack any form of
+ordering. If we simply treat them as integers, the GP prior will enforce
+relationships which do not exist.
 
+An alternative approach to solving the problem with categorical variables is to
+use a different model than GPs, namely random forests
+\citep{nando-bayesian-out-of-the-loop}. Their main advantage is the ability to
+naturally handle various types of data. We however do not explore random
+forests in this work, as many of the hyperparameters of interest when tuning
+neural networks are either continuous or integer valued. Categorical variables,
+such as activation functions, are better suited to be tweaked as part of neural
+architecture search \citep{nasnet}.
 
-\section{Acquisition Functions}
+Regardless of the probabilistic model, categorical variables cause many
+immediate problems.  Consider the choice between SGD with momentum
+\citep{overview-of-sgd} and Adam \citep{kingma2014adam}.  While SGD with
+momentum has a \emph{momentum} hyperparameter, Adam does not, but it has its
+own two extra hyperparameters, $β₁$ and $β₂$. This gives us two different sets
+of mutually exclusive hyperparameters. Bayesian optimization however does not
+have any natural way of handling problems like this. Even if we did externally
+enforce two different modes based on which categorical values was chosen, it
+would essentially be the same as running two experiments in parallel, one with
+SGD, and one with Adam. Another issue arises in visualization, which is one of
+the goals of this work. Inspecting the samples from two or more different modes
+of the network at once is challenging at best, and with multiple categorical
+variables the problem grows exponentially.
+
+For these reasons, we chose to not provide direct support for categorical
+variables, apart form converting them to integer variables with an ordering and
+treating them as such. Some categorical variables can be optimized by simply
+treating them as fixed within a particular experiment, and then running
+multiple instances of that experiment with a different value each. Other
+categorical variables, such as the types of layers, activation functions, or
+even the connections between modules, are better left for the framework of
+neural architecture search, which treats them in a principled way.
+
 
 \section{Related work}
-\section{Hyperparam vs. Architecture Search}
-\section{Diskretni hyperparam vs onehot vs ...}
+
+There are a few notable mentions of related work in the area of tuning
+hyperparameters of neural networks. The main motivation for this work, is
+Google Vizier \citep{google-vizier}, which is a proprietary service at Google
+used for black box optimization. There also exist a few implementations of
+bayesian optimization. Spearmint \citep{spearmint} is the most fully featured
+one, but comes with a very restrictive license, and does not perform any
+visualization of the results. GPyOpt \citep{gpyopt2016} and scikit-optimize
+\citep{scikit-optimize} are the most notable libraries for bayesian
+optimization, but they only provide the basic optimization loop for bayesian
+optimization, and do not handle long running experiments in a possibly
+distributed environment.
+
+
 
