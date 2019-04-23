@@ -1,2 +1,55 @@
-\section{Acquisition Functions}
+\section{Acquisition functions}
 \label{section:acq-fn}
+
+% \subsection{Expected Improvement}
+%
+% \newterm{Expected improvement} $EI(x)$ is defined as
+%
+% \begin{equation}
+%   EI(x) = E_{Y \sim \gN(\mu, \sigma^2)} [max(f(x) - f(x^+), 0)]
+% \end{equation}
+%
+% where $f(x^+)$ is the value of the best sample so far and $x^+ =
+% \argmax_{x_i \in x_{1:t}} f(x_i)$.
+%
+% \subsection{Probability of Improvement}
+%
+% We add a small term $\xi$ because otherwise $PI(x^+) = \frac{1}{2}.$
+%
+% \begin{align}
+%   PI(x) &= P(f(x) \geq \mu^+ + \xi) \\
+%         &= \Phi \left(\frac{\mu(x) - \mu^+ - \xi}{\sigma(x)} \right)
+% \end{align}
+%
+% where $\Phi$ is the CDF of a Gaussian. If we knew up front what is the best
+% value $f(x^*)$ we can model that directly by $P(f(x) \geq f(x^*))$.
+%
+%
+% \subsection{GP-UCB}
+%
+% Define the \newterm{regret} and \newterm{cumulative regret} as follows:
+%
+% \begin{align}
+%   r(x) &= f(x^*) - f(x) \\
+%   R_T &= r(x_1) + \cdots + r(x_T).
+% \end{align}
+%
+% The GP-UCB criterion is as follows:
+%
+% \begin{align}
+%   GP-UCB(x) = \mu(x) + \sqrt{\nu \beta} \sigma(x)
+% \end{align}
+%
+% with $\nu = 1$ and $\beta_t = 2 \log(t^{d/2 + 2}\pi^2 / 3 \delta)$ where it can
+% be shown with high probability that this method has no regret, i.e. $\lim_{T
+% \rightarrow \infty} R_T / T = 0$. (Srinivas et at, 2010 TODO REF). (NOTE, if
+% the set of points is not infinite, $\beta$ ends up being different).
+%
+%
+% \section{Algorithm}
+%
+% TODO
+%
+% \section{Parallel Evaluations}
+%
+% TODO
