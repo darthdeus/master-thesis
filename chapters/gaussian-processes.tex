@@ -194,3 +194,210 @@ orientation of the ellipse, and the eigenvalues determine the length of the
 principal axes \citep{bishop2016pattern}.
 
 
+
+\section{Conditional and Marginal Gaussian Distribution}
+
+In this section we derive the conditional $p(x_1 | x_2)$ and marginal $p(x_1)$
+for a given joint distribution $p(x_1, x_2)$. One of the interesting properties
+of a multivariate Gaussian is that both the conditional and the marginal are
+also Gaussian, and we can easily compute their parameters in closed from based
+on the parameters of the joint distribution.
+
+Before we derive the conditional and marginal distributions, let us state
+the partitioned inverse formula without proof.
+
+\begin{thm}[\citep{murphy2012machine}] Consider a partitioned matrix
+
+  \begin{equation}
+    \mM = \begin{bmatrix} \mE & \mF \\ \mG & \mH \end{bmatrix}
+  \end{equation}
+
+  where we assume $\mE$ and $\mH$ are invertible. We have
+
+  \begin{align}
+    \mM^{-1} &= \begin{bmatrix}
+      (\mM / \mH)^{-1} & -(\mM / \mH)^{-1} \mF \mH^{-1} \\
+      -\mH^{-1} \mG (\mM \mH)^{-1} & \mH^{-1} + \mH^{-1} \mG (\mM / \mH)^{-1} \mF \mH^{-1}
+    \end{bmatrix} \\
+             &= \begin{bmatrix}
+      \mE^{-1} + \mE^{-1} \mF (\mM / \mE)^{-1} \mG \mE^{-1} & - \mE^{-1} \mF (\mM / \mE)^{-1} \\
+      -(\mM / \mE)^{-1} \mG \mE^{-1} & (\mM / \mE)^{-1}
+    \end{bmatrix}
+    \label{eq:matrix-inversion-lemma}
+  \end{align}
+
+  where
+
+  \begin{align}
+    \mM / \mH &= \mE - \mF \mH^{-1} \mG \\
+    \mM / \mE &= \mH - \mG \mE^{-1} \mF
+  \end{align}
+
+  is called the \newterm{Schur complement}.
+\end{thm}
+
+\begin{proof}
+  Since the proof is rather technical and only consists of applying the
+  LDU decomposition and many algebraic manipulations, we leave it out and
+  refer the reader to \cite{murphy2012machine} for details.
+\end{proof}
+
+
+\subsection{Conditional Distribution is a Gaussian}
+
+Suppose $\vx$ is a $D$-dimensional random vector with a multivariate Gaussian distribution
+$\gN(\vx | \vmu, \mSigma)$, and that $\vx$ is partitioned into two vectors
+$\vx_1$ and $\vx_2$ such that
+
+\begin{equation}
+  \vx = \partx
+\end{equation}
+
+We also partition the mean vector $\vmu$ and the covariance matrix $\mSigma$
+into a block matrix, and name the inverse of the covariance matrix $\mLambda =
+\mSigma^{-1}$, which will simplify a few of the equations that follow. We will
+derive the exact form of $\mLambda$ and of its individual blocks later in this
+section. For now we simply use the fact that $\mSigma$ is positive-definite,
+and thus it is invertible. The matrix $\mLambda$ is also known as a
+\newterm{precision matrix}.
+
+\begin{equation}
+  \vmu = \partmu,
+  \mSigma = \partsigma, \mLambda = \mSigma^{-1} = \partlambda \label{eq:mvn-partition}
+\end{equation}
+
+Note that since $\mSigma$ is a symmetric matrix, $\ms{12}^T = \ms{21}$, and
+similarly $\ml{12}^T = \ml{21}$. Similarly, $\ms{11}$, $\ms{22}$, $\ml{11}$,
+and $\ml{22}$ are all symmetrical.
+
+Before we derive the parameters of the conditional, we show that the
+conditional distribution $p(x_1 | x_2)$ is a Gaussian. To do this, we take the
+joint distribution $p(x_1, x_2)$ and fix the value of $x_2$
+\citep{bishop2016pattern}. Using the definition of conditional probability
+$p(x_1, x_2) = p(x_1 | x_2) p(x_2)$ we can see that after fixing the value of
+$x_2$, $p(x_2)$ is simply a normalization constant, and the remaining term
+$p(x_1 | x_2)$ is a function of $x_1$ which together with the normalization
+constant gives us the conditional probability distribution on $x_1$.
+We now use the partitioned form of the multivariate Gaussian defined by
+\eqref{eq:mvn-partition} to show that $p(x_1 | x_2)$ is actually a Gaussian.
+
+Let us begin by looking at the exponent in \eqref{eq:mvn-definition}:
+
+\begin{align}
+  -\frac{1}{2} (\vx - \vmu)^T \mLambda (\vx - \vmu) &=
+  -\frac{1}{2} \left(\partx - \partmu \right)^T \partlambda \left(\partx - \partmu \right) \\
+                                                    &= -\frac{1}{2} \partxmu^T \partlambda \partxmu
+\end{align}
+
+To make the next few equations easier to follow we set $\vy_1 = \vx_1 - \vmu_1$ and $\vy_2 = \vx_2 - \vmu_2$.
+
+\begin{align}
+  \begin{split}
+    -\frac{1}{2} \begin{bmatrix} \vy_1 \\ \vy_2 \end{bmatrix} ^T \partlambda \begin{bmatrix} \vy_1 \\ \vy_2 \end{bmatrix} ={}& -\frac{1}{2} \begin{bmatrix} \vy_1 \ml{11} + \vy_2 \ml{21} \\ \vy_1 \ml{12} + \vy_2 \ml{22} \end{bmatrix} ^T \begin{bmatrix} \vy_1 \\ \vy_2 \end{bmatrix}
+  \end{split} \\
+  %
+  \begin{split}
+    ={}& -\frac{1}{2} \left( \vy_1^T \ml{11} \vy_1 + \vy_2^T \ml{21} \vy_1 + \vy_1^T \ml{12} \vy_2 + \vy_2^T \ml{22} \vy_2 \right)
+  \end{split} \\
+  %
+  \begin{split}
+    ={}& -\frac{1}{2} (\vx_1 - \vmu_1)^T \ml{11} (\vx_1 - \vmu_1) {}+ \\
+       &-\frac{1}{2} (\vx_2 - \vmu_2)^T \ml{21} (\vx_1 - \vmu_1) {}+ \\
+       &-\frac{1}{2} (\vx_1 - \vmu_1)^T \ml{12} (\vx_2 - \vmu_2) {}+ \\
+       &-\frac{1}{2} (\vx_2 - \vmu_2)^T \ml{22} (\vx_2 - \vmu_2) \label{eq:mvn-quadratic-form}
+  \end{split}
+\end{align}
+
+We see that this is a quadratic form in $x_1$, and hence the corresponding
+conditional distribution $p(x_1 | x_2)$ will be Gaussian. Because we know
+$p(x₁, x₂) = p(x₁|x₂)p(x₂)$ and that both $p(x₁, x₂)$ and $p(x₁|x₂)$ are
+multivariate Gaussians, fixing the value of $x₁$ means that $p(x₁|x₂)$ as a
+function of $x₂$ is just a normalization constant, and $p(x₂)$ must have the
+same form as $p(x₁, x₂)$ and therefore is also a multivariate Gaussian.
+\todo{tady ten marginal nevim jiste}
+
+Because the Gaussian distribution is completely defined by its mean and
+covariance, we do not need to figure out the value of the normalization
+constant. We simply have to derive the equations for $\vmu$ and $\mSigma$.
+
+We continue with the proof from \cite{murphy2012machine}. We will make use of
+the partitioned matrix inverse theorem \autoref{eq:matrix-inversion-lemma}.
+
+At this point we know that the joint distribution factors into two multivariate
+Gaussians, that is
+\begin{align}
+  p(x_1, x_2) &= p(x_1 | x_2) p(x_2) \\
+              &= \gN(x_1 | \vmu_{1|2}, \ms{1|2}) \gN(x_2 | \vmu_2, \ms{22})
+\end{align}
+and we only need to infer their parameters.  To make the equations more
+readable, we again define
+
+\begin{align}
+    \vy_1 &= \vx_1 - \vmu_1 \\
+    \vy_2 &= \vx_2 - \vmu_2.
+\end{align}
+
+We then simply take the block definition of a multivariate Gaussian and
+multiply everything out
+
+\begin{align}
+    E &= \exp \left\lbrace -\frac{1}{2}
+    \begin{bmatrix} \vy_1 \\ \vy_2 \end{bmatrix}^T
+    \partsigma
+    \begin{bmatrix} \vy_1 \\ \vy_2 \end{bmatrix} \right\rbrace \\
+    %
+    &= \exp \left\lbrace -\frac{1}{2}
+    \begin{bmatrix} \vy_1 \\ \vy_2 \end{bmatrix}^T
+    \begin{bmatrix} \mI & \mZero \\ -\mSigma_{22}^{-1} \mSigma_{21} & \mI \end{bmatrix}
+    \begin{bmatrix} (\mSigma/\mSigma_{22})^{-1} & \mZero \\ \mZero & \mSigma_{22}^{-1} \end{bmatrix}
+    \begin{bmatrix} \mI & -\mSigma_{12} \mSigma_{22}^{-1} & \\ \mZero & \mI \end{bmatrix}
+    \begin{bmatrix} \vy_1 \\ \vy_2 \end{bmatrix} \right\rbrace \\
+    %
+    &= \exp \left\lbrace -\frac{1}{2}
+    \begin{bmatrix} \vy_1^T - \vy_2^T (\mSigma_{22}^{-1} \mSigma_{21}) \\
+    \vy_2
+    \end{bmatrix}^T
+    \begin{bmatrix} (\mSigma/\mSigma_{22})^{-1} & \mZero \\ \mZero & \mSigma_{22}^{-1} \end{bmatrix} \begin{bmatrix} \vy_1 -\mSigma_{12} \mSigma_{22}^{-1} (\vy_2) \\ \vy_2 \end{bmatrix} \right\rbrace \\
+    %
+    &= \exp \left\lbrace -\frac{1}{2}
+    \begin{bmatrix} (\vy_1^T - \vy_2^T \mSigma_{22}^{-1} \mSigma_{21}) (\mSigma/\mSigma_{22})^{-1} \\
+    \vy_2^T \mSigma_{22}^{-1}
+    \end{bmatrix}^T
+    \begin{bmatrix} \vy_1 -\mSigma_{12} \mSigma_{22}^{-1} (\vy_2) \\ \vy_2 \end{bmatrix}
+    \right\rbrace \\
+    %
+    &= \exp \left\lbrace -\frac{1}{2}
+    (\vy_1^T - \vy_2^T \mSigma_{22}^{-1} \mSigma_{21}) (\mSigma/\mSigma_{22})^{-1} (\vy_1 -\mSigma_{12} \mSigma_{22}^{-1} \vy_2)
+    \right\rbrace \times \\
+    & \qquad\qquad \times \exp \left\lbrace -\frac{1}{2} \vy_2^T \mSigma_{22}^{-1} \vy_2 \right\rbrace \nonumber
+\end{align}
+
+We can immediately see that the second term is a quadratic form in $\vx_2$ and
+corresponds to $\gN(\vx_2 | \vmu_2, \mSigma_{22})$. Let us now consider the
+first term in isolation and move the terms around a little bit. We also make
+use of the fact that because $\mSigma_{22}$ is a positive-definite matrix, its
+inverse is also symmetric, so $\mSigma^{-1^T}_{22} = \mSigma^{-1}_{22}$. We
+also know that $\mSigma^T_{12} = \mSigma_{21}$.
+
+\begin{align}
+    E_{1|2} &= \exp \left\lbrace -\frac{1}{2}
+    (\vy_1^T - \vy_2^T \mSigma_{22}^{-1} \mSigma_{21}) (\mSigma/\mSigma_{22})^{-1} (\vy_1 -\mSigma_{12} \mSigma_{22}^{-1} \vy_2) \right\rbrace \\
+    &= \exp \left\lbrace -\frac{1}{2}
+    (\vy_1 - \mSigma_{12}\mSigma_{22}^{-1} \vy_2)^T (\mSigma/\mSigma_{22})^{-1} (\vy_1 -\mSigma_{12} \mSigma_{22}^{-1} \vy_2) \right\rbrace \\
+    &= \exp \{ -\frac{1}{2}
+    (\vx_1 - \vmu_1 - \mSigma_{12}\mSigma_{22}^{-1} (\vx_2 - \vmu_2)^T (\mSigma/\mSigma_{22})^{-1} \\
+    & \hspace{40pt} (\vx_1 - \vmu_1 -\mSigma_{12} \mSigma_{22}^{-1} (\vx_2 - \vmu_2)) \}
+    \label{eq:mvn-quadratic-form-12}
+\end{align}
+
+In \eqref{eq:mvn-quadratic-form-12} we again see a Gaussian density with
+parameters
+\begin{align}
+  \vmu_{1|2} &= \vmu_1 + \mSigma_{12}\mSigma_{22}^{-1} (\vx_2 - \vmu_2) \\
+  \mSigma_{1|2} &= (\mSigma/\mSigma_{22})^{-1} =  \ms{11} - \ms{12} \ms{22}^{-1} \ms{21}.
+\end{align}
+This formula extremely important for the use of GPs as a probabilistic
+model in bayesian optimization. It will allow us to compute the exact
+parameters of the posterior $p(f|x)$ at any given point, and as a result
+compute the acquisition function.
+
