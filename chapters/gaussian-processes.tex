@@ -95,3 +95,57 @@ For a more thorough treatment see \cite{bishop2016pattern} and \cite{murphy2012m
     p(x) = \frac{1}{\sqrt{2 π σ²}} \exp{\left\{ - \frac{1}{2σ²} (x - μ)² \right\}}.
   \end{equation}
 \end{rem}
+
+\begin{thm}
+  Given a random variable $\mX$ with $cov[\mX] = \mSigma$, it follows from
+  the definition of covariance that $cov[\mA \mX] = \mA \mSigma \mA^T$.
+\end{thm}
+
+\begin{proof}
+  \begin{align}
+    cov[\mA \mX] &= E[(\mA \mX - E[\mA \mX])(\mA \mX - E[\mA \mX])^T] \\
+                 &= E[(\mA \mX - \mA E[\mX])(\mA \mX - \mA E[\mX])^T] \\
+                 &= E[\mA (\mX - E[\mX])(\mX - E[\mX])^T \mA^T] \\
+                 &= \mA E[(\mX - E[\mX])(\mX - E[\mX])^T] \mA^T \\
+                 &= \mA cov[\mX] \mA^T \\
+                 &= \mA \Sigma \mA^T
+    \label{eq:gaussian-ax}
+  \end{align}
+\end{proof}
+
+\begin{thm}
+  Given a random variable $\mX \sim \gN(\mZero, \mI)$ and a positive-definite matrix
+  $\mSigma$ with a cholesky decomposition $\mSigma = \mL \mL^T$, then
+
+  \begin{equation}
+    \mL \mX \sim \gN(\mZero, \mSigma).
+    \label{eq:gaussian-cholesky}
+  \end{equation}
+\end{thm}
+
+\begin{proof}
+  We can immediately use \eqref{eq:gaussian-ax}.
+  \begin{align}
+    \mL \mX \sim N(0, \mL \mI \mL^T) = N(0, \mL \mL^T) = N(0, \mSigma)
+  \end{align}
+\end{proof}
+
+\begin{thm}
+  Any affine transformation of a Gaussian is a Gaussian. In particular
+  $$
+    \rX \sim \gN(\vmu, \mSigma) \implies \mA \rX + \vb \sim \gN(\mA \vmu + \vb, \mA \mSigma \mA^T)
+  $$
+  for any $\vmu \in \mR^n, \mSigma \in \mR^{n \times n}$ positive
+  semi-definite, and any $\mA \in \mR^{m \times n}, \vb \in \mR^m$.
+  We call this the \newterm{affine property} of a Gaussian.
+\end{thm}
+
+\begin{proof}
+  Follows from the linearity of expectation together with \autoref{eq:gaussian-cholesky}.
+\end{proof}
+
+Since samples from $\gN(\mZero, \mI)$ can be generated independently, using the
+affine property we can generate samples from an arbitrary multivariate
+Gaussian. All that is required is a procedure for cholesky decomposition, and a
+way of generating independent samples from a univariate gaussian, which can be
+achieved using the Box-Muller transform \citep{box-muller1958note}.

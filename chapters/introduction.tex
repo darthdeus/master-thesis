@@ -38,27 +38,27 @@ from the perspective of the learning algorithm.
 Bayesian statistics allows us to take a principled approach to setting
 hyperparameters. We would simply set a prior distribution on each
 hyperparameter and marginalize over them, but unfortunately this has two
-problems. Firstly, the prior distribution almost always has a parameter of its
-own, such as the rate of a poisson distribution. We could go one step further
-and specify a prior on these parameters, which are often called hyperpriors.
-But the real problem of bayesian methods is that the integral in the
-marginalization often ends up being intractable, and in the case of more
-complicated as neural networks, we are already computatationally bottlenecked
-and can not call upon methods such as Markov-Chain Monte Carlo (MCMC) to
-approximate it (\emph{tuhle vetu napsat jinak lol}).
+problems. The prior distribution almost always has a parameter of its own, such
+as the rate of a poisson distribution. We could go one step further and specify
+a prior on these parameters, which are often called hyperpriors.  But the real
+problem of bayesian methods is that the integral in the marginalization often
+ends up being intractable, and in the case of more complicated as neural
+networks, we are already computatationally bottlenecked and can not use methods
+such as Markov-Chain Monte Carlo (MCMC) to approximate it.
 
 There are however cases when the bayesian approach does work. Either the model
 is small and simple enough so that the integral can be actually computed, or
-its properties (such as conditional independence in LDA \citep{lda-blei2003latent}) allow us to
-perform more efficient MCMC sampling, or the model could actually have an
-analytic solution to the marginalization. The last case is something we will
-make use of later on when we introduce Gaussian Processes.
+its properties (such as conditional independence in LDA
+\citep{lda-blei2003latent}) allow us to perform more efficient MCMC sampling,
+or the model could actually have an analytic solution to the marginalization.
+The last case is something we will make use of later on when we introduce
+Gaussian Processes.
 
 Unfortunately, in the field of deep learning \citep{dlbook} and neural
 networks, our models are almost always so large that just computing a point
-estimate of the parameters is right at the edge of our computational
-limits~\ref{neco-velkyho?}. For that reason we do not usually employ bayesian
-methods, but look for alternative -- less computationally heavy -- approaches.
+estimate of the parameters is close to our computational limits. For that
+reason we do not usually employ bayesian methods, but look for alternative --
+less computationally heavy -- approaches.
 
 A simple approach to hyperparameter tuning is either via random search, where
 each parameter is sampled randomly from a given prior distribution, or via grid
@@ -68,7 +68,7 @@ chosen. The evaluation can be done using an arbitrary metric of performance,
 called the \newterm{objective function}. This could simply be the loss
 achieved by the model on the validation set.
 
-It is not difficult to see that neither of these approaches are optimal.  Both
+It is not difficult to see that neither of these approaches are optimal. Both
 do not take into account the already computed values of the loss. If the model
 is evaluated on one set of hyperparameters and achieves a high loss, we would
 like the hyperparameter tuning mechanism to take this into account, and
