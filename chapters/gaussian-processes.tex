@@ -401,3 +401,62 @@ model in bayesian optimization. It will allow us to compute the exact
 parameters of the posterior $p(f|x)$ at any given point, and as a result
 compute the acquisition function.
 
+
+\section{Gaussian Processes}
+
+\newterm{Gaussian Process} is a stochastic process (a collection of random
+variables), such that every subset of those random variables has a
+multivariate Gaussian distribution. It is defined by a mean function
+$m(\vx)$ and a covariance funciton $\kappa(\vx, \vx')$. Formally, we write
+\begin{equation}
+  p(\vx) \sim 𝓖𝓟 (m(\vx), \kappa(\vx, \vx')).
+\end{equation}
+Any finite subset $\vx = (x_1, \ldots, x_n)$ is jointly Gaussian with mean
+$m(\vx)$ and covariance $\mSigma(\vx)$ where $\mSigma(\vx)_{ij} =
+\kappa(\vx_i, \vx_j)$, where $\kappa$ is any positive definite kernel
+function \citep{murphy2012machine}.
+
+The GP defines a prior distribution over functions $f$, which when
+combined with data $x$ can be converted into a posterior distribution
+over functions $p(f|x)$.
+
+\subsection{GP regression with noise-free observations}
+
+Consider the case when we are interested in predicting a function $f$
+based on a few observations $𝓓 = \{(\vx_1, y_1), \ldots, (\vx_n, y_n)\}$,
+and we are interested in predicting the value of $y_\star$ at a new point
+$x_\star$.
+
+Using the definition of a GP, we know that $y$ and $y_\star$ are jointly
+Gaussian. We also know, that these are the only points we are interested
+in.  Even though the GP is a distribution over functions, that is over
+infintiely dimensional vectors, we only need to look at finitely many
+points and can ignore the rest.  This is a crucial property of the GP and
+essentially makes everything we are about to do possible.
+
+By assuming a GP, we get all of the properties of a multivariate Gaussian
+for free, including a closed form solution to the conditional and marginal
+distribution parameters. Let us now write the joint distribution of $y$ and $y_\star$ in
+a partitioned form
+$$
+  \begin{pmatrix} y \\ y_\star \end{pmatrix} ∼ 𝓝\begin{pmatrix}
+  \begin{pmatrix} \vmu \\ \vmu_\star \end{pmatrix},
+  \begin{pmatrix} \mK & \mK_\star \\ \mK_\star^T & \mK_{\star\star} \end{pmatrix}
+  \end{pmatrix}
+$$
+where $\mK = \kappa(\mX, \mX)$, $\mK_\star = \kappa(\mX, \mX_\star)$ and
+$\mK_{\star\star} = \kappa(\mX_\star, \mX_\star)$ \citep{williams2006gaussian}.
+Because this is just a multivariate Gaussian, we can make use of the conditioning
+formula and compute the posterior $p(y_\star | \mX_\star, \mX, y)$ exactly
+as
+\begin{align}
+  p(y_\star | \mX_\star, \mX, y) &= 𝓝(y_\star | \vmu_\star, \mSigma_\star)
+  \\
+  \vmu_\star &= \vmu(\mX_\star) + \mK_\star^T \mK^{-1} (y - \vmu(\mX))
+  \\
+  \mSigma_\star &= \mK_{\star\star} - \mK_\star^T \mK^{-1} \mK_\star.
+\end{align}.
+
+\subsection{GP regression with noisy observations}
+
+TODO
