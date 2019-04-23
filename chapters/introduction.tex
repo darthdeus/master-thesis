@@ -121,7 +121,7 @@ far}. By sampling at the maximum of the acquisition function we obtain the
 point that is most likely going to help us the most. A key insight here is that
 the model is probabilistic. It does not simply fit a regression line through
 the data points and find the maximum.  Instead, we fit a \newterm{Gaussian
-Process} (see \autoref{chapter:gp}) which allows us to capture the uncertainty in the
+Process} (GP) which allows us to capture the uncertainty in the
 predictions. This uncertainty is taken into account by the acquisition
 function, and as a result it ends up balancing the exploration-exploitation
 tradeoff by both taking into account the predicted value, and our uncertainty
@@ -143,10 +143,10 @@ bayesian optimization, including a scheduler which runs the evaluations on a
 cluster, and a web interface visualizing the results. We do not provide any
 theoretical extensions to bayesian optimization -- the benefit is only in
 implementation. This work however also serves as a thorough introduction to the
-theoretical background, specifically on gaussian processes (GP \todo{zkratku
-zacinat na zacatku}). Understanding the theoretical aspects of GPs allows the
-user to interpret the behavior of the optimizer, as well as better understand
-why some result visualizations might look the way they do.
+theoretical background, specifically on GP. Understanding the theoretical
+aspects of GPs allows the user to interpret the behavior of the optimizer, as
+well as better understand why some result visualizations might look the way
+they do.
 
 Our implementation of bayesian optimization utilizes the GPy library \citep{gpy2014}
 which implements the basic GP regression model. We chose to use the library

@@ -69,17 +69,17 @@ we knew that our function was periodic, we would want a prior distribution over
 periodic functions. But in the case of hyperparameter optimization we will
 generally only consider continuous functions.
 
-We will follow the general consensus of using a Gaussian process (GP)
-\todo{zkratkovat od zacatku} as a prior distribution over functions
-\citep{nando-bopt-tutorial}, as it provides many nice theoretical properties, as well as
-tractable posterior inference. A GP is an extension of the multivariate
-Gaussian distribution to infinitely dimensional random variables. Just as a
-multivariate Gaussian can be thought of as a distribution over vectors, a GP
-can be thought of as a distribution over infinitely dimensional vectors, which
-when indexed by the real numbers are equivalent to functions. A GP assumes that
-any finite subset $\rx = (x_1, \ldots, x_n)$ is jointly Gaussian with some mean
-$m(\rx)$ and covariance $Σ(\rx)$. A GP is defined by its mean function $m$ and
-covariance function $k$ \citep{murphy2012machine}. We write
+We will follow the general consensus of using a GP as a prior distribution over
+functions \citep{nando-bopt-tutorial}, as it provides many nice theoretical
+properties, as well as tractable posterior inference. A GP is an extension of
+the multivariate Gaussian distribution to infinitely dimensional random
+variables. Just as a multivariate Gaussian can be thought of as a distribution
+over vectors, a GP can be thought of as a distribution over infinitely
+dimensional vectors, which when indexed by the real numbers are equivalent to
+functions. A GP assumes that any finite subset $\rx = (x_1, \ldots, x_n)$ is
+jointly Gaussian with some mean $m(\rx)$ and covariance $Σ(\rx)$. A GP is
+defined by its mean function $m$ and covariance function $k$
+\citep{murphy2012machine}. We write
 $$
   𝓖𝓟(m(\rx), k(\rx, \rx')).
 $$
@@ -100,8 +100,6 @@ Intuitively, it is often useful to think of a GP as a function, which instead
 of returning a scalar $f(x)$ returns the mean and standard deviation of a
 Gaussian distribution over the possible values, centered at $x$. We leave a formal
 treatment of GPs until chapter~\ref{chapter:gp}.
-
----
 
 
 % Bayesian optimization does not require any particular form of the prior
