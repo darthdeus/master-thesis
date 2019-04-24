@@ -19,7 +19,8 @@ potentially yield better results \citep{google-vizier}.
 Bayesian optimization techniques are some of the most efficient approaches in
 terms of the number of function evaluations required. Much of the efficiency
 stems from the ability to incorporate prior belief about the problem and to
-trade of exploration and exploitation of the search space \citep{nando-bopt-tutorial}
+trade of exploration and exploitation of the search space
+\citep{nando-bopt-tutorial}.
 
 It is called bayesian because it combines the prior knowledge $p(f)$ about the
 function together with the data in the form of the likelihood $p(x|f)$ to
@@ -44,11 +45,11 @@ can perform. See algorithm \autoref{alg:bopt} for pseudocode.
   \label{alg:bopt}
   \DontPrintSemicolon
   \SetAlgoLined
-  Initialize $\rx_1$ randomly and evaluate $y_1 = f(\rx_1), 𝓓_1 = {(\rx_1, y_1)}$. \;
+  Initialize $\vx_1$ randomly and evaluate $y_1 = f(\vx_1), 𝓓_1 = {(\vx_1, y_1)}$. \;
   \For{$i = 1, 2, \ldots$}{
-    Find $x_{i+1}$ by maximizing the acquisition function. \;
-    Evaluate $y_{i+1} = f(\rx(x_{i+1})$. \;
-    Add the sample to the dataset $𝓓_{i+1} = 𝓓_i \cup (\rx_{i+1}, y_{i+1})$. \;
+    Find $\vx_{i+1}$ by maximizing the acquisition function. \;
+    Evaluate $y_{i+1} = f(\vx(x_{i+1})$. \;
+    Add the sample to the dataset $𝓓_{i+1} = 𝓓_i \cup (\vx_{i+1}, y_{i+1})$. \;
     Update the probabilistic model. \;
   }
   \caption{Bayesian Optimization, \cite{nando-bopt-tutorial}}
@@ -117,6 +118,10 @@ treatment of GPs until chapter~\ref{chapter:gp}.
 %
 %
 % In order to compute the posterior distribution $p(f|x)$ over functions, we need
+
+\section{Acquisition Function}
+
+TODO
 
 \section{Hyperparam vs. Architecture Search}
 

@@ -3,7 +3,7 @@ export TEXINPUTS=../tex//:
 all: thesis.pdf
 
 # LaTeX must be run multiple times to get references right
-thesis.pdf: thesis.tex $(wildcard *.tex) bibliography.bib thesis.xmpdata
+thesis.pdf: thesis.tex $(wildcard chapters/*.tex) bibliography.bib thesis.xmpdata
 	xelatex $<
 	bibtex thesis
 	xelatex $<

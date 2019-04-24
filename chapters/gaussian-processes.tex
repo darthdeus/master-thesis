@@ -292,8 +292,10 @@ Let us begin by looking at the exponent in \eqref{eq:mvn-definition}:
 To make the next few equations easier to follow we set $\vy_1 = \vx_1 - \vmu_1$ and $\vy_2 = \vx_2 - \vmu_2$.
 
 \begin{align}
+    -\frac{1}{2} \begin{bmatrix} \vy_1 \\ \vy_2 \end{bmatrix} ^T & \partlambda \begin{bmatrix} \vy_1 \\ \vy_2 \end{bmatrix} = \\
+  %
   \begin{split}
-    -\frac{1}{2} \begin{bmatrix} \vy_1 \\ \vy_2 \end{bmatrix} ^T \partlambda \begin{bmatrix} \vy_1 \\ \vy_2 \end{bmatrix} ={}& -\frac{1}{2} \begin{bmatrix} \vy_1 \ml{11} + \vy_2 \ml{21} \\ \vy_1 \ml{12} + \vy_2 \ml{22} \end{bmatrix} ^T \begin{bmatrix} \vy_1 \\ \vy_2 \end{bmatrix}
+    ={}& -\frac{1}{2} \begin{bmatrix} \vy_1 \ml{11} + \vy_2 \ml{21} \\ \vy_1 \ml{12} + \vy_2 \ml{22} \end{bmatrix} ^T \begin{bmatrix} \vy_1 \\ \vy_2 \end{bmatrix}
   \end{split} \\
   %
   \begin{split}
@@ -315,6 +317,8 @@ multivariate Gaussians, fixing the value of $x₁$ means that $p(x₁|x₂)$ as 
 function of $x₂$ is just a normalization constant, and $p(x₂)$ must have the
 same form as $p(x₁, x₂)$ and therefore is also a multivariate Gaussian.
 \todo{tady ten marginal nevim jiste}
+
+TODO: x2 je spatne (marignal)
 
 Because the Gaussian distribution is completely defined by its mean and
 covariance, we do not need to figure out the value of the normalization
@@ -340,37 +344,39 @@ readable, we again define
 We then simply take the block definition of a multivariate Gaussian and
 multiply everything out
 
-\begin{align}
-    E &= \exp \left\lbrace -\frac{1}{2}
-    \begin{bmatrix} \vy_1 \\ \vy_2 \end{bmatrix}^T
-    \partsigma
-    \begin{bmatrix} \vy_1 \\ \vy_2 \end{bmatrix} \right\rbrace \\
-    %
-    &= \exp \left\lbrace -\frac{1}{2}
-    \begin{bmatrix} \vy_1 \\ \vy_2 \end{bmatrix}^T
-    \begin{bmatrix} \mI & \mZero \\ -\mSigma_{22}^{-1} \mSigma_{21} & \mI \end{bmatrix}
-    \begin{bmatrix} (\mSigma/\mSigma_{22})^{-1} & \mZero \\ \mZero & \mSigma_{22}^{-1} \end{bmatrix}
-    \begin{bmatrix} \mI & -\mSigma_{12} \mSigma_{22}^{-1} & \\ \mZero & \mI \end{bmatrix}
-    \begin{bmatrix} \vy_1 \\ \vy_2 \end{bmatrix} \right\rbrace \\
-    %
-    &= \exp \left\lbrace -\frac{1}{2}
-    \begin{bmatrix} \vy_1^T - \vy_2^T (\mSigma_{22}^{-1} \mSigma_{21}) \\
-    \vy_2
-    \end{bmatrix}^T
-    \begin{bmatrix} (\mSigma/\mSigma_{22})^{-1} & \mZero \\ \mZero & \mSigma_{22}^{-1} \end{bmatrix} \begin{bmatrix} \vy_1 -\mSigma_{12} \mSigma_{22}^{-1} (\vy_2) \\ \vy_2 \end{bmatrix} \right\rbrace \\
-    %
-    &= \exp \left\lbrace -\frac{1}{2}
-    \begin{bmatrix} (\vy_1^T - \vy_2^T \mSigma_{22}^{-1} \mSigma_{21}) (\mSigma/\mSigma_{22})^{-1} \\
-    \vy_2^T \mSigma_{22}^{-1}
-    \end{bmatrix}^T
-    \begin{bmatrix} \vy_1 -\mSigma_{12} \mSigma_{22}^{-1} (\vy_2) \\ \vy_2 \end{bmatrix}
-    \right\rbrace \\
-    %
-    &= \exp \left\lbrace -\frac{1}{2}
-    (\vy_1^T - \vy_2^T \mSigma_{22}^{-1} \mSigma_{21}) (\mSigma/\mSigma_{22})^{-1} (\vy_1 -\mSigma_{12} \mSigma_{22}^{-1} \vy_2)
-    \right\rbrace \times \\
-    & \qquad\qquad \times \exp \left\lbrace -\frac{1}{2} \vy_2^T \mSigma_{22}^{-1} \vy_2 \right\rbrace \nonumber
-\end{align}
+{\setlength{\arraycolsep}{5pt}
+  \begin{align}
+      \llap{E} &= \exp \left\lbrace -\frac{1}{2}
+      \begin{bmatrix} \vy_1 \\ \vy_2 \end{bmatrix}^T
+      \partsigma
+      \begin{bmatrix} \vy_1 \\ \vy_2 \end{bmatrix} \right\rbrace \\
+      %
+      &= \exp \left\lbrace -\frac{1}{2}
+      \begin{bmatrix} \vy_1 \\ \vy_2 \end{bmatrix}^T
+      \begin{bmatrix} \mI & \mZero \\ -\mSigma_{22}^{-1} \mSigma_{21} & \mI \end{bmatrix}
+      \begin{bmatrix} (\mSigma/\mSigma_{22})^{-1} & \mZero \\ \mZero & \mSigma_{22}^{-1} \end{bmatrix}
+      \begin{bmatrix} \mI & -\mSigma_{12} \mSigma_{22}^{-1} \\ \mZero & \mI \end{bmatrix}
+      \begin{bmatrix} \vy_1 \\ \vy_2 \end{bmatrix} \right\rbrace \\
+      %
+      &= \exp \left\lbrace -\frac{1}{2}
+      \begin{bmatrix} \vy_1^T - \vy_2^T (\mSigma_{22}^{-1} \mSigma_{21}) \\
+      \vy_2
+      \end{bmatrix}^T
+      \begin{bmatrix} (\mSigma/\mSigma_{22})^{-1} & \mZero \\ \mZero & \mSigma_{22}^{-1} \end{bmatrix} \begin{bmatrix} \vy_1 -\mSigma_{12} \mSigma_{22}^{-1} (\vy_2) \\ \vy_2 \end{bmatrix} \right\rbrace \\
+      %
+      &= \exp \left\lbrace -\frac{1}{2}
+      \begin{bmatrix} (\vy_1^T - \vy_2^T \mSigma_{22}^{-1} \mSigma_{21}) (\mSigma/\mSigma_{22})^{-1} \\
+      \vy_2^T \mSigma_{22}^{-1}
+      \end{bmatrix}^T
+      \begin{bmatrix} \vy_1 -\mSigma_{12} \mSigma_{22}^{-1} (\vy_2) \\ \vy_2 \end{bmatrix}
+      \right\rbrace \\
+      %
+      &= \exp \left\lbrace -\frac{1}{2}
+      (\vy_1^T - \vy_2^T \mSigma_{22}^{-1} \mSigma_{21}) (\mSigma/\mSigma_{22})^{-1} (\vy_1 -\mSigma_{12} \mSigma_{22}^{-1} \vy_2)
+      \right\rbrace \times \\
+      & \qquad\qquad \times \exp \left\lbrace -\frac{1}{2} \vy_2^T \mSigma_{22}^{-1} \vy_2 \right\rbrace \nonumber
+  \end{align}
+}
 
 We can immediately see that the second term is a quadratic form in $\vx_2$ and
 corresponds to $\gN(\vx_2 | \vmu_2, \mSigma_{22})$. Let us now consider the
@@ -460,3 +466,7 @@ as
 \subsection{GP regression with noisy observations}
 
 TODO
+
+\subsection{Kernels}
+
+\subsection{Optimizing GP hyperparameters}
