@@ -442,31 +442,151 @@ essentially makes everything we are about to do possible.
 
 By assuming a GP, we get all of the properties of a multivariate Gaussian
 for free, including a closed form solution to the conditional and marginal
-distribution parameters. Let us now write the joint distribution of $y$ and $y_\star$ in
+distribution parameters. Let us now write the joint distribution of $\vy$ and $\vy_\star$ in
 a partitioned form
 $$
-  \begin{pmatrix} y \\ y_\star \end{pmatrix} ∼ 𝓝\begin{pmatrix}
+  \begin{pmatrix} \vy \\ \vy_\star \end{pmatrix} ∼ 𝓝\begin{pmatrix}
   \begin{pmatrix} \vmu \\ \vmu_\star \end{pmatrix},
   \begin{pmatrix} \mK & \mK_\star \\ \mK_\star^T & \mK_{\star\star} \end{pmatrix}
   \end{pmatrix}
 $$
 where $\mK = \kappa(\mX, \mX)$, $\mK_\star = \kappa(\mX, \mX_\star)$ and
 $\mK_{\star\star} = \kappa(\mX_\star, \mX_\star)$ \citep{williams2006gaussian}.
-Because this is just a multivariate Gaussian, we can make use of the conditioning
-formula and compute the posterior $p(y_\star | \mX_\star, \mX, y)$ exactly
-as
+Note that $\vy$ and $\vy_\star$ can be either single points, or they can be
+vectors, as we might be interested in computing the posterior over multiple
+points at once given an existing dataset.  Because this is just a multivariate
+Gaussian, we can make use of the conditioning formula and compute the posterior
+$p(\vy_\star | \mX_\star, \mX, \vy)$ exactly as
 \begin{align}
-  p(y_\star | \mX_\star, \mX, y) &= 𝓝(y_\star | \vmu_\star, \mSigma_\star)
+  p(\vy_\star | \mX_\star, \mX, \vy) &= 𝓝(\vy_\star | \vmu_\star, \mSigma_\star)
   \\
-  \vmu_\star &= \vmu(\mX_\star) + \mK_\star^T \mK^{-1} (y - \vmu(\mX))
+  \vmu_\star &= \vmu(\mX_\star) + \mK_\star^T \mK^{-1} (\vy - \vmu(\mX))
   \\
   \mSigma_\star &= \mK_{\star\star} - \mK_\star^T \mK^{-1} \mK_\star.
-\end{align}.
+\end{align}
+where $\vmu_\star$ is the mean and $\mSigma_\star$ the covariance of the multivariate
+Gaussian on $\vy_\star$.
 
 \subsection{GP regression with noisy observations}
 
-TODO
+Consider the case when $f$ is not a deterministic function, but rather a
+stochastic function which returns a noisy output $y$ given some fixed input
+$\vx$ (meaning $f(\vx)$ is a random variable). GP regression is flexible enough
+to model Gaussian noise in the output directly. For now, let us consider the noise
+having a fixed variance $σ²$.
+
+In practice, the noise becomes a baseline for the variance of each point of the posterior,
+as the variance can never be lower than the noise. Since the variance is represented on the
+diagonal of the covariance matrix computed by the kernel function $κ$, we can model the noise
+directly by simply adding a diagonal matrix to the output of the kernel, that is
+$$
+  \cov(\vy) = κ(\mX, \mX) + σ²\mI.
+$$
+
+See \autoref{figure:gp-noise} for a comparison of noise-less and noisy
+regression. It should also be noted that in principle nothing is preventing us
+from specifying a different noise value for each element of the diagonal. This
+could be useful if we had additional prior information about the function $f$.
+It could, for example, be an output of a measurement for which we know exactly
+the amount of noise for each~$\vx$.
+
+\begin{figure}
+  \begin{center}
+    \includegraphics[width=1.0\textwidth]{images/gp-noise.png}
+    \caption{GP regression without noise on the left, and with a constant
+    amount of noise added on the right.}
+  \end{center}
+\end{figure}
+\label{figure:gp-noise}
 
 \subsection{Kernels}
 
+So far we have considered the covariance function $κ$ to be an arbitrary
+positive-definite kernel. Even though in theory there are no restrictions on
+what kernel we can choose, there are a few more popular choices that are
+commonly used.
+
+A prototypical example is the squared exponential (SE) kernel, also called the
+radial-basis function (RBF) kernel
+$$
+κ(x₁, x₂) = σₖ²\exp\left\{ -\frac{1}{2\mathcal{l}} (x₁ - x₂)² \right\}.
+$$
+This kernel, among many others, falls under the category of stationary kernels.
+A \newterm{stationary kernel} is one which is shift-invariant, which means its
+value does not depend on the absolute values of $x₁$ and $x₂$, but only on
+their distance $d = |x₁ - x₂|$. We can thus write it as
+$$
+κ(x₁, x₂) = σₖ²\exp\left\{ -\frac{1}{2\mathcal{l}} d² \right\}.
+$$
+
+The values $σₖ$ and $l$ are called the variance and lengthscale, and control
+the behavior of the kernel, where $σₖ$ changes the vertical scale of the
+function, and $l$ changes the horizontal scale. Changing the lengthscale
+essentially allows the kernel to re-normalize the data. If $\vx$ is a vector we
+can define a lengthscale parameter $lᵢ$ for each of the components. This
+becomes very useful in the context of hyperparameters where each hyperparameter
+can have a very different scale, and the individual lengtscale per component
+allows the kernel to capture it.
+
+Figure \autoref{figure:gp-lengthscale} show how the behavior of the kernel
+changes based on the changed value of the lengthscale $l$. When the lengthscale
+is set too low the values of $y$ become essentially uncorrelated, leading to a
+function with many spikes. On the other hand, a larger value for the lengthscale
+yields a much smoother function.
+
+\begin{figure}
+  \begin{center}
+    \includegraphics[width=1.0\textwidth]{images/gp-lengthscale.png}
+    \caption{Lengthscale $l = 0.2$ on the left, and $l = 2$ on the right.}
+  \end{center}
+\end{figure}
+\label{figure:gp-lengthscale}
+
+
 \subsection{Optimizing GP hyperparameters}
+
+So far we have considered the noise, variance and lengthscale parameters to be
+fixed, but in this section we show how their value can be determined
+automatically form the data using maximum likelihood estimation.
+
+Since the GP is a probabilistic model, we can ask it directly what is the
+likelihood of our data. Using the definition of a GP, we know that the
+likelihood of our data is a multivariate Gaussian, that is $p(\vy | \mX) =
+𝓝(\vy | \mZero, \mK)$, giving us a log likelihood of
+$$
+\log p(\vy | \mX) = -\frac{1}{2}\vy \mK^{-1}\vy - \frac{1}{2} \log \det \mK - \frac{N}{2} \log (2 π).
+\label{eq:kernel-marginal-likelihood}
+$$
+
+We leave out the technical details (see \cite{williams2006gaussian} for more
+details) including the gradient of the marginal likelihood with respect to the
+kernel parameters, as they do not provide any useful insights.
+
+One important detail we want to stress out is that computing $K^{-1}$ takes
+$O(N³)$, which puts a serious restriction on the size of the data we can fit
+with exact GP regression. This does not concern us in the context of
+hyperparamter optimization as we would always stay within low hundreds of
+evaluations anyway, but for other tasks it becomes a serious limitation. As a
+result many workarounds for approximate inference were developed
+\citep{williams2006gaussian}, which again, we omit from this text, because they
+are not relevant for hyperparameter optimization.
+
+Implementing the kernel parameter optimization is easy in practice. One can
+simply implement the marginal likelihood formula shown in
+\autoref{eq:kernel-marginal-likelihood} \todo{neni oznaceno jako rovnice} and
+use a package for automatic differentiation with an optimizer like SGD or
+L-BFGS to optimize the parameters. Since the objective is non-linear, a common
+practice \citep{gpy2014} is to optimize with mutliple restarts.
+\autoref{figure:gp-kernel-param-optimization} shows the effect of optimizing
+kernel parameters using maximum likelihood.
+
+\begin{figure}
+  \begin{center}
+    \includegraphics[width=1.0\textwidth]{images/gp-kernel-param-optimization.png}
+    \caption{GP regression without optimizing kernel parameters on the left,
+    and after optimizing using maximum likelihood on the right.}
+  \end{center}
+\end{figure}
+\label{figure:gp-kernel-param-optimization}
+
+
