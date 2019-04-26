@@ -584,7 +584,10 @@ kernel parameters using maximum likelihood.
   \begin{center}
     \includegraphics[width=1.0\textwidth]{images/gp-kernel-param-optimization.png}
     \caption{GP regression without optimizing kernel parameters on the left,
-    and after optimizing using maximum likelihood on the right.}
+      and after optimizing using maximum likelihood on the right. Notice that
+      the noise parameter is also optimized, as the regression model does not
+      go directly through the data points, but instead considers the small
+      variation as due to noise.}
   \end{center}
 \end{figure}
 \label{figure:gp-kernel-param-optimization}

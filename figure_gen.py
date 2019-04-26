@@ -52,11 +52,14 @@ plt.savefig("images/gp-lengthscale.png")
 ### Parameter optimization
 
 
+X = np.array([1, 2, 2.2, 6]).reshape(-1, 1)
+Y = np.array([0.3, 1., 1.2, 0.6]).reshape(-1, 1)
+
 plt.figure(figsize=(16, 5))
 ax = plt.subplot(121)
 
 m = GPy.models.GPRegression(X, Y)
-m.optimize()
+m.Gaussian_noise.variance = 0.
 m.kern.lengthscale = 4.
 m.kern.variance = .1
 m.plot(ax=ax, legend=False)
