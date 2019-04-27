@@ -36,6 +36,16 @@ It is also worth mentioning, that since multiple instances of \bopt could be run
 
 Training neural networks is a computationally intensive task, and tuning hyperparameters makes it an order of magnitude more expensive. As a result, running some experiment on a local computer might not be an option for the user. The package was designed with different evaluation environments in mind and provides a flexible concept of a \inlinecode{Runner} class, which abstracts away the process of starting a new evaluation, that is figuring out how and where to run the script file representing the objective function.
 
+We provide two different runners out of the box:
+
+\begin{description}
+	\item[Local] runs the process on the same machine as \bopt.
+	\item[SGE] submits a job to the Son of Grid Engine \citep{sge}.
+\end{description}
+
+All runners support job parallelism using the Constant Liar approximation (see \autoref{section:parallel-evaluations}), which is part of the reason why each \inlinecode{Sample} stores a mean prediction. This value is being used as $y$ whenever a new evaluation point needs to be chosen during parallel evaluations.
+
+
 \section{GPy}
 
 \section{Random Search}
