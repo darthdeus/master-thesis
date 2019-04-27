@@ -1,1 +1,43 @@
-- random search
+This chapter describes the implementation part of this thesis. While we do not provide any theoretical extensions to Bayesian optimization, we instead provide a modular and fully working implementation which was tested on multiple experiments. The implementation is provided as a Python (\cite{python}) package called \bopt (short for Bayesian optimization).
+
+The main features of the package are:
+
+\begin{itemize}
+	\item Flexible experiment configuration with random search and GP backends.
+	\item Parallel execution of evaluations, both on the local machine and on a cluster.
+	\item Robust error handling with duplicate/similar sample detection.
+	\item Command line interface for controlling the experiment evaluations, including running a manual evaluation with user specified hyperparameters.
+	\item Simple filesystem based storage with user-readable and editable serialization format based on YAML.
+	\item Web based visualizations of the whole optimization process, including
+	1D and 2D slices and marginal plots at all points during the evaluation.
+\end{itemize}
+
+
+
+\section{Architecture}
+
+In this section we will explore the high level architecture of \bopt. Everything is structured around a central class \inlinecode{Experiment}, which represents a single objective function together with a configuration of its hyperparameters, and configuration for the Bayesian optimization itself. The \inlinecode{Experiment} can contain multiple \inlinecode{Samples}, where each sample represents a single evaluation of the objective function.
+
+We assume the function being optimized can be evaluated by running a script file. The hyperparameters will be passed as command line arguments, and the output will be parsed from the standard output using a regular expression provided by the user. This provides the user with maximum flexibility with regards how the actual function is being executed, as \bopt will simply spawn the process, pass the command line arguments, and then wait for it to terminate to collect the output and parse the result. If the result is not found in the output, or the process exists with an exit code greater than $0$ it will mark the evaluation as failed. We do not put any restrictions on the type of script the user might want to provide. It is solely at the discretion of the \inlinecode{Runner} (see \autoref{section:runners}) to figure out how to run the provided file.
+
+Each \bopt experiment is located in its own directory on the filesystem, where it stores all of the meta information in a single \inlinecode{meta.yml} file. This makes it easy for the user to manually inspect and edit if needed, or even backup when performing more complicated operations, such as deleting specific samples, or manually adding samples from a different experiment. Since Bayesian optimization is memory-less, that is always starting from scratch, the user can easily combine evaluations from multiple different experiments by hand, or even delete samples which were created by accident, such as when using manual evaluations.
+
+
+\subsection{Samples, Result Collection and Locking}
+
+Each evaluation of the objective function is split into two parts. One being the \inlinecode{Sample}, which contains the specific hyperparameter values for $x$, kernel parameters of the GP model which was used to compute the sample, a posterior prediction of its mean and variance, and then the second part, which is an optional \inlinecode{Job} instance, which represents the actual running evaluation. The \inlinecode{Job} simply wraps the running process 
+
+Each \inlinecode{Sample} can also have an optional \inlinecode{Job}, which only wraps the process ID with runner-specific information on how to get the status of the running job, kill it, etc. The \inlinecode{Sample} only represents a snapshot at one point in time. Every time a \bopt command is executed, or whenever a new state is required, a \emph{result collection procedure} will be called, which checks the status of all running jobs, and updates their respective samples with any results or failure information. This is done mainly to avoid race conditions, as the evaluations themselves are running asynchronously from the main program flow in \bopt. Apart from the collection procedure and a few exceptions, such as starting a new job, the main data structure is considered read only.
+
+It is also worth mentioning, that since multiple instances of \bopt could be running at any given time, we have employed a file locking mechanism which creates a \inlinecode{.lockfile} file in the experiment directory, which any other \bopt instance would detect and wait on release. This allows the user to use the command line utilities while an experiment is running without worrying about data corruption.
+
+\subsection{Runners}
+\label{section:runners}
+
+Training neural networks is a computationally intensive task, and tuning hyperparameters makes it an order of magnitude more expensive. As a result, running some experiment on a local computer might not be an option for the user. The package was designed with different evaluation environments in mind and provides a flexible concept of a \inlinecode{Runner} class, which abstracts away the process of starting a new evaluation, that is figuring out how and where to run the script file representing the objective function.
+
+\section{GPy}
+
+\section{Random Search}
+
+\section{Visualizations}

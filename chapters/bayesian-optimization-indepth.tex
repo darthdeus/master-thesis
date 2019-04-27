@@ -22,7 +22,7 @@ than probability of improvement. For more examples of acquisition functions see
 \cite{frazier2018tutorial}.
 
 In both of these cases, the next sampling point would be chosen by maximizing
-the acquisition function, that is $$x_{\operatorname{next} = \argmax_x EI(x)$$ for
+the acquisition function, that is $$x_{\operatorname{next}} = \argmax_x EI(x)$$ for
 the case of expected improvement. This can again be done by any stochastic optimizer,
 such as the commonly chosen L-BFGS with restarts.
 
@@ -33,7 +33,7 @@ In practice we might have the ability to evaluate $f(\vx)$ at multiple points
 in parallel, but the framework we have shown so far only allows for sequential
 optimization. In the previous section we've shown a few examples of the
 acquisition functions. A natural extension would be to not optimize with respect
-to a single $x_\operatorname{next}$, but rather multiple points. In the context of
+to a single $x_{\operatorname{next}}$, but rather multiple points. In the context of
 EI this is called \newterm{parallel expected improvemenet}.
 
 Unfortunately, there is no simple solution \citep{frazier2018tutorial}. A
@@ -49,6 +49,12 @@ and consider them part of the dataset $𝓓$.
 
 \section{Integer parameters}
 
+GP regression by itself does not have the ability to model integer values in $X$ directly as some other models do (e.g. random forests \autoref{chapter:bo}). A common solution, used by \citep{spearmint} and which we also implement in this thesis, is to consider all parameters to be real valued and only round them at the end.
+
+In recently published work by \cite{integer-valued-gp} they show a more principled approach. The effect of rounding causes the model to see variation and relationships even among constant-valued regions. A possible downside is that the model could predict values different enough so that the acquisition function would obtain a maximum within a constant region which already has an existing sample, and thus wasting an evaluation. A proposed solution to this problem, as mentioned in the paper, is to round the appropriate values right before they are input into the kernel function, such as
+$$\kappa'(x_1, x_2) = \kappa(T(x_1), T(x_2))$$ where $T(x)$ is an identity for real valued elements and a rounding function for integers.
+
+Our implementation however does not use this approach, as our GP regression is handled by the \cite{gpy2014} library, which did not support it at the time, and implementing it would mean overriding many of the existing kernels. We did instead handle the problem explicitly by detecting the pathological cases, as described in \autoref{chapter:software}.
 
 
 \section{bopt algorithm}
@@ -57,55 +63,7 @@ matematika
 
 \section{Logscale}
 
-% \subsection{Expected Improvement}
-%
-% \newterm{Expected improvement} $EI(x)$ is defined as
-%
-% \begin{equation}
-%   EI(x) = E_{Y \sim \gN(\mu, \sigma^2)} [max(f(x) - f(x^+), 0)]
-% \end{equation}
-%
-% where $f(x^+)$ is the value of the best sample so far and $x^+ =
-% \argmax_{x_i \in x_{1:t}} f(x_i)$.
-%
-% \subsection{Probability of Improvement}
-%
-% We add a small term $\xi$ because otherwise $PI(x^+) = \frac{1}{2}.$
-%
-% \begin{align}
-%   PI(x) &= P(f(x) \geq \mu^+ + \xi) \\
-%         &= \Phi \left(\frac{\mu(x) - \mu^+ - \xi}{\sigma(x)} \right)
-% \end{align}
-%
-% where $\Phi$ is the CDF of a Gaussian. If we knew up front what is the best
-% value $f(x^*)$ we can model that directly by $P(f(x) \geq f(x^*))$.
-%
-%
-% \subsection{GP-UCB}
-%
-% Define the \newterm{regret} and \newterm{cumulative regret} as follows:
-%
-% \begin{align}
-%   r(x) &= f(x^*) - f(x) \\
-%   R_T &= r(x_1) + \cdots + r(x_T).
-% \end{align}
-%
-% The GP-UCB criterion is as follows:
-%
-% \begin{align}
-%   GP-UCB(x) = \mu(x) + \sqrt{\nu \beta} \sigma(x)
-% \end{align}
-%
-% with $\nu = 1$ and $\beta_t = 2 \log(t^{d/2 + 2}\pi^2 / 3 \delta)$ where it can
-% be shown with high probability that this method has no regret, i.e. $\lim_{T
-% \rightarrow \infty} R_T / T = 0$. (Srinivas et at, 2010 TODO REF). (NOTE, if
-% the set of points is not infinite, $\beta$ ends up being different).
-%
-%
-% \section{Algorithm}
-%
-% TODO
-%
-% \section{Parallel Evaluations}
-%
-% TODO
+When optimizing hyperparameters we might want to distinguish not only between real and integer valued ones, but also based on their scale. Optimizing the number of training epochs or layers are very well modelled by a linear scale, but a learning rate is better modelled with a logarithmic scale.
+
+We provide a simple solution, which can work independently of Bayesian optimization, by simply transforming all of the appropriate value to logscale before inputting them into the model, and then transforming them back after we get a next sample $x$ proposal.
+
