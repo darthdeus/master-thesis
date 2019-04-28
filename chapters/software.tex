@@ -173,3 +173,44 @@ By default, this would run $20$ evaluations in total with no parallelism. The nu
 The way \inlinecode{bopt run} tracks the number of running jobs is by checking the \inlinecode{meta.yml} file for the IDs, and then checking the job status and counting how many are running. This allows it to respect the number of jobs running prior to the execution of \inlinecode{bopt run}. If the user first was to start say $5$ evaluations by hand (e.g. using \inlinecode{bopt run-single}) and only then run \inlinecode{bopt run --n\_parallel=5} while the first $5$ jobs were still running, the instance of \inlinecode{bopt run} would correctly identify the running jobs and wait for some of them to finish before launching new ones.
 
 \section{Visualizations}
+
+Given the complex nature of tuning hyperparameters, one might be tempted to simply run grid search and examine the results. Ignoring the computational aspects for a moment let us focus on the manual inspection of the results. As the number of hyperparameters grows beyond to $5$ -- $10$ it becomes very difficult to infer relationships between hyperparameters from a flat list of evaluations. \autoref{figure:sample-table} shows an example of a table with $6$ different hyperparameters. To model a $6$-dimensional space one needs to run at least $15$ -- $20$ evaluations to get enough information to infer relationships between the dimensions. But as the number of evaluations grow, it becomes increasingly difficult to look at tabular data and infer relationships from them.
+
+\begin{figure}
+	\begin{center}
+		\includegraphics[width=1.0\textwidth]{images/sample-table.png}
+		\caption{A table showing the results of multiple objective function evaluations.}
+	\end{center}
+\end{figure}
+\label{figure:sample-table}
+
+We provide a practical solution of plotting 1D and 2D marginal GP fits for all hyperparameters and their combinations. In \autoref{figure:2d-marginal} we show the relationship between two of the hyperparameters as measured in one of our experiments (more details in \autoref{chapter:experiments}). We can also show each 1D marginal in order to visualize how each hyperparameter affects the fitness irrespective of the others, as shown in \autoref{figure:1d-marginal}. The 1D figures can also plot the acquisition function, which can also serve as a useful debugging tool, e.g. to diagnose possible overfitting of the GP. Lastly, we also allow the user to view these visualizations at any point in time during the optimization process, as shown in \autoref{figure:timeline-view}. This allows to view the GP regression as more evaluations were created.
+
+\begin{figure}
+	\begin{center}
+		\includegraphics[width=1.0\textwidth]{images/2d-marginal.png}
+		\caption{2D marginal plot showing the dependence between $\beta_2$ and \emph{label smoothing} in one of our experiments when training a larger tagger and lemmatizer network on a Czech treebank.}
+	\end{center}
+\end{figure}
+\label{figure:2d-marginal}
+
+\begin{figure}
+	\begin{center}
+		\includegraphics[width=1.0\textwidth]{images/1d-marginal.png}
+		\caption{1D marginal plot showing the effect of \emph{batch size} on the objective function on the same model as shown in \autoref{figure:2d-marginal}. The red line shows the value of the acquisition function.}
+	\end{center}
+\end{figure}
+\label{figure:1d-marginal}
+
+The benefit of a GP regression model is that the marginal distribution on any combination if the hyperparameters simply follows the marginalization property (see \autoref{eq:mvn-marginal-parameters}), which says we can only look at the mean and covariance of the parameters we are interested in, as all of the other ones get marginalized out, that is $p(\vx_2) \sim \mathcal{N}(\vx_2 | \vmu_2, \mSigma_{22})$ where $p(\vx_2) = \int p(\vx_1, \vx_2)\ d\vx_1$ and a partitioned matrix $\mSigma$ as described in \autoref{chapter:gp}. Using this property, we can compute the 1D marginal projection by fitting a model to the coordinate corresponding to the hyperparameter of interest.
+
+Similarly, we might be interested in looking at slices through the GP regression model, that is fixing a value of some hyperparameters, and examining how the objective changes when interpolating through the remaining ones. This is again simple to achieve computationally when the model is a GP, because by slicing we are simply conditioning on the values of some elements of $\vx$ while leaving the others free. Using the conditioning formula shown in \autoref{eq:mvn-conditional-parameters} we can compute the posterior parameters in closed form, and then simply plot the predicted mean and variance. We don't show this case in the figures since the plots look exactly the same as the marginal ones, except of course for the specific values. The user can simply toggle between the two modes.
+
+\begin{figure}
+	\begin{center}
+		\includegraphics[width=1.0\textwidth]{images/timeline-view}
+		\caption{A timeline showing all of the evaluated experiments, together with their objective value, model type (shown in color), and the hyperparameters used for evaluation. The user can select any of the evaluations on the timeline and all of the plots will be shown from the perspective of that evaluation, i.e. what the model \emph{saw} when choosing the hyperparameters of that specific evaluation.}
+	\end{center}
+\end{figure}
+\label{figure:timeline-view}
+

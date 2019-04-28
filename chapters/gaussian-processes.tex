@@ -401,12 +401,15 @@ parameters
 \begin{align}
   \vmu_{1|2} &= \vmu_1 + \mSigma_{12}\mSigma_{22}^{-1} (\vx_2 - \vmu_2) \\
   \mSigma_{1|2} &= (\mSigma/\mSigma_{22})^{-1} =  \ms{11} - \ms{12} \ms{22}^{-1} \ms{21}.
+  \label{eq:mvn-conditional-parameters}
 \end{align}
 This formula extremely important for the use of GPs as a probabilistic
 model in bayesian optimization. It will allow us to compute the exact
 parameters of the posterior $p(f|x)$ at any given point, and as a result
 compute the acquisition function.
 
+\todo{marginal}
+\label{eq:mvn-marginal-parameters}
 
 \section{Gaussian Processes}
 
