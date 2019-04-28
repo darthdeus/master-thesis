@@ -58,14 +58,43 @@ $$\kappa'(x_1, x_2) = \kappa(T(x_1), T(x_2))$$ where $T(x)$ is an identity for r
 Our implementation however does not use this approach, as our GP regression is handled by the \cite{gpy2014} library, which did not support it at the time, and implementing it would mean overriding many of the existing kernels. We did instead handle the problem explicitly by detecting the pathological cases, as described in \autoref{chapter:software}.
 
 
-\section{bopt algorithm}
-\label{section:bopt-alg}
-
-matematika
-
 \section{Logscale}
 
 When optimizing hyperparameters we might want to distinguish not only between real and integer valued ones, but also based on their scale. Optimizing the number of training epochs or layers are very well modelled by a linear scale, but a learning rate is better modelled with a logarithmic scale.
 
 We provide a simple solution, which can work independently of Bayesian optimization, by simply transforming all of the appropriate value to logscale before inputting them into the model, and then transforming them back after we get a next sample $x$ proposal.
 
+
+\section{Bayesian Optimization Algorithm in Detail}
+\label{section:bopt-alg}
+
+We will now show the algorithm for Bayesian optimization in greater detail as compared to \autoref{alg:bopt}. Let $𝓓_n = \{ (\symbf{x}_i, y_i), i \in 1:n\}$ denote a set of $n$ samples (evaluations) of the objective function $f$, that is $y_i = f(\symbf{x}_i)$. Our goal is to pick the next $\symbf{x}_{n+1}$ to maximize our chance of finding the optimum quickly, assuming that already enough points were evaluated for us to fit the GP. \autoref{alg:bopt-detailed} shows one iteration of Bayesian optimization as it picks $\vx_{n+1}$.
+
+\begin{algorithm}
+	\label{alg:bopt-detailed}
+	\DontPrintSemicolon
+	\SetAlgoLined
+	Let $\mX$ be the matrix of all $\vx_i$, and $\vy$ be a column vector of all $y_i$ \;
+	Maximize the kernel log-likelihood $p(\mX) = -\frac{1}{2}\vy \mK^{-1}\vy - \frac{1}{2} \log \det \mK - \frac{N}{2} \log (2 π)$, where $\mK = \kappa(\mX, \mX)$, by tuning the kernel hyperparameters \;
+	Maximize the acquisition function $A(\mX, \vy, \mathcal{G}\mathcal{P})$ as a function of the GP using the kernel hyperparameters obtained in the previous step. \;
+	Sample $y_{n+1} = f(\vx)$ where $\vx = \argmax A(\mX, \vy, \mathcal{G}\mathcal{P})$. \;
+	Add $y_{n+1}$ to the dataset as $𝓓_{i+1} = 𝓓_i \cup (\vx_{i+1}, y_{i+1})$.
+	\caption{Bayesian Optimization with implementation details.}
+\end{algorithm}
+
+While the above shown algorithm is enough to explain how Bayesian optimization works, there are a few cases where numerical issues can arise, and we point them out next.
+
+Firstly, the quadratic form $\vy \mK^{-1} \vy$ does not need to be computed using a matrix inverse procedure, which can be numerically unstable and requires more intermediate computation (see \cite{cholesky-inverse-krishnamoorthy2013matrix} for details). In general, consider the equation $\mA \vx = \vb$. We can instead write $\vx = \mA^{-1} \vb$ for an invertible matrix $\mA$. A naive solution would use a procedure for an inverse and then multiply to compute $\inv(\mA) \vb$, but because we do not actually need the inverse itself, but rather the multiplication, we can solve for $\mA^{-1} \vb$ directly using a \inlinecode{solve} procedure \citep{numpy}.
+
+Because the $\mK$ matrix is a covariance matrix we also know it is positive definite. This allows us to take the computation one step further and compute its Cholesky factorization $\mL = \chol(\mK)$, and then use a procedure for \inlinecode{solve} directly on the factorized matrix $\mL$ (in TensorFlow available as \inlinecode{tf.linalg.cholesky\_solve}).
+
+Having just computed the Cholesky factorization we can re-use it in the second expression of the marginal log-likelihood, that is the $\log \det \mK$, since
+\begin{align}
+\log \det \mK &= \log \det(\mL^T \mL) = \log(\det(\mL^T) \cdot \det(\mL)) = \\
+&= 2 \cdot \log \det \mL = 2 \cdot \log \prod \diag \mL = 2 \cdot \sum \log \diag. \mL
+\end{align}
+This allows us to compute the determinant, which is usually $O(n^3)$, in just linear time, because we're re-using the work already being done in the Cholesky factorization used in the previous step.
+
+Another interesting note, discovered by our initial custom implementation, and confirmed in the implementation of the GPy \citep{gpy2014} library, is that when computing a Cholesky factorization of a covariance matrix computed on real world data, it will often fail for numerical reasons, and requires additional noise to be added to the diagonal to improve stability. What GPy does internally is to iteratively increase the amount of noise, up until some threshold, to make sure the factorization succeeds without any problems, while not adding excessive noise when not needed.
+
+Lastly, the optimization procedures themselves used for maximizing the kernel log-likelihood and acquisition function can be sensitive. Our initial implementation in SciPy and TensorFlow showed very different restarts based on the type of optimizer (SGD, Adam, L-BFGS), and its meta-parameters, such as the number of restarts, stop tolerance criterion, learning rates, etc. These problems, along with the many numerical issues encountered along the way, contributed to the choice of using GPy for the final implementation. We outline a few more reasons in \autoref{section:gpy}.
