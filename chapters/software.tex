@@ -3,13 +3,13 @@ This chapter describes the implementation part of this thesis. While we do not p
 The main features of the package are:
 
 \begin{itemize}
-	\item Flexible experiment configuration with random search and GP backends.
-	\item Parallel execution of evaluations, both on the local machine and on a cluster.
-	\item Robust error handling with duplicate/similar sample detection.
-	\item Command line interface for controlling the experiment evaluations, including running a manual evaluation with user specified hyperparameters.
-	\item Simple filesystem based storage with user-readable and editable serialization format based on YAML.
-	\item Web based visualizations of the whole optimization process, including
-	1D and 2D slices and marginal plots at all points during the evaluation.
+    \item Flexible experiment configuration with random search and GP backends.
+    \item Parallel execution of evaluations, both on the local machine and on a cluster.
+    \item Robust error handling with duplicate/similar sample detection.
+    \item Command line interface for controlling the experiment evaluations, including running a manual evaluation with user specified hyperparameters.
+    \item Simple filesystem based storage with user-readable and editable serialization format based on YAML.
+    \item Web based visualizations of the whole optimization process, including
+    1D and 2D slices and marginal plots at all points during the evaluation.
 \end{itemize}
 
 
@@ -20,7 +20,8 @@ In this section we will explore the high level architecture of \bopt. Everything
 
 We assume the function being optimized can be evaluated by running a script file. The hyperparameters will be passed as command line arguments, and the output will be parsed from the standard output using a regular expression provided by the user. This provides the user with maximum flexibility with regards how the actual function is being executed, as \bopt will simply spawn the process, pass the command line arguments, and then wait for it to terminate to collect the output and parse the result. If the result is not found in the output, or the process exists with an exit code greater than $0$ it will mark the evaluation as failed. We do not put any restrictions on the type of script the user might want to provide. It is solely at the discretion of the \inlinecode{Runner} (see \autoref{section:runners}) to figure out how to run the provided file.
 
-Each \bopt experiment is located in its own directory on the filesystem, where it stores all of the meta information in a single \inlinecode{meta.yml} file. This makes it easy for the user to manually inspect and edit if needed, or even backup when performing more complicated operations, such as deleting specific samples, or manually adding samples from a different experiment. Since Bayesian optimization is memory-less, that is always starting from scratch, the user can easily combine evaluations from multiple different experiments by hand, or even delete samples which were created by accident, such as when using manual evaluations.
+Each \bopt experiment is located in its own directory on the filesystem (called the \newterm{\inlinecode{meta\_dir}}), where it stores all of the information in a single \inlinecode{meta.yml} file, along with output files for each job. This makes it easy for the user to manually inspect and edit if needed, or even backup when performing more complicated operations, such as deleting specific samples, or manually adding samples from a different experiment. Since Bayesian optimization is memory-less, that is always starting from scratch, the user can easily combine evaluations from multiple different experiments by hand, or even delete samples which were created by accident, such as when using manual evaluations.
+
 
 
 \subsection{Samples, Result Collection and Locking}
@@ -39,15 +40,135 @@ Training neural networks is a computationally intensive task, and tuning hyperpa
 We provide two different runners out of the box:
 
 \begin{description}
-	\item[Local] runs the process on the same machine as \bopt.
-	\item[SGE] submits a job to the Son of Grid Engine \citep{sge}.
+    \item[Local] runs the process on the same machine as \bopt.
+    \item[SGE] submits a job to the Son of Grid Engine \citep{sge}.
 \end{description}
 
 All runners support job parallelism using the Constant Liar approximation (see \autoref{section:parallel-evaluations}), which is part of the reason why each \inlinecode{Sample} stores a mean prediction. This value is being used as $y$ whenever a new evaluation point needs to be chosen during parallel evaluations.
 
+When a job is started, its stdout and stderr will be redirected to a file within an \inlinecode{output} directory in the \inlinecode{meta\_dir}. The file will be named with a process ID (PID) in case of a \emph{local} job, and with a job ID in case of an \emph{SGE} job. In case of the local runner we have to employ a minor trick, because when \inlinecode{popen} is being called with stdout redirection it already requires a file handle, but at that time the process ID is unknown. We work around this by creating a temporary file, redirecting the output to that, and then after \inlinecode{popen} returns a PID we rename the opened temporary file to a new name with the PID. Since UNIX systems can handle renaming of open files this workaround causes no issues, but the behavior on Microsoft Windows is unclear. If the user needs to support Microsoft Windows they might have to provide their own runner which does not use PIDs, but rather generates the ID based on some other process which makes the ID available before the child process is spawned. The SGE runner does not run into this issue, because we only specify the filename as a parameter to \inlinecode{qsub}, which then handles the process scheduling, creation, redirection, and names the output file accordingly.
 
 \section{GPy}
 
+Our library of choice for GP regression is the \cite{gpy2014} library, as it is the most stable and robust package available, and is still being actively developed. We're mainly interested in the \inlinecode{GPy.models.GPRegression} class which implements the regression model itself, and the \inlinecode{GPy.kern} module, which implements the kernel functions. We initially used our own custom implementation of GP regression (partly shown in \autoref{section:bopt-alg}) in TensorFlow \citep{tensorflow2015-whitepaper} and SciPy \citep{scipy}, but despite the seemingly short and simple numeric algorithm for computing the regression, getting all the details right proved to be an exceedingly difficult task. Even simple numerical methods like Cholesky decomposition are often wrapped with layers of numerical stability tricks that one does not get out of the box with libraries like NumPy \citep{numpy}.
+
+For these reasons we ended up switching to the GPy library, which apart from a numerically stable implementation provides many additional benefits. Being built upon a general purpose parameter optimization library \cite{paramz}, GPy allows the user to both put arbitrary constraints on each of the parameters, as well a specify a prior distribution which is then used when optimizing the kernel marginal likelihood.
+
 \section{Random Search}
+
+The core optimization loop has the ability to generate samples randomly, which is useful for two reasons. It allows us to create a comparative baseline where all samples are generated using random search, so that we can measure the benefits and improvement of Bayesian optimization. But it also serves as a way of bootstrapping the Bayesian optimization driven search. When choosing an initial first point of evaluation, we don't have any data to fit the model to. We could optimize the acquisition function on the prior, but since our prior has zero mean, it would simply be a uniform distribution. What we do instead is sample each hyperparameter randomly, until we have enough points to fit the probabilistic model.
+
+The number of random samples can increase if we are using parallel evaluations, simply because if we need to start $N$ jobs at the same time, with no prior data, we have no way of even calculating a mean prediction. As a result, we always start the first $N$ evaluations using random search.
+
+\section{Command Line Interface}
+
+Since larger experiments will most likely always be run on a compute cluster we opted for a command line interface which can be easily used over an SSH connection, and is very flexible. The available subcommands of \bopt are:
+
+\begin{description}
+    \item[init] Creates a new experiment with a given script, configuration of hyperparameters and runner options.
+    \item[exp] Prints out the current status of a given experiment, showing metadata on all the evaluations.
+    \item[web] Starts the web interface for visualizing the evaluations.
+    \item[run] Starts a run loop which tracks how many jobs are currently running, starting new as needed to fulfill the parallelism requirements, and collects the results as needed.
+    \item[run-single] Runs a single evaluation, regardless of how many are currently running.
+    \item[manual-run] Runs a single evaluation with hyperparameters provided by the user. This does not use Bayesian optimization and simply serves as an interface to manually start tasks as needed.
+    \item[suggest] Prints a suggestion for the next evaluation without running it, as well as an already formatted command for \inlinecode{manual-run} so that the user can inspect the hyperparameter values and run the command immediately if they see fit.
+    \item[debug] Starts a Python debugger with the given experiment loaded in, which can be useful both for diagnosing issues as well as exploring the internal data structures.
+    \item[clean] Kills all running jobs and removes all evaluations from the experiment, while keeping the initialization metadata. This command is basically just a shortcut for re-starting an experiment from scratch.
+\end{description}
+
+All commands are executed as \inlinecode{bopt COMMAND} and support the conventional \inlinecode{--help} command line arugment, which prints out all of the available options, as well as their descriptions.
+
+\subsection{Meta Directory, Data Corruption, \inlinecode{-C} and Locks}
+
+When an experiment is initialized all of its information will be stored in its own directory. This includes both the meta information about hyperparameters, run configurations and evaluations, as well as the job outputs themselves.
+
+The \bopt command was designed such that it will always try to acquire an exclusive lock on the directory using a \inlinecode{.lockfile}, which is to prevent any race conditions and possible data corruption from running multiple instances of \bopt at the same time. Such scenario could easily occur when the user would run a long running \inlinecode{bopt run} command, while also exploring the results, and possibly starting a few more evaluations manually using \inlinecode{bopt run-single}, \inlinecode{bopt manual-run}, or even another \inlinecode{bopt run}. Because of the locking behavior, it is completely safe to run as many instances of \bopt as are needed, and the user does not need to concern themselves with causing any data corruption via the command line interface. We also make sure to always serialize the data into a new file, and then atomically move over the existing one, in order to minimize possible data corruption when the \bopt process is killed.
+
+It is important to note that \bopt was designed with manual user intervention in mind. As such, the \inlinecode{meta.yml} file, which contains all of the experiment information, was created to be easily human editable. But because \bopt does not use the UNIX \inlinecode{flock} mechanism (as editors do not obey it), the user has to be wary of editing the file by hand while other instances of \bopt are running. Because the \inlinecode{meta.yml} file is overwritten atomically, the user can even edit the file while \bopt is running, but they have to make sure to save at the appropriate time, e.g. not to discard the changes that were just written after the file was loaded in the editor. This problem is unlikely to occur in editors like Vim, which will notify the user of the file being changed after it was read, but it is still does not prevent the user to overwrite it. If there are no existing \bopt processes running, it is completely safe to alter the \inlinecode{meta.yml} file.
+
+All of the \bopt commands will also accept a \inlinecode{-C} command line argument, which specifies a directory to \inlinecode{cd} into before any of the main code is executed (similarly as a \inlinecode{Makefile} would behave). This behavior allows \bopt to always assume it is being executed from within the \inlinecode{meta\_dir} and simplify many possible problems with storing paths in the config files. While this behavior is unlikely to affect the user in a negative way, it is still useful to know the semantics of the program.
+
+We now explore two of the most important commands in more detail, \inlinecode{bopt init} and \inlinecode{bopt run}.
+
+\subsection{\inlinecode{bopt init}}
+
+Initializing experiments is an important feature and as such the command line interface has been streamlined to allow the user to input the arguments without complicated config files. An example of a common \inlinecode{bopt init} call could look something like the following:
+
+\begin{center}
+\begin{verbatim}
+bopt init \
+--param "batch_size:int:4:128" \
+--param "gamma:logscale_float:0.5:1.0" \
+--param "lr:logscale_float:1e-6:1e-1" \
+--param "dropout:float:0.1:0.6"
+-C experiments/reinforce \
+--runner sge \
+--ard=1 --gamma-prior=1 \
+--gamma-a=1.0 --gamma-b=0.001 \
+$PWD/reinforce.sh
+\end{verbatim}	
+\end{center}
+
+
+Let us now go over the arguments one by one. The first four arguments specify four different hyperaparameters, namely batch\_size, gamma, lr and dropout, each with a different type and range. The general format is \inlinecode{NAME:TYPE:MIN:MAX} where \inlinecode{NAME} can be an arbitrary name, \inlinecode{TYPE} can be one of \inlinecode{int}, \inlinecode{float}, \inlinecode{logscale\_int}, \inlinecode{logscale\_float}, and \inlinecode{discrete}, and \inlinecode{MIN:MAX} are simply the bounds of the hyperparameter. If the type of \inlinecode{discrete} is specified, instead of providing the bounds the user would provide a colon separated list of possible values, which would then be encoded as ordinal integers. An example of that could be \inlinecode{activation:discrete:tanh:relu:sigmoid}. However, as mentioned in \autoref{section:architecture-search}, we do not recommend using \bopt for architecture search, which discourages from most uses of the \inlinecode{discrete} type.
+
+The next argument \inlinecode{-C experiments/reinforce} simply defines the \inlinecode{meta\_dir} where the experiment data will be stored. Next we define the runner type, which can be one of \inlinecode{local} and \inlinecode{sge}.
+
+After the runner is defined, we configure the GP regression itself, in this case by specifying the \inlinecode{ard} flag on, which uses a separate lengthscale parameter for each component of $x$ (more details can be found in the \cite{gpy} documentation). Next we specify that we want to use a Gamma prior on the hyperaparameters, and its shape and scale parameters. A complete list of all flags for configuring the GP regression, acquisition function, kernel and the optimizer can be found using the help flag as \inlinecode{bopt init --help}.
+
+Lastly, we provide \bopt with the script to run, in this case it is \inlinecode{reinforce.sh}, which encapsulates our objective function. We also specify it as an absolute path using the \inlinecode{PWD} environment variable, but this is shown mainly as an interesting trick that can be useful if the \inlinecode{PATH} is not configured in the environment where the runner will execute the job.
+
+After the command exists, it will create a directory \inlinecode{experiments/reinforce} with a \inlinecode{meta.yml} file inside. The following listing shows the contents of the file
+
+\begin{center}
+\begin{verbatim}
+gp_config: !!python/object:bopt.gp_config.GPConfig
+  acq_n_restarts: 25
+  acq_xi: 0.001
+  acquisition_fn: ei
+  ard: true
+  gamma_a: 1.0
+  gamma_b: 0.001
+  gamma_prior: true
+  kernel: Mat52
+  num_optimize_restarts: 10
+  random_search_only: false
+hyperparameters:
+  batch_size:
+    high: 128
+    low: 4
+    type: int
+  gamma:
+    high: 1.0
+    low: 0.5
+    type: logscale_float
+  hidden_layer:
+    high: 128
+    low: 2
+    type: int
+  learning_rate:
+    high: 0.1
+    low: 1.0e-06
+    type: logscale_float
+result_regex: RESULT=(.*)
+runner:
+  arguments: []
+  manual_arg_fnames: []
+  qsub_arguments: []
+  runner_type: sge_runner
+  script_path: ./reinforce.sh
+samples: []
+\end{verbatim}
+\end{center}
+
+Apart from the command line arguments we have provided it should be noted that a few unspecified values were filled in with the defaults. For example, the kernel function was chosen to be the default Mat\'ern $5/2$ kernel, which was shown \citep{snoek2012practical} to perform the best on many hyperparameter tuning tasks. We have tried to make the optimization procedure as configurable as possible in case the user has any additional prior knowledge which might help them optimize better.
+
+\subsection{\inlinecode{bopt run}}
+
+After the experiment was initialized the user can start running evaluations. Since everything is already configured in the \inlinecode{meta.yml} file the user simply needs to run \inlinecode{bopt run -C experiments/reinforce}, or \inlinecode{cd} into the directory and just run \inlinecode{bopt run}. Both of these variants are equivalent.
+
+By default, this would run $20$ evaluations in total with no parallelism. The number of evaluations can be controlled with the \inlinecode{--n\_iter} switch, while the number of jobs running in parallel is controlled by the \inlinecode{--n\_parallel} switch.
+
+The way \inlinecode{bopt run} tracks the number of running jobs is by checking the \inlinecode{meta.yml} file for the IDs, and then checking the job status and counting how many are running. This allows it to respect the number of jobs running prior to the execution of \inlinecode{bopt run}. If the user first was to start say $5$ evaluations by hand (e.g. using \inlinecode{bopt run-single}) and only then run \inlinecode{bopt run --n\_parallel=5} while the first $5$ jobs were still running, the instance of \inlinecode{bopt run} would correctly identify the running jobs and wait for some of them to finish before launching new ones.
 
 \section{Visualizations}
