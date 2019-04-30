@@ -1,3 +1,5 @@
+In this chapter we explore Bayesian optimization from a higher level perspective. We will describe the steps of the algorithm and give more motivation for choosing GPs as a probabilistic model. We also explain the difference between hyperparameter tuning and architecture search, which, even though similar at first, are completely different tasks. Lastly, we present some examples of related work, both from the point of hyperparameter tuning, as well as related areas, such as \cite{automl}.
+
 Consider the problem of optimizing an arbitrary continuous function $f: 𝓧 → ℝ$
 where $𝓧 ⊂ ℝ^d, d ∈ ℕ$. We call $f$ the \emph{objective function} and treat it
 as a black box, making no other assumptions on its analytical form, or on our
@@ -183,11 +185,17 @@ Google Vizier \citep{google-vizier}, which is a proprietary service at Google
 used for black box optimization. There also exist a few implementations of
 bayesian optimization. Spearmint \citep{spearmint} is the most fully featured
 one, but comes with a very restrictive license, and does not perform any
-visualization of the results. GPyOpt \citep{gpyopt2016} and scikit-optimize
+visualization of the results. GPyOpt \citep{gpyopt2016}, RoBO \citep{robo} and scikit-optimize
 \citep{scikit-optimize} are the most notable libraries for bayesian
 optimization, but they only provide the basic optimization loop for bayesian
 optimization, and do not handle long running experiments in a possibly
 distributed environment.
+
+An important mention is the AutoML \citep{automl}, which is an attempt at automating many aspects of Machine Learning. Many different approaches are being tried, for example the TPOT \citep{tpot} library uses evolutionary algorithms to not only tune hyperparameters, but also perform architecture search on Scikit-Learn algorithms, including building feature pre-processing pipelines, dimensionality reduction and feature elimination.
+
+Unfortunately, a commonly shared problem of these higher level approaches is the explosion of the search space. The more of the ML problem is handed over to the search procedure, the bigger the search space gets, and at some point one has to make certain trade-offs. The benefit of libraries as TPOT is their ease of use on small problems where the model can be trained within a few minutes. But as is the goal fo this thesis, we are interested in tuning hyperparameters of models which can take hours or even days to train, and in such case we want to be as efficient as possible.
+
+Commercial services are also becoming more and more popular, both for AutoML and just for hyperparameter optimization. Apart from the Google Vizier service \citep{google-vizier} there also exist others, for example SigOpt \citep{sigopt} provides a cloud based solution to hyperparameter tuning using Bayesian optimization. Amazon SageMaker \citep{amazon-sagemaker} is yet another commercially available cloud based hyperparameter tuning service based on Bayesian optimization.
 
 
 

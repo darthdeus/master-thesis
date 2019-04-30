@@ -66,10 +66,10 @@ search, where a fixed grid over the hyperparameter space is chosen, and then
 each point on the grid is evaluated, and the best parameter combination is
 chosen. The evaluation can be done using an arbitrary metric of performance,
 called the \newterm{objective function}. This could simply be the loss
-achieved by the model on the validation set.
+achieved by the model on the validation set, meaning we would create a function that takes the hyperparameters as its arguments, train the model on the training set, evaluate its performance on the validation set, and return that score as its value.
 
-It is not difficult to see that neither of these approaches are optimal. Both
-do not take into account the already computed values of the loss. If the model
+It is not difficult to see that neither of these approaches are optimal, as neither
+take into account the already computed values of the loss (objective). If the model
 is evaluated on one set of hyperparameters and achieves a high loss, we would
 like the hyperparameter tuning mechanism to take this into account, and
 possibly try a different combination. This process is similar to that of an
@@ -107,12 +107,12 @@ to see that we can not perform more than a few hundred of evaluations without
 spending unreasonable costs on computational resources. This immediately
 disqualifies many of the common black box optimization techniques, such as
 evolution strategies or simmulated annealing, which require on the order of
-thousands evaluations to converge \citep{google-vizier}.
+thousands evaluations to converge \citep{google-vizier}. These methods do not model the objective function in any way, but rather search the target space directly. Evolutionary algorithms or simmulated annealing never see the space as a whole, but rather perform some variant of stochastic hill climbing, where given enough stochasticity the methods can be considered to perform \newterm{global optimization}.
 
 Bayesian optimization \citep{nando-bayesian-out-of-the-loop} is a black box
 optimization technique which utilizes a probabilistic model to take a set of
 evaluations of the objective function and computes a posterior over all
-possible functions give the observed data.  As the next step, it computes an
+possible functions give the observed data. As the next step, it computes an
 \newterm{acquisition function}, which is a function of the posterior, and
 represents the potential usefulness of the next sample. A popular example is
 the \newterm{expected improvement} function (\autoref{chapter-ei}), which is
@@ -126,6 +126,8 @@ predictions. This uncertainty is taken into account by the acquisition
 function, and as a result it ends up balancing the exploration-exploitation
 tradeoff by both taking into account the predicted value, and our uncertainty
 in that value.
+
+A key benefit is that the GP is fitted to the whole space, as compared to the search based methods mentioned earlier. We can treat the GP as a surrogate model of the objective function, and optimize it instead, as evaluating the GP at any given point is usually orders of magnitude faster than evaluating the objective function.
 
 % Even though theoretically possible \ref{learning-to-learn},computing the
 % gradient with respect to a learning rate is not done in
