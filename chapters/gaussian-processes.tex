@@ -543,6 +543,17 @@ yields a much smoother function.
 \end{figure}
 \label{figure:gp-lengthscale}
 
+A popular kernel in the context of Bayesian optimization is the Mat\'ern kernel
+$$
+\kappa(d) = \frac{2^{1 - \nu}}{\Gamma(\nu)} \left( \frac{\sqrt{2\nu}d}{\mathcal{l}} \right)^\nu K_\nu \left( \frac{\sqrt{2\nu}d}{\mathcal{l}} \right)
+$$
+where $\nu$ and $\mathcal{l}$ are the parameters and $K_\nu$ is a modified Bessel function \citep{williams2006gaussian}. In practice, we will restrict ourselves to a half-integer variant of the matern kernel, that is when $\nu = p + 1/2$, where $p$ is a non-negative integer. In this case the Mat\'ern kernel has a simplified form, specifically let us show for $\nu = 5/2$, which is popular in ML. The covariance function then simplifies to
+$$
+\kappa(d) = \left( 1 + \frac{\sqrt{5}d}{\mathcal{l}} + \frac{5d^2}{3\mathcal{l}^2} \right) \exp \left( - \frac{\sqrt{5}d}{\mathcal{l}} \right)
+$$
+which ends up being $5$ times differentiable, as compared to the RBF kernel shown above, which is infinitely differentiable. As a side note, the Mat\'ern kernel actually converges to the RBF kernel as $\nu -> \infty$.
+
+In a general setting it could prove useful to examine many different kernel functions and use one that works best in a particular domain. As our case is Bayesian optimization, we will stick with the kernels shown above, as those are most often shown to perform well in literature, especially the $5/2$ Mat\'ern kernel \citep{snoek2012practical}.
 
 \subsection{Optimizing GP hyperparameters}
 
