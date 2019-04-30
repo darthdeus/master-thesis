@@ -1,5 +1,14 @@
+\chapter{Technical Details of BO}
+\label{chapter:bo-indepth}
+
+This chapter provides a more technical insight into Bayesian optimization. We begin by looking at the acquisition functions from a mathematical perspective, as they form the basis of Bayesian optimization. Next, we show how to extend Bayesian optimization to perform parallel evaluations, work with integer and discrete hyperparameters, and optimize parameters on a logarithmic scale. And finally, we explore the Bayesian optimization algorithm in detail, including some of its numerical properties and issues that can arise when implementing it.
+
+The contents of this chapter are largely implementation details and are not necessary for one to use Bayesian optimization in practice. However, understanding the behavior of integer based hyperparameters, in addition to the overview in \autoref{section:architecture-search}, can prove useful when deciding if a certain hyperparameter makes for a good candidate for automatic tuning using Bayesian optimization.
+
 \section{Acquisition functions}
 \label{section:acq-fn}
+
+The acquisition function is a key component of Bayesian optimization. Together with the GP regression it allows us to balance the exploration-exploitation problem in search. The only limitation we need to impose on the acquisition function is tractability, and possibly continuity, as we will need to optimize it. The tractability requirement is mandatory, as without being able to compute the function we could hardly find its maximum. But the continuity requirement is useful as the acquisition function is often optimized using stochastic gradient optimizers such as L-BFGS.
 
 An intuitive choice for an acquisition function is to maximize the probability
 of improving over our currently best achieved value, which is called the
@@ -27,7 +36,7 @@ the case of expected improvement. This can again be done by any stochastic optim
 such as the commonly chosen L-BFGS with restarts.
 
 
-\section{Parallel evaluations}
+\section{Parallel Evaluations}
 \label{section:parallel-evaluations}
 
 In practice we might have the ability to evaluate $f(\vx)$ at multiple points
@@ -48,7 +57,7 @@ considering the $μ$ prediction for unfinished evaluations as their $y$ value
 and consider them part of the dataset $𝓓$.
 
 
-\section{Integer parameters}
+\section{Integer Hyperparameters}
 
 GP regression by itself does not have the ability to model integer values in $X$ directly as some other models do (e.g. random forests \autoref{chapter:bo}). A common solution, used by \citep{spearmint} and which we also implement in this thesis, is to consider all parameters to be real valued and only round them at the end.
 
@@ -58,14 +67,14 @@ $$\kappa'(x_1, x_2) = \kappa(T(x_1), T(x_2))$$ where $T(x)$ is an identity for r
 Our implementation however does not use this approach, as our GP regression is handled by the \cite{gpy2014} library, which did not support it at the time, and implementing it would mean overriding many of the existing kernels. We did instead handle the problem explicitly by detecting the pathological cases, as described in \autoref{chapter:software}.
 
 
-\section{Logscale}
+\section{Logarithmic Scaling}
 
 When optimizing hyperparameters we might want to distinguish not only between real and integer valued ones, but also based on their scale. Optimizing the number of training epochs or layers are very well modelled by a linear scale, but a learning rate is better modelled with a logarithmic scale.
 
-We provide a simple solution, which can work independently of Bayesian optimization, by simply transforming all of the appropriate value to logscale before inputting them into the model, and then transforming them back after we get a next sample $x$ proposal.
+We provide a simple solution, which can work independently of Bayesian optimization, by simply transforming all of the appropriate value to logscale before inputting them into the model, and then transforming them back after we get a next sample $x$ proposal. As this approach is completely transparent from the point of the GP regression model, we could just as well perform any other arbitrary bijection.
 
 
-\section{Bayesian Optimization Algorithm in Detail}
+\section{Implementation Details of Bayesian Optimization}
 \label{section:bopt-alg}
 
 We will now show the algorithm for Bayesian optimization in greater detail as compared to \autoref{alg:bopt}. Let $𝓓_n = \{ (\symbf{x}_i, y_i), i \in 1:n\}$ denote a set of $n$ samples (evaluations) of the objective function $f$, that is $y_i = f(\symbf{x}_i)$. Our goal is to pick the next $\symbf{x}_{n+1}$ to maximize our chance of finding the optimum quickly, assuming that already enough points were evaluated for us to fit the GP. \autoref{alg:bopt-detailed} shows one iteration of Bayesian optimization as it picks $\vx_{n+1}$.

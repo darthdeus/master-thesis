@@ -1,3 +1,6 @@
+\chapter{Bayesian Optimization}
+\label{chapter:bo}
+
 In this chapter we explore Bayesian optimization from a higher level perspective. We will describe the steps of the algorithm and give more motivation for choosing GPs as a probabilistic model. We also explain the difference between hyperparameter tuning and architecture search, which, even though similar at first, are completely different tasks. Lastly, we present some examples of related work, both from the point of hyperparameter tuning, as well as related areas, such as \cite{automl}.
 
 Consider the problem of optimizing an arbitrary continuous function $f: 𝓧 → ℝ$
@@ -30,7 +33,7 @@ formulate a posterior distribution on the set of possible functions $p(f|x)$.
 We will use the posterior distribution to figure out which point should be
 evaluated next to give a likely improvement over the currently obtained
 maximum. This improvement is defined by an \newterm{acquisition function},
-\todo{mezera pred carkou} which represents our optimization objective. A simple
+which represents our optimization objective. A simple
 example of an acquisition function is the \newterm{probability of improvement},
 which simply represents the probability of improving our objective compared to
 the previously achieved maximum. We will show a few other examples of

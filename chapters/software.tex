@@ -1,8 +1,12 @@
+\chapter{Software}
+\label{chapter:software}
+
 This chapter describes the implementation part of this thesis. While we do not provide any theoretical extensions to Bayesian optimization, we instead provide a modular and fully working implementation which was tested on multiple experiments. The implementation is provided as a Python (\cite{python}) package called \bopt (short for Bayesian optimization).
 
 The main features of the package are:
 
 \begin{itemize}
+	\item A robust implementation of Bayesian optimization.
     \item Flexible experiment configuration with random search and GP backends.
     \item Parallel execution of evaluations, both on the local machine and on a cluster.
     \item Robust error handling with duplicate/similar sample detection.
@@ -10,6 +14,7 @@ The main features of the package are:
     \item Simple filesystem based storage with user-readable and editable serialization format based on YAML.
     \item Web based visualizations of the whole optimization process, including
     1D and 2D slices and marginal plots at all points during the evaluation.
+    \item Ability to add manual samples either from another, already executed, experiment. Or simply by running the appropriate command with user-provided hyperparameter values.
 \end{itemize}
 
 
@@ -18,7 +23,7 @@ The main features of the package are:
 
 In this section we will explore the high level architecture of \bopt. Everything is structured around a central class \inlinecode{Experiment}, which represents a single objective function together with a configuration of its hyperparameters, and configuration for the Bayesian optimization itself. The \inlinecode{Experiment} can contain multiple \inlinecode{Samples}, where each sample represents a single evaluation of the objective function.
 
-We assume the function being optimized can be evaluated by running a script file. The hyperparameters will be passed as command line arguments, and the output will be parsed from the standard output using a regular expression provided by the user. This provides the user with maximum flexibility with regards how the actual function is being executed, as \bopt will simply spawn the process, pass the command line arguments, and then wait for it to terminate to collect the output and parse the result. If the result is not found in the output, or the process exists with an exit code greater than $0$ it will mark the evaluation as failed. We do not put any restrictions on the type of script the user might want to provide. It is solely at the discretion of the \inlinecode{Runner} (see \autoref{section:runners}) to figure out how to run the provided file.
+We assume the function being optimized can be evaluated by running a script file. The hyperparameters will be passed as command line arguments (see \autoref{section:command-line-interface}), and the output will be parsed from the standard output using a regular expression provided by the user. This provides the user with maximum flexibility with regards how the actual function is being executed, as \bopt will simply spawn the process, pass the command line arguments, and then wait for it to terminate to collect the output and parse the result. If the result is not found in the output, or the process exists with an exit code greater than $0$ it will mark the evaluation as failed. We do not put any restrictions on the type of script the user might want to provide. It is solely at the discretion of the \inlinecode{Runner} (see \autoref{section:runners}) to figure out how to run the provided file.
 
 Each \bopt experiment is located in its own directory on the filesystem (called the \newterm{\inlinecode{meta\_dir}}), where it stores all of the information in a single \inlinecode{meta.yml} file, along with output files for each job. This makes it easy for the user to manually inspect and edit if needed, or even backup when performing more complicated operations, such as deleting specific samples, or manually adding samples from a different experiment. Since Bayesian optimization is memory-less, that is always starting from scratch, the user can easily combine evaluations from multiple different experiments by hand, or even delete samples which were created by accident, such as when using manual evaluations.
 
@@ -48,6 +53,10 @@ All runners support job parallelism using the Constant Liar approximation (see \
 
 When a job is started, its stdout and stderr will be redirected to a file within an \inlinecode{output} directory in the \inlinecode{meta\_dir}. The file will be named with a process ID (PID) in case of a \emph{local} job, and with a job ID in case of an \emph{SGE} job. In case of the local runner we have to employ a minor trick, because when \inlinecode{popen} is being called with stdout redirection it already requires a file handle, but at that time the process ID is unknown. We work around this by creating a temporary file, redirecting the output to that, and then after \inlinecode{popen} returns a PID we rename the opened temporary file to a new name with the PID. Since UNIX systems can handle renaming of open files this workaround causes no issues, but the behavior on Microsoft Windows is unclear. If the user needs to support Microsoft Windows they might have to provide their own runner which does not use PIDs, but rather generates the ID based on some other process which makes the ID available before the child process is spawned. The SGE runner does not run into this issue, because we only specify the filename as a parameter to \inlinecode{qsub}, which then handles the process scheduling, creation, redirection, and names the output file accordingly.
 
+To implement a custom runner, the user only needs to subclass two classes, namely the \inlinecode{Job} and the \inlinecode{Runner}. The \inlinecode{Job} class needs to mainly implement an \inlinecode{is\_finished} method (among a few other ones described in the abstract interface), which simply returns the status of the evaluation based on the implementation details specified in the runner. To implement the \inlinecode{Runner} the user needs to provide a \inlinecode{start} method, which accepts the values of all hyperparameters, and returns a new \inlinecode{Job}, which will later be evaluated. An additional requirement is that the \inlinecode{Job} needs to store its result in an appropriately named file, specifically \inlinecode{job.oID} in the \inlinecode{outputs} directory. This was done mainly to avoid some issues with process IDs as described earlier in this section.
+
+Lastly, it is worth mentioning that \bopt supports the UNIX \inlinecode{time} command for measuring the runtime of an evaluation. Because we allow running jobs on an SGE cluster we can not simply take the start time and end time and subtract them to get the total run time, because the job can sit in a queue for an arbitrary amount of time.
+
 \section{GPy}
 \label{section:gpy}
 
@@ -62,6 +71,7 @@ The core optimization loop has the ability to generate samples randomly, which i
 The number of random samples can increase if we are using parallel evaluations, simply because if we need to start $N$ jobs at the same time, with no prior data, we have no way of even calculating a mean prediction. As a result, we always start the first $N$ evaluations using random search.
 
 \section{Command Line Interface}
+\label{section:command-line-interface}
 
 Since larger experiments will most likely always be run on a compute cluster we opted for a command line interface which can be easily used over an SSH connection, and is very flexible. The available subcommands of \bopt are:
 
@@ -79,7 +89,7 @@ Since larger experiments will most likely always be run on a compute cluster we 
 
 All commands are executed as \inlinecode{bopt COMMAND} and support the conventional \inlinecode{--help} command line arugment, which prints out all of the available options, as well as their descriptions.
 
-\subsection{Meta Directory, Data Corruption, \inlinecode{-C} and Locks}
+\subsection{Meta Directory, Data Corruption and \inlinecode{-C}}
 
 When an experiment is initialized all of its information will be stored in its own directory. This includes both the meta information about hyperparameters, run configurations and evaluations, as well as the job outputs themselves.
 
@@ -163,6 +173,8 @@ samples: []
 \end{center}
 
 Apart from the command line arguments we have provided it should be noted that a few unspecified values were filled in with the defaults. For example, the kernel function was chosen to be the default Mat\'ern $5/2$ kernel, which was shown \citep{snoek2012practical} to perform the best on many hyperparameter tuning tasks. We have tried to make the optimization procedure as configurable as possible in case the user has any additional prior knowledge which might help them optimize better.
+
+In general, there are no significant requirements on the script, as we execute it as a subprocess. We only require that it takes the hyperparameter values as command line arguments in the format of \inlinecode{--NAME=VALUE}, and outputs the objective function on its standard output. By default, we will parse the standard output with a regex \inlinecode{RESULT=(.*)}, but the user is free to modify this in the \inlinecode{meta.yml} file however they see fit. If the user wishes to run an existing software which does not accept command line arguments in this form, they have to wrap the program in a script which will pre-process the arguments given by \bopt, and pass them through in the format they require. This approach allows for maximum flexibility without having to spend large amounts of effort on building a general argument passing system. In our experiments with existing software we only found a few cases where minor argument processing was necessary.
 
 \subsection{\inlinecode{bopt run}}
 
