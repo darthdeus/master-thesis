@@ -39,14 +39,14 @@ Bayesian statistics allows us to take a principled approach to setting
 hyperparameters. We would simply set a prior distribution on each
 hyperparameter and marginalize over them, but unfortunately this has two
 problems. The prior distribution almost always has a parameter of its own, such
-as the rate of a poisson distribution. We could go one step further and specify
+as the rate parameter $\lambda$ of a Poisson distribution, or the concentration parameter vector $\symbf{\alpha}$ of a Dirichlet distribution. We could go one step further and specify
 a prior on these parameters, which are often called hyperpriors.  But the real
-problem of bayesian methods is that the integral in the marginalization often
+problem of Bayesian methods is that the integral in the marginalization often
 ends up being intractable, and in the case of more complicated as neural
 networks, we are already computatationally bottlenecked and can not use methods
 such as Markov-Chain Monte Carlo (MCMC) to approximate it.
 
-There are however cases when the bayesian approach does work. Either the model
+There are however cases when the Bayesian approach does work. Either the model
 is small and simple enough so that the integral can be actually computed, or
 its properties (such as conditional independence in LDA
 \citep{lda-blei2003latent}) allow us to perform more efficient MCMC sampling,
@@ -57,7 +57,7 @@ Gaussian Processes.
 Unfortunately, in the field of deep learning \citep{dlbook} and neural
 networks, our models are almost always so large that just computing a point
 estimate of the parameters is close to our computational limits. For that
-reason we do not usually employ bayesian methods, but look for alternative --
+reason we do not usually employ Bayesian methods, but look for alternative --
 less computationally heavy -- approaches.
 
 A simple approach to hyperparameter tuning is either via random search, where
@@ -81,9 +81,7 @@ objective function we would want to explore the space around that combination
 to exploit the high value and possibly find a close combination that is even
 better.
 
-Therefore, we'd like our hyperparameter optimization procedure, also called the
-\newterm{meta-optimizer} \todo{najit nejaky nazev a pouzivat konzistentne od
-zacatku}, to balance the exploration-exploitation tradeoff, and take previous
+Therefore, we'd like our hyperparameter optimization procedure, to balance the exploration-exploitation tradeoff, and take previous
 evaluation into account when choosing which point to evaluate next. Since the
 training of machine learning models -- and neural networks in particular -- can
 be computationally costly, we need to pick an optimization procedure that is
@@ -115,9 +113,9 @@ evaluations of the objective function and computes a posterior over all
 possible functions give the observed data. As the next step, it computes an
 \newterm{acquisition function}, which is a function of the posterior, and
 represents the potential usefulness of the next sample. A popular example is
-the \newterm{expected improvement} function (\autoref{chapter-ei}), which is
+the \newterm{expected improvement} function (\autoref{chapter:bo-indepth}), which is
 roughly defined as \emph{the expected improvement over the maximum obtained so
-far}. By sampling at the maximum of the acquisition function we obtain the
+far}, or more formally $$EI(x) = \mathrm{E}[f(x) - y_{\max}],$$ where $y_{\max}$ is the currently attained maximum. By sampling at the maximum of the acquisition function we obtain the
 point that is most likely going to help us the most. A key insight here is that
 the model is probabilistic. It does not simply fit a regression line through
 the data points and find the maximum.  Instead, we fit a \newterm{Gaussian
@@ -141,16 +139,16 @@ A key benefit is that the GP is fitted to the whole space, as compared to the se
 \section{Our Contributions}
 
 We implemented a tool for optimizing arbitrary programs' hyperparameters using
-bayesian optimization, including a scheduler which runs the evaluations on a
+Bayesian optimization, including a scheduler which runs the evaluations on a
 cluster, and a web interface visualizing the results. We do not provide any
-theoretical extensions to bayesian optimization -- the benefit is only in
+theoretical extensions to Bayesian optimization -- the benefit is only in
 implementation. This work however also serves as a thorough introduction to the
 theoretical background, specifically on GP. Understanding the theoretical
 aspects of GPs allows the user to interpret the behavior of the optimizer, as
 well as better understand why some result visualizations might look the way
 they do.
 
-Our implementation of bayesian optimization utilizes the GPy library \citep{gpy2014}
+Our implementation of Bayesian optimization utilizes the GPy library \citep{gpy2014}
 which implements the basic GP regression model. We chose to use the library
 mainly for the reasons of numerical stability. In theory, as we will show later
 \autoref{chapter:gp}, impelmenting GP regression is simple for a small toy example.

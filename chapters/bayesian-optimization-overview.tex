@@ -74,7 +74,9 @@ generally only consider continuous functions.
 
 We will follow the general consensus of using a GP as a prior distribution over
 functions \citep{nando-bopt-tutorial}, as it provides many nice theoretical
-properties, as well as tractable posterior inference. A GP is an extension of
+properties, as well as tractable posterior inference. Other models, such as random forests are also possible (see \autoref{section:architecture-search}).
+
+A GP is an extension of
 the multivariate Gaussian distribution to infinitely dimensional random
 variables. Just as a multivariate Gaussian can be thought of as a distribution
 over vectors, a GP can be thought of as a distribution over infinitely
@@ -127,7 +129,7 @@ treatment of GPs until chapter~\ref{chapter:gp}.
 Using our earlier definition, any parameter which the model does not learn on
 its own could be considered a hyperparameter. This definition is broad enough
 to allow a lot of flexibility, but some hyperparameters are better for the
-framework of bayesian optimization than others. Discrete and categorical
+framework of Bayesian optimization than others. Discrete and categorical
 hyperparameters require special consideration. Bayesian optimization itself is
 flexible in the sense that it allows for an arbitrary probabilistic model, but
 the specific choice does matter when we consider discrete values. In the case
@@ -183,11 +185,11 @@ There are a few notable mentions of related work in the area of tuning
 hyperparameters of neural networks. The main motivation for this work, is
 Google Vizier \citep{google-vizier}, which is a proprietary service at Google
 used for black box optimization. There also exist a few implementations of
-bayesian optimization. Spearmint \citep{spearmint} is the most fully featured
+Bayesian optimization. Spearmint \citep{spearmint} is the most fully featured
 one, but comes with a very restrictive license, and does not perform any
 visualization of the results. GPyOpt \citep{gpyopt2016}, RoBO \citep{robo} and scikit-optimize
-\citep{scikit-optimize} are the most notable libraries for bayesian
-optimization, but they only provide the basic optimization loop for bayesian
+\citep{scikit-optimize} are the most notable libraries for Bayesian
+optimization, but they only provide the basic optimization loop for Bayesian
 optimization, and do not handle long running experiments in a possibly
 distributed environment.
 
