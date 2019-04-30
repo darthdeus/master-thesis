@@ -83,23 +83,32 @@ over vectors, a GP can be thought of as a distribution over infinitely
 dimensional vectors, which when indexed by the real numbers are equivalent to
 functions. A GP assumes that any finite subset $\rx = (x_1, \ldots, x_n)$ is
 jointly Gaussian with some mean $m(\rx)$ and covariance $Σ(\rx)$. A GP is
-defined by its mean function $m$ and covariance function $k$
+defined by its mean function $m$ and covariance function $\kappa$
 \citep{murphy2012machine}. We write
 $$
-  𝓖𝓟(m(\rx), k(\rx, \rx')).
+  𝓖𝓟(m(\rx), \kappa(\rx, \rx')).
 $$
 
-\begin{center}
-  \includegraphics[width=0.8\textwidth]{images/gp-1d.png}
-  \todo{ukradeny obrazek, referencovat nekde}
-\end{center}
+
+\begin{figure}
+	\begin{center}
+		\includegraphics[width=1.0\textwidth]{images/gp-1d.png}
+		\caption{A GP regression fit to three data points in 1D, shown as small black circles. The black line signifies the mean prediction, while the purple filled area shows one standard deviation at each point. The three points marked as $x_1, x_2, x_3$ are where we are computing the posterior, that is $p(x_1, x_2, x_3 | \mathcal{D})$. These points together have a multivariate Gaussian distribution, with a marginal 1D distribution shown vertically at each point. In order to draw a plot like this one we compute the posterior over a fine grid on the $X$ axis, and plot the mean parameter and the diagonal of the covariance matrix, giving us the standard deviation. Image source: \cite{nando-bopt-tutorial}}
+	\end{center}
+\end{figure}
+\label{figure:gp-regression-1d}
+
 
 By convention, we assume that the prior mean is a constant zero function, that
 is $m(x) = 0$. Since the data is often normalized in practice, this does not
 reduce the flexibility of the model. The power of a GP comes from its
 covariance function, which for any two points $\rx_i$ and $\rx_j$ defines their
-covariance $k(\rx_i, \rx_j)$. If $\rx_i$ and $\rx_j$ have a high covariance,
+covariance $\kappa(\rx_i, \rx_j)$. If $\rx_i$ and $\rx_j$ have a high covariance,
 the values of the function at those points will be similar.
+
+\autoref{figure:gp-regression-1d} shows an example of GP regression in one dimension. Because GP is a non-parametric model it uses the whole dataset $\mathcal{D}$ in order to compute the posterior parameters. A theoretical benefit of this approach, as compared to using a parametric model like a random forest, is that we reduce the number of ways our model can underfit or overfit the data. Because we assume the mean to be zero, our only parameter is the kernel function $\kappa$. As we will explain later in \autoref{section:kernels} we restrict ourselves even further to the Mat\'ern covariance function, which only has two hyperparameters.
+
+Because the model is non-parametric, it can still fit any arbitrary dataset we give it, but its flexibility in terms of overfitting is controlled only via the kernel parameters. As an added benefit we can visualize the change in kernel parameters over time during Bayesian optimization in order to get further insight into how the model is fitting the data, as shown in \autoref{section:kernel-parameter-visualization}.
 
 Intuitively, it is often useful to think of a GP as a function, which instead
 of returning a scalar $f(x)$ returns the mean and standard deviation of a
@@ -123,7 +132,7 @@ treatment of GPs until chapter~\ref{chapter:gp}.
 %
 % In order to compute the posterior distribution $p(f|x)$ over functions, we need
 
-\section{Hyperparam vs. Architecture Search}
+\section{Hyperparameter vs. Architecture Search}
 \label{section:architecture-search}
 
 Using our earlier definition, any parameter which the model does not learn on
