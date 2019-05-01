@@ -18,7 +18,6 @@ The main features of the package are:
 \end{itemize}
 
 
-
 \section{Architecture}
 
 In this section we will explore the high level architecture of \bopt. Everything is structured around a central class \inlinecode{Experiment}, which represents a single objective function together with a configuration of its hyperparameters, and configuration for the Bayesian optimization itself. The \inlinecode{Experiment} can contain multiple \inlinecode{Samples}, where each sample represents a single evaluation of the objective function.
@@ -26,7 +25,6 @@ In this section we will explore the high level architecture of \bopt. Everything
 We assume the function being optimized can be evaluated by running a script file. The hyperparameters will be passed as command line arguments (see \autoref{section:command-line-interface}), and the output will be parsed from the standard output using a regular expression provided by the user. This provides the user with maximum flexibility with regards how the actual function is being executed, as \bopt will simply spawn the process, pass the command line arguments, and then wait for it to terminate to collect the output and parse the result. If the result is not found in the output, or the process exists with an exit code greater than $0$ it will mark the evaluation as failed. We do not put any restrictions on the type of script the user might want to provide. It is solely at the discretion of the \inlinecode{Runner} (see \autoref{section:runners}) to figure out how to run the provided file.
 
 Each \bopt experiment is located in its own directory on the filesystem (called the \newterm{\inlinecode{meta\_dir}}), where it stores all of the information in a single \inlinecode{meta.yml} file, along with output files for each job. This makes it easy for the user to manually inspect and edit if needed, or even backup when performing more complicated operations, such as deleting specific samples, or manually adding samples from a different experiment. Since Bayesian optimization is memory-less, that is always starting from scratch, the user can easily combine evaluations from multiple different experiments by hand, or even delete samples which were created by accident, such as when using manual evaluations.
-
 
 
 \subsection{Samples, Result Collection and Locking}
@@ -108,15 +106,15 @@ Initializing experiments is an important feature and as such the command line in
 \begin{center}
 \begin{verbatim}
 bopt init \
---param "batch_size:int:4:128" \
---param "gamma:logscale_float:0.5:1.0" \
---param "lr:logscale_float:1e-6:1e-1" \
---param "dropout:float:0.1:0.6"
--C experiments/reinforce \
---runner sge \
---ard=1 --gamma-prior=1 \
---gamma-a=1.0 --gamma-b=0.001 \
-$PWD/reinforce.sh
+  --param "batch_size:int:4:128" \
+  --param "gamma:logscale_float:0.5:1.0" \
+  --param "lr:logscale_float:1e-6:1e-1" \
+  --param "dropout:float:0.1:0.6"
+  -C experiments/reinforce \
+  --runner sge \
+  --ard=1 --gamma-prior=1 \
+  --gamma-a=1.0 --gamma-b=0.001 \
+  $PWD/reinforce.sh
 \end{verbatim}	
 \end{center}
 
@@ -261,3 +259,8 @@ In some cases the model might be achieving steady increase in the objective, as 
 	\end{center}
 \end{figure}
 \label{figure:convergence-plot-long-exp}
+
+
+\section{Jak to pustit a co mame za experimenty}
+
+
