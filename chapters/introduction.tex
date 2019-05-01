@@ -18,10 +18,10 @@ data point. Non-parametric does not mean that there are no parameters.
 
 Most machine learning algorithms also have hyperparameters, which are
 parameters that the learning algorithm can not learn itself, and they usually
-control the its behavior. A parameter could be chosen to be a hyperparameter
+control its behavior. A parameter could be chosen to be a hyperparameter
 because it would not be reasonable to infer its value from the training data.
 An example could be the type of optimizer being used to train a neural network
-(e.g. SGD or Adam \citep{kingma2014adam}). The machine learning practicioner
+(e.g. SGD or Adam \citep{kingma2014adam}). The machine learning practitioner
 would not consider the optimizer to be a property of the data distribution, and
 as a reasult treat it as a hyperparameter set externally, rather than trying to
 infer it.
@@ -107,8 +107,8 @@ require either. But even with the smaller models we have just shown, it is easy
 to see that we can not perform more than a few hundred of evaluations without
 spending unreasonable costs on computational resources. This immediately
 disqualifies many of the common black box optimization techniques, such as
-evolution strategies or simmulated annealing, which require on the order of
-thousands evaluations to converge \citep{google-vizier}. These methods do not model the objective function in any way, but rather search the target space directly. Evolutionary algorithms or simmulated annealing never see the space as a whole, but rather perform some variant of stochastic hill climbing, where given enough stochasticity the methods can be considered to perform \newterm{global optimization}.
+evolution strategies or simulated annealing, which require on the order of
+thousands evaluations to converge \citep{google-vizier}. These methods do not model the objective function in any way, but rather search the target space directly. Evolutionary algorithms or simulated annealing never see the space as a whole, but rather perform some variant of stochastic hill climbing, where given enough stochasticity the methods can be considered to perform \newterm{global optimization}.
 
 Bayesian optimization \citep{nando-bayesian-out-of-the-loop} is a black box
 optimization technique which utilizes a probabilistic model to take a set of
@@ -125,7 +125,7 @@ the data points and find the maximum.  Instead, we fit a \newterm{Gaussian
 Process} (GP) which allows us to capture the uncertainty in the
 predictions. This uncertainty is taken into account by the acquisition
 function, and as a result it ends up balancing the exploration-exploitation
-tradeoff by both taking into account the predicted value, and our uncertainty
+trade off by both taking into account the predicted value, and our uncertainty
 in that value.
 
 A key benefit is that the GP is fitted to the whole space, as compared to the search based methods mentioned earlier. We can treat the GP as a surrogate model of the objective function, and optimize it instead, as evaluating the GP at any given point is usually orders of magnitude faster than evaluating the objective function.
@@ -154,7 +154,7 @@ they do.
 Our implementation of Bayesian optimization utilizes the GPy library \citep{gpy2014}
 which implements the basic GP regression model. We chose to use the library
 mainly for the reasons of numerical stability. In theory, as we will show later
-\autoref{chapter:gp}, impelmenting GP regression is simple for a small toy example.
+\autoref{chapter:gp}, implementing GP regression is simple for a small toy example.
 But with realistic data it is easy to run into numerical issues, some of which
 we will go over in the following \autoref{chapter:bo}. Apart from
 numerically stable code, the GPy allows for more control over the
