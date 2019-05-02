@@ -27,33 +27,31 @@ For a more thorough treatment see \cite{bishop2016pattern} and \cite{murphy2012m
 \end{defn}
 
 \begin{defn}
-  % TODO: napsat jinak
-  We say $\rX$ has a \newterm{degenerate Gaussian distribution} when $\rX ∼ 𝓝(μ, 0)$.
+  We say $\rX$ has a \newterm{degenerate Gaussian distribution} when $\rX ∼ 𝓝(μ, 0)$, which formally becomes a Dirac delta function centered around $\mu$.
 \end{defn}
 
 % TODO: \mX vs \rX pro vicerozmerne rv
 \begin{defn}
   A random variable $\mX \in ℝ^n$ has a \newterm{multivariate Gaussian distribution} if
   any linear combination of its components is a univariate Gaussian, i.e.
-  $\va^T \rX = ∑_{i=1}^n \va_i \mX_i$ is a Gaussian for all $\va ∈ ℝ^n$.
-  % TODO: tucne μ a Σ
+  $\va^T \rX = \mSigma_{i=1}^n \va_i \mX_i$ is a Gaussian for all $\va ∈ ℝ^n$.
   % TODO: cov sequence?
-  We then write $\mX ∼ 𝓝(μ, Σ)$ where $𝔼[\mX_i] = μ_i$
-  and $cov(\mX_i, \mX_j) = Σ_{ij}$.
+  We then write $\mX ∼ 𝓝(\vmu, \mSigma)$ where $𝔼[\mX_i] = μ_i$
+  and $cov(\mX_i, \mX_j) = \mSigma_{ij}$.
 \end{defn}
 
 
 \begin{rem}
-  The parameters $μ$ and $Σ$ uniquely determine the distribution $𝓝(μ, Σ)$.
+  The parameters $\vmu$ and $\mSigma$ uniquely determine the distribution $𝓝(\vmu, \mSigma)$.
 \end{rem}
 
 \begin{defn}
-  A random variable $\mX ∼ 𝓝(μ, Σ)$ has a \newterm{degenerate multivariate Gaussian distribution}
-  if $\det Σ = \mZero$.
+  A random variable $\mX ∼ 𝓝(\vmu, \mSigma)$ has a \newterm{degenerate multivariate Gaussian distribution}
+  if $\det \mSigma = \mZero$.
 \end{defn}
 
 \begin{rem}
-  Given a random variable $\mX ∼ 𝓝(μ, Σ)$, random variables $\mX_1, \ldots,
+  Given a random variable $\mX ∼ 𝓝(\vmu, \mSigma)$, random variables $\mX_1, \ldots,
   \mX_n$ are independent with distributions $\mX_i ∼ 𝓝(μ_i, σ_i^2)$ if and only
   if $μ = (μ_1, \ldots, μ_n)$ and $Σ = diag(σ₁², \ldots, σₙ²)$.
 \end{rem}
@@ -101,7 +99,7 @@ For a more thorough treatment see \cite{bishop2016pattern} and \cite{murphy2012m
 
 \section{Sampling}
 
-Even not of immediate interest for bayesian optimization, we will shortly show
+Even not of immediate interest for Bayesian optimization, we will shortly show
 how to generate samples from a multivariate Gaussian, as this can be useful for
 visualization purposes with GPs.
 
@@ -124,7 +122,7 @@ visualization purposes with GPs.
 
 \begin{thm}
   Given a random variable $\mX \sim \gN(\mZero, \mI)$ and a positive-definite matrix
-  $\mSigma$ with a cholesky decomposition $\mSigma = \mL \mL^T$, then
+  $\mSigma$ with a Cholesky decomposition $\mSigma = \mL \mL^T$, then
 
   \begin{equation}
     \mL \mX \sim \gN(\mZero, \mSigma).
@@ -155,8 +153,8 @@ visualization purposes with GPs.
 
 Since samples from $\gN(\mZero, \mI)$ can be generated independently, using the
 affine property we can generate samples from an arbitrary multivariate
-Gaussian. All that is required is a procedure for cholesky decomposition, and a
-way of generating independent samples from a univariate gaussian, which can be
+Gaussian. All that is required is a procedure for Cholesky decomposition, and a
+way of generating independent samples from a univariate Gaussian, which can be
 achieved using the Box-Muller transform \citep{box-muller1958note}.
 
 
@@ -192,7 +190,7 @@ where the second to last equality comes from $\mU$ being orthogonal ($\mU^{-1}
 \end{align}
 where $y_i = u_i^T (\vx - \vmu)$ which has exactly the same form as a $D$
 dimensional ellipse. From this we conclude that the contour lines of a
-multivariate Guassian will be elliptical, where the eigenvectors determine the
+multivariate Gaussian will be elliptical, where the eigenvectors determine the
 orientation of the ellipse, and the eigenvalues determine the length of the
 principal axes \citep{bishop2016pattern}.
 
@@ -417,12 +415,12 @@ compute the acquisition function.
 \newterm{Gaussian Process} is a stochastic process (a collection of random
 variables), such that every subset of those random variables has a
 multivariate Gaussian distribution. It is defined by a mean function
-$m(\vx)$ and a covariance funciton $\kappa(\vx, \vx')$. Formally, we write
+$m(\vx)$ and a covariance function $\kappa(\vx, \vx')$. Formally, we write
 \begin{equation}
   p(\vx) \sim 𝓖𝓟 (m(\vx), \kappa(\vx, \vx')).
 \end{equation}
-Any finite subset $\vx = (x_1, \ldots, x_n)$ is jointly Gaussian with mean
-$m(\vx)$ and covariance $\mSigma(\vx)$ where $\mSigma(\vx)_{ij} =
+Any finite subset $\vx = (x_1, \ldots, x_n)$ is jointly Gaussian with mean vector
+$m(\vx)$ and covariance matrix $\mSigma(\vx)$ where $\mSigma(\vx)_{ij} =
 \kappa(\vx_i, \vx_j)$, where $\kappa$ is any positive definite kernel
 function \citep{murphy2012machine}.
 
@@ -543,9 +541,10 @@ yields a much smoother function.
   \begin{center}
     \includegraphics[width=1.0\textwidth]{images/gp-lengthscale.png}
     \caption{Lengthscale $l = 0.2$ on the left, and $l = 2$ on the right.}
+    
+    \label{figure:gp-lengthscale}
   \end{center}
 \end{figure}
-\label{figure:gp-lengthscale}
 
 A popular kernel in the context of Bayesian optimization is the Mat\'ern kernel
 $$
@@ -555,7 +554,7 @@ where $\nu$ and $\mathcal{l}$ are the parameters and $K_\nu$ is a modified Besse
 $$
 \kappa(d) = \left( 1 + \frac{\sqrt{5}d}{\mathcal{l}} + \frac{5d^2}{3\mathcal{l}^2} \right) \exp \left( - \frac{\sqrt{5}d}{\mathcal{l}} \right)
 $$
-which ends up being $5$ times differentiable, as compared to the RBF kernel shown above, which is infinitely differentiable. As a side note, the Mat\'ern kernel actually converges to the RBF kernel as $\nu -> \infty$.
+which ends causing the GP posterior to be $2$ times differentiable \citep{williams2006gaussian}, as compared to the RBF kernel shown above, which is infinitely differentiable. As a side note, the Mat\'ern kernel converges to the RBF kernel as $\nu \rightarrow \infty$.
 
 In a general setting it could prove useful to examine many different kernel functions and use one that works best in a particular domain. As our case is Bayesian optimization, we will stick with the kernels shown above, as those are most often shown to perform well in literature, especially the $5/2$ Mat\'ern kernel \citep{snoek2012practical}.
 
@@ -569,9 +568,10 @@ In a general setting it could prove useful to examine many different kernel func
 			the noise parameter is also optimized, as the regression model does not
 			go directly through the data points, but instead considers the small
 			variation as due to noise.}
+		\label{figure:gp-kernel-param-optimization}
 	\end{center}
 \end{figure}
-\label{figure:gp-kernel-param-optimization}
+
 
 So far we have considered the noise, variance and lengthscale parameters to be
 fixed, but in this section we show how their value can be determined
@@ -599,13 +599,12 @@ result many workarounds for approximate inference were developed
 \citep{williams2006gaussian}, which again, we omit from this text, because they
 are not relevant for hyperparameter optimization.
 
-Implementing the kernel parameter optimization is easy in practice. One can
+Implementing the kernel parameter optimization is simple in practice. One can
 simply implement the marginal likelihood formula shown in
 \autoref{eq:kernel-marginal-likelihood} \todo{neni oznaceno jako rovnice} and
 use a package for automatic differentiation with an optimizer like SGD or
 L-BFGS to optimize the parameters. Since the objective is non-linear, a common
 practice \citep{gpy2014} is to optimize with mutliple restarts.
 \autoref{figure:gp-kernel-param-optimization} shows the effect of optimizing
-kernel parameters using maximum likelihood.
-
-
+kernel parameters using maximum likelihood. More details on optimizing the kernel
+parameters can be found in \autoref{section:priors-on-kernel-params}.

@@ -12,7 +12,7 @@ $$
 \vx_\text{opt} = \arg\min_{\vx ∈ 𝓧} f(\vx).
 $$
 
-We also assume that the evaluation of $f$ is expensive, as the goal of bayesian
+We also assume that the evaluation of $f$ is expensive, as the goal of Bayesian
 optimization is to find the optimum in as few evaluations as possible. Consider
 the case when evaluating $f$ means performing a computation that is not only
 time consuming, but for example also costs a lot of money. We might only have a
@@ -61,9 +61,9 @@ can perform. See algorithm \autoref{alg:bopt} for pseudocode.
 \end{algorithm}
 
 
-At its core, bayesian optimization only requires two things. A probabilistic
+At its core, Bayesian optimization only requires two things. A probabilistic
 regression model which combines prior beliefs $p(f)$ with the data. And an
-acquistion function which describes the optimality of the next sampling point.
+acquisition function which describes the optimality of the next sampling point.
 
 \section{Prior Distribution over Functions}
 

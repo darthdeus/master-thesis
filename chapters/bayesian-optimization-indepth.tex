@@ -107,3 +107,7 @@ This allows us to compute the determinant, which is usually $O(n^3)$, in just li
 Another interesting note, discovered by our initial custom implementation, and confirmed in the implementation of the GPy \citep{gpy2014} library, is that when computing a Cholesky factorization of a covariance matrix computed on real world data, it will often fail for numerical reasons, and requires additional noise to be added to the diagonal to improve stability. What GPy does internally is to iteratively increase the amount of noise, up until some threshold, to make sure the factorization succeeds without any problems, while not adding excessive noise when not needed.
 
 Lastly, the optimization procedures themselves used for maximizing the kernel log-likelihood and acquisition function can be sensitive. Our initial implementation in SciPy and TensorFlow showed very different restarts based on the type of optimizer (SGD, Adam, L-BFGS), and its meta-parameters, such as the number of restarts, stop tolerance criterion, learning rates, etc. These problems, along with the many numerical issues encountered along the way, contributed to the choice of using GPy for the final implementation. We outline a few more reasons in \autoref{section:gpy}.
+
+
+\section{Priors on Kernel Parameters}
+\label{section:priors-on-kernel-params}
