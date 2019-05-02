@@ -183,6 +183,7 @@ By default, this would run $20$ evaluations in total with no parallelism. The nu
 The way \inlinecode{bopt run} tracks the number of running jobs is by checking the \inlinecode{meta.yml} file for the IDs, and then checking the job status and counting how many are running. This allows it to respect the number of jobs running prior to the execution of \inlinecode{bopt run}. If the user first was to start say $5$ evaluations by hand (e.g. using \inlinecode{bopt run-single}) and only then run \inlinecode{bopt run --n\_parallel=5} while the first $5$ jobs were still running, the instance of \inlinecode{bopt run} would correctly identify the running jobs and wait for some of them to finish before launching new ones.
 
 \section{Visualizations}
+\label{section:visualizations}
 
 Given the complex nature of tuning hyperparameters, one might be tempted to simply run grid search and examine the results. Ignoring the computational aspects for a moment, let us focus on the manual inspection of the results. As the number of hyperparameters grows beyond to $5$ -- $10$ it becomes very difficult to infer relationships between hyperparameters from a flat list of evaluations. \autoref{figure:sample-table} shows an example of a table with $6$ different hyperparameters. To model a $6$-dimensional space one needs to run at least $15$ -- $20$ evaluations to get enough information to infer relationships between the dimensions. But as the number of evaluations grow, it becomes increasingly difficult to look at tabular data and infer relationships from them.
 
@@ -212,9 +213,11 @@ We provide a practical solution of plotting 1D and 2D marginal GP fits for all h
 \end{figure}
 \label{figure:1d-marginal}
 
-The benefit of a GP regression model is that the marginal distribution on any combination if the hyperparameters simply follows the marginalization property (see \autoref{eq:mvn-marginal-parameters}), which says we can only look at the mean and covariance of the parameters we are interested in, as all of the other ones get marginalized out, that is $p(\vx_2) \sim \mathcal{N}(\vx_2 | \vmu_2, \mSigma_{22})$ where $p(\vx_2) = \int p(\vx_1, \vx_2)\ d\vx_1$ and a partitioned matrix $\mSigma$ as described in \autoref{chapter:gp}. Using this property, we can compute the 1D marginal projection by fitting a model to the coordinate corresponding to the hyperparameter of interest.
+The benefit of a GP regression model is that the marginal distribution on any combination if the hyperparameters simply follows the marginalization property (see \autoref{eq:mvn-marginal-parameters}), which says we can only look at the mean and covariance of the parameters we are interested in, as all of the other ones get marginalized out, that is $p(\vx_2) \sim \mathcal{N}(\vx_2 | \vmu_2, \mSigma_{22})$ where $p(\vx_2) = \int p(\vx_1, \vx_2)\ d\vx_1$ and a partitioned matrix $\mSigma$ as described in \autoref{chapter:gp}. Using this property, we can compute the 1D marginal projection by fitting a model to the coordinate corresponding to the hyperparameter of interest. As the goal of the marginal plots is to quickly see the trends in the data, we employ the Empirical Bayes approach described in \autoref{section:priors-on-kernel-params} to bias the prior distribution on kernel parameters towards smoother kernel functions, to avoid pathological cases of overfitting as shown in \autoref{figure:overfitting-gp}.
 
 Similarly, we might be interested in looking at slices through the GP regression model, that is fixing a value of some hyperparameters, and examining how the objective changes when interpolating through the remaining ones. This is again simple to achieve computationally when the model is a GP, because by slicing we are simply conditioning on the values of some elements of $\vx$ while leaving the others free. Using the conditioning formula shown in \autoref{eq:mvn-conditional-parameters} we can compute the posterior parameters in closed form, and then simply plot the predicted mean and variance. We don't show this case in the figures since the plots look exactly the same as the marginal ones, except of course for the specific values. The user can simply toggle between the two modes.
+
+The kernel parameters for the conditioned GP are set to the exact values computed when the sample was chosen for evaluation. This way we can explore the progress of the optimization process through time and see what the model saw at each point, and why it chose the hyperparameters it did.
 
 \begin{figure}
 	\begin{center}
@@ -237,6 +240,7 @@ Similarly, we might be interested in looking at slices through the GP regression
 
 As a method of debugging possible issues in the model, as well as just general high level inspection of the quality of the fit, we provide a visualization of the kernel parameters as they change over time of the Bayesian optimization, as shown in \autoref{figure:kernel-parameters-over-time}.
 
+\todo{dopsat}
 
 \subsection{Convergence}
 

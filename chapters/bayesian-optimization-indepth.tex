@@ -111,3 +111,36 @@ Lastly, the optimization procedures themselves used for maximizing the kernel lo
 
 \section{Priors on Kernel Parameters}
 \label{section:priors-on-kernel-params}
+
+One of the benefits of the GP regression model is that it is very flexible. Unlike parametric, such as linear regression, it can fit arbitrarily complex curves through the data. This flexibility is dictated by the choice of a kernel function, which determines individual covariances between every pair of points. As we have shown earlier (see \autoref{section:kernels}) the kernels themselves have hyperparameters which greatly affect the behavior of the model. Even though it is theoretically possible to set the kernel parameters by hand, as it could be done if we knew some properties of the objective function, we cannot take this approach when fitting arbitrary samples from the loss landscape of a neural network. Instead we take a principled approach using statistics and optimize the kernel parameters to maximize the likelihood of the data, specifically using maximum likelihood estimation (MLE).
+
+Unfortunately, because MLE is a point estimate, it is prone to overfitting. In our particular case of using a flexible non-parametric model we can run into much severe case of overfitting. In theory, some argue (see \citep{williams2006gaussian}) that when the likelihood function is multi-modal it is usually because there are multiple interpretations to the data, and each mode maps to an intuitive interpretation. We have not found this to be true on more complex datasets, as those sampled from the objective function when using neural networks, and very often the MLE ends up choosing a model with extremely high capacity, as shown in \autoref{figure:overfitting-gp}.
+
+\begin{figure}
+	\begin{center}
+		\includegraphics[width=1.0\textwidth]{images/overfitting-gp.png}
+		\caption{GP regression with a very low value for the lengthscale kernel parameter. Since the scale parameter is low, the $x$ axis ends up being \emph{stretched out}, and each data point becomes independent, that is their covariance is low. As a result, the model is free to try to fit almost every data point independently of the others, and its predictions become uninformative.}
+		\label{figure:overfitting-gp}
+	\end{center}
+\end{figure}
+
+A common solution to the overfitting problem of MLE is to introduce a prior distribution $p(w)$ on the parameters $p(w)$, and then instead of maximizing the likelihood $p(x|w)$ we would maximize the posterior distribution $p(w | x) \propto p(x | w) p(w)$. This procedure is commonly called the maximum a posteriori (MAP) estimate, and is commonly employed in machine learning models as a way of reducing overfitting. For example, in the case of linear regression, the standard least squares solution corresponds to maximizing the likelihood of the data using MLE, or equivalently minimizing the mean squared error between the predictions and the labels. A probabilistic extension of linear regression which introduces a Gaussian prior on the weights is called a Ridge regression, and corresponds to computing the MAP estimate of the parameters, or equivalently minimizing the mean squared error with an additional weight decay term.
+
+In the ideal case, we would either marginalize over the parameters, or take a fully Bayesian approach and compute the posterior $p(w | x)$. Unfortunately, in many cases including ours, this becomes intractable due to the normalization constant given by the evidence term $p(x)$. The MAP estimate is a practical compromise between the frequentist point estimate using MLE, and a fully Bayesian treatment. Because we only need to compute the $\argmax$ of the posterior we can optimize it without computing the normalization term $p(x)$, as $\argmax$ is invariant to scaling by a constant. The MAP estimate is then simply computed as $$ \argmax_w p(x|w) p(w), $$ where in our case $w$ represents the kernel parameters, as well as the constant for Gaussian noise in each sample.
+
+As with any Bayesian method, the choice of a prior is of great importance. If we were to choose a uniform prior, computing the MAP estimate would be equivalent to computing the MLE with constrained optimization on the support of the uniform distribution. In practice we could take a conservative step and choose a non-informative prior, which would still act as regularization, and possibly help with overfitting as compared to computing a bare MLE estimate. An example of such prior is the $\operatorname{Gamma}(1.0, 0.001)$ distribution shown in \autoref{figure:gamma-prior}, as its support is positive real numbers, and both the variance and lengthscale of the kernel are also defined only for positive real numbers.
+
+In our experiments, as described in \autoref{chapter:experiments}, we show a few cases where the choice of an uninformative prior leads to poor model behavior. The common issue is when the model chooses a small lengthscale for hyperparameters with high range of values, as shown previously in \autoref{figure:overfitting-gp}. Because the process of Bayesian optimization is built on top of the regression model it can become problematic when the model sees most of the search space as constant regions with only a few peaks at the sampled data points.
+
+A possible solution to this problem is to abandon the idea of non-informative priors and instead take the approach often called Empirical Bayes \citep{murphy2012machine}, where the parameters of the prior distribution are estimated from the data themselves. Choosing between a non-informative prior and estimating the parameters from data is a principal problem that does not have a definitive answer.
+
+As our motivations are largely driven by practical applications rather than theoretical purity we do estimate the prior parameters from data in some visualizations (see \autoref{section:visualizations}) to avoid pathological cases and provide more useful user experience. We also show some comparisons between the non-informative priors and the Empirical Bayes approach in the GP regression model used when computing the acquisition function, as compared to only in visualizations, in \autoref{section:experiments-empirical-bayes}. Unfortunately as some experiments of our experiments were very compute intensive (some over a thousand GPU-hours) we do not provide full ablation analysis.
+
+\begin{figure}
+	\begin{center}
+		\includegraphics[width=1.0\textwidth]{images/gamma-prior.png}
+		\caption{An example of a prior distribution defined as $\operatorname{Gamma}(1.0, 0.001)$ with support over positive real numbers.}
+		\label{figure:gamma-prior}
+	\end{center}
+\end{figure}
+
