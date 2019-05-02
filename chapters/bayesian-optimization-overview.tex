@@ -44,10 +44,9 @@ each step, refining its model as more data are available. At each step the we
 maximize the acquisition function in order to obtain the next sample point
 $x_{i+1}$. We then evaluate $f(x_{i+1})$ to obtain $y_{i+1}$, and incorporate
 it into the dataset. This processs is repeated for as many evaluations as we
-can perform. See algorithm \autoref{alg:bopt} for pseudocode.
+can perform. See \autoref{alg:bopt} for pseudocode.
 
 \begin{algorithm}
-  \label{alg:bopt}
   \DontPrintSemicolon
   \SetAlgoLined
   Initialize $\vx_1$ randomly and evaluate $y_1 = f(\vx_1), 𝓓_1 = {(\vx_1, y_1)}$. \;
@@ -58,6 +57,7 @@ can perform. See algorithm \autoref{alg:bopt} for pseudocode.
     Update the probabilistic model. \;
   }
   \caption{Bayesian Optimization, \cite{nando-bopt-tutorial}}
+  \label{alg:bopt}
 \end{algorithm}
 
 
@@ -92,15 +92,13 @@ $$
   𝓖𝓟(m(\rx), \kappa(\rx, \rx')).
 $$
 
-
 \begin{figure}
 	\begin{center}
 		\includegraphics[width=1.0\textwidth]{images/gp-1d.png}
 		\caption{A GP regression fit to three data points in 1D, shown as small black circles. The black line signifies the mean prediction, while the purple filled area shows one standard deviation at each point. The three points marked as $x_1, x_2, x_3$ are where we are computing the posterior, that is $p(x_1, x_2, x_3 | \mathcal{D})$. These points together have a multivariate Gaussian distribution, with a marginal 1D distribution shown vertically at each point. In order to draw a plot like this one we compute the posterior over a fine grid on the $X$ axis, and plot the mean parameter and the diagonal of the covariance matrix, giving us the standard deviation. Image source: \cite{nando-bopt-tutorial}}
+		\label{figure:gp-regression-1d}
 	\end{center}
 \end{figure}
-\label{figure:gp-regression-1d}
-
 
 By convention, we assume that the prior mean is a constant zero function, that
 is $m(x) = 0$. Since the data is often normalized in practice, this does not
@@ -116,7 +114,7 @@ Because the model is non-parametric, it can still fit any arbitrary dataset we g
 Intuitively, it is often useful to think of a GP as a function, which instead
 of returning a scalar $f(x)$ returns the mean and standard deviation of a
 Gaussian distribution over the possible values, centered at $x$. We leave a formal
-treatment of GPs until chapter~\ref{chapter:gp}.
+treatment of GPs until \autoref{chapter:gp}.
 
 
 % Bayesian optimization does not require any particular form of the prior
