@@ -1,13 +1,13 @@
 \chapter{Gaussian Processes}
 \label{chapter:gp}
 
-This chapter goes into the technical details of the Gaussian distribution and
-its extension the Gaussian Process (GP). We think it is important to have at
-least a basic understanding of the underlying math to make intuitive claims
-about the behavior of the model, especially since GPs are a bit different
-from other parametric machine learning models.
+This chapter describes the technical details of the Gaussian distribution and
+its extension, the Gaussian Process (GP). We believe it is important to have at
+least a basic understanding of the underlying math to make claims
+about the behavior of the model, especially since GPs behave quite differently
+than other parametric machine learning models.
 
-Since our objective is bayesian optimization, we only derive the properties
+Since our objective is Bayesian optimization, we only derive the properties
 necessary for its implementation. Specifically, we are interested in the
 conditional and marginal distributions of a multivariate Gaussian. The
 conditional Gaussian distribution allows us to compute the posterior $p(f|x)$
@@ -15,7 +15,7 @@ at an arbitrary point, and the marginal allows us to fit a GP regression model
 to each hyperparameter separately for additional visualization.
 
 Let us now continue with a more rigorous treatment of the Gaussian distribution.
-For a more thorough treatment see \cite{bishop2016pattern} and \cite{murphy2012machine}.
+For a more thorough treatment, see \cite{bishop2016pattern} and \cite{murphy2012machine}.
 
 \begin{defn}
   A random variable $\rX$ has a \newterm{univariate Gaussian distribution},
@@ -27,7 +27,7 @@ For a more thorough treatment see \cite{bishop2016pattern} and \cite{murphy2012m
 \end{defn}
 
 \begin{defn}
-  We say $\rX$ has a \newterm{degenerate Gaussian distribution} when $\rX ∼ 𝓝(μ, 0)$, which formally becomes a Dirac delta function centered around $\mu$.
+  We say that $\rX$ has a \newterm{degenerate Gaussian distribution} when $\rX ∼ 𝓝(μ, 0)$, which formally becomes a Dirac delta function centered around $\mu$.
 \end{defn}
 
 % TODO: \mX vs \rX pro vicerozmerne rv
@@ -53,13 +53,13 @@ For a more thorough treatment see \cite{bishop2016pattern} and \cite{murphy2012m
 \begin{rem}
   Given a random variable $\mX ∼ 𝓝(\vmu, \mSigma)$, random variables $\mX_1, \ldots,
   \mX_n$ are independent with distributions $\mX_i ∼ 𝓝(μ_i, σ_i^2)$ if and only
-  if $μ = (μ_1, \ldots, μ_n)$ and $Σ = diag(σ₁², \ldots, σₙ²)$.
+  if $\vmu = (μ_1, \ldots, μ_n)$ and $\mSigma = diag(σ₁², \ldots, σₙ²)$.
 \end{rem}
 
 \begin{thm}
   If a random variable $\mX ∈ ℝⁿ$ is a multivariate Gaussian, then $\rX_i,
-  \rX_j$ are independent if and only if $cov(\rX_i, \rX_j) = 0$. Note that his
-  is not true for any random variable, as it is a special property of the
+  \rX_j$ are independent if and only if $cov(\rX_i, \rX_j) = 0$. Note that
+  this statement is not true for any random variable, and it is only a special property of the
   multivariate Gaussian.
 \end{thm}
 
@@ -68,29 +68,29 @@ For a more thorough treatment see \cite{bishop2016pattern} and \cite{murphy2012m
 \end{proof}
 
 \begin{thm}
-  A Gaussian random variable $\rX ∼ 𝓝(\vmu, \mSigma)$ has a density iff
+  A Gaussian random variable $\rX ∼ 𝓝(\vmu, \mSigma)$ has density if and only if
   it is non-degenerate (i.e.\ $\det \mSigma \neq 0$, alternatively $\mSigma$
-  is positive-definite). And in this case, the density is
+  is positive-definite). In this case, the density is
 
   \begin{equation}
     \label{eq:mvn-definition}
     p(\vx) = \frac{1}{\sqrt{\det(2 π \mSigma)}} \exp{ \left\{ - \frac{1}{2}
-    (\vx - \vmu)^T \mSigma^{-1} (\vx - \vmu) \right\} }
+    (\vx - \vmu)^T \mSigma^{-1} (\vx - \vmu) \right\} }.
   \end{equation}
 \end{thm}
 
 \begin{rem}
-  The normalizing constant in the denominator is also often in an alternate
-  form as $$\det(2 π \mSigma) = (2π)^n \det(\mSigma)$$ which follows from basic
-  determinant properties. Alternatively we can also put the square root in the
-  exponent $(2 \pi)^{n/2} (\det \mSigma)^{1/2}$.
+  The normalizing constant in the denominator is also often presented in an alternate
+  form $$\det(2 π \mSigma) = (2π)^n \det(\mSigma),$$ which follows from basic
+  determinant properties. Alternatively, we can also move the square root in the
+  exponent and write $(2 \pi)^{n/2} (\det \mSigma)^{1/2}$.
 \end{rem}
 
 \begin{rem}
-  A special case of the multivariate gaussian is when $n = 1$, then Note that
-  if $n = 1$, then $\mSigma = σ²$, meaning $cov(X, X) = σ²$ , $\mSigma^{-1} =
-  \frac{1}{σ²}$, and hence the multivariate Gaussian formula becomes the
-  univariate one
+  In a special case of the multivariate Gaussian with $n = 1$, we have
+  $\mSigma = σ²$ (meaning $cov(X, X) = σ²$) and $\mSigma^{-1} =
+  \frac{1}{σ²}$, and hence the multivariate Gaussian formula becomes
+  a univariate one:
 
   \begin{equation}
     p(x) = \frac{1}{\sqrt{2 π σ²}} \exp{\left\{ - \frac{1}{2σ²} (x - μ)² \right\}}.
@@ -99,8 +99,8 @@ For a more thorough treatment see \cite{bishop2016pattern} and \cite{murphy2012m
 
 \section{Sampling}
 
-Even not of immediate interest for Bayesian optimization, we will shortly show
-how to generate samples from a multivariate Gaussian, as this can be useful for
+Even not of immediate interest for Bayesian optimization, we shortly show
+how to generate samples from a multivariate Gaussian, because the ability is useful for
 visualization purposes with GPs.
 
 \begin{thm}
@@ -131,14 +131,14 @@ visualization purposes with GPs.
 \end{thm}
 
 \begin{proof}
-  We can immediately use \eqref{eq:gaussian-ax}.
+  We can immediately use \autoref{eq:gaussian-ax}.
   \begin{align}
-    \mL \mX \sim N(0, \mL \mI \mL^T) = N(0, \mL \mL^T) = N(0, \mSigma)
+    \mL \mX \sim N(0, \mL \mI \mL^T) = N(0, \mL \mL^T) = N(0, \mSigma).
   \end{align}
 \end{proof}
 
 \begin{thm}
-  Any affine transformation of a Gaussian is a Gaussian. In particular
+  Any affine transformation of a Gaussian is a Gaussian. In particular,
   $$
     \rX \sim \gN(\vmu, \mSigma) \implies \mA \rX + \vb \sim \gN(\mA \vmu + \vb, \mA \mSigma \mA^T)
   $$
@@ -151,7 +151,7 @@ visualization purposes with GPs.
   Follows from the linearity of expectation together with \autoref{eq:gaussian-cholesky}.
 \end{proof}
 
-Since samples from $\gN(\mZero, \mI)$ can be generated independently, using the
+Since samples from $\gN(\mZero, \mI)$ can be generated easily, using the
 affine property we can generate samples from an arbitrary multivariate
 Gaussian. All that is required is a procedure for Cholesky decomposition, and a
 way of generating independent samples from a univariate Gaussian, which can be
@@ -166,12 +166,12 @@ variable $\mA^{-1} (\mY - \vmu)$ has a spherical shape in $n$-dimensional
 space.
 
 Looking further at the density formula for a multivariate Gaussian
-(\autoref{eq:mvn-definition}) the term $(\vx - \vmu)^T \mSigma^{-1}(\vx -
+(\autoref{eq:mvn-definition}), the term $(\vx - \vmu)^T \mSigma^{-1}(\vx -
 \vmu)$ is called the Mahalanobis distance between $\vx$ and $\vmu$. If we
-consider $\vmu$ a constant, we can also view it as a quadratic form in $x$.
+consider $\vmu$ a constant, we can also view it as a quadratic form in $\vx$.
 When $\mSigma$ is an identity matrix, the Mahalanobis distance reduces to
 Euclidean distance. In general, it can be thought of as a distance on a
-hyper-ellipsoid. Let us now derive some intuition for this.
+hyper-ellipsoid. Let us now derive some intuition for that.
 
 Since $\mSigma$ is a covariance matrix, we know it is positive definite, and we
 can perform its eigendecomposition to get $\mSigma = \mU \mLambda \mU^T$, where
@@ -186,10 +186,10 @@ where the second to last equality comes from $\mU$ being orthogonal ($\mU^{-1}
 \begin{align}
   (\vx - \vmu)^T \mSigma^{-1} (\vx - \vmu) &= (\vx - \vmu)^T \left( \sum_{i = 1}^D \frac{1}{\lambda_i} \vu_i \vu_i^T \right) (\vx - \vmu) \\
                                            &= \sum_{i = 1}^D (\vx - \vmu)^T \frac{1}{\lambda_i} \vu_i \vu_i^T (\vx - \vmu) \\
-                                           &= \sum_{i = 1}^D \frac{y_i^2}{\lambda_i} \label{eq:mvn-ellipse}
+                                           &= \sum_{i = 1}^D \frac{y_i^2}{\lambda_i}, \label{eq:mvn-ellipse}
 \end{align}
-where $y_i = u_i^T (\vx - \vmu)$ which has exactly the same form as a $D$
-dimensional ellipse. From this we conclude that the contour lines of a
+where $y_i = u_i^T (\vx - \vmu)$ has exactly the same form as a $D$-dimensional
+ellipse. From this we conclude that the contour lines of a
 multivariate Gaussian will be elliptical, where the eigenvectors determine the
 orientation of the ellipse, and the eigenvalues determine the length of the
 principal axes \citep{bishop2016pattern}.
@@ -205,7 +205,7 @@ also Gaussian, and we can easily compute their parameters in closed from based
 on the parameters of the joint distribution.
 
 Before we derive the conditional and marginal distributions, let us state
-the partitioned inverse formula without proof.
+the partitioned inverse formula without a proof.
 
 \begin{thm}[\citep{murphy2012machine}] Consider a partitioned matrix
 
@@ -213,7 +213,7 @@ the partitioned inverse formula without proof.
     \mM = \begin{bmatrix} \mE & \mF \\ \mG & \mH \end{bmatrix}
   \end{equation}
 
-  where we assume $\mE$ and $\mH$ are invertible. We have
+  where we assume $\mE$ and $\mH$ are invertible. Then
 
   \begin{align}
     \mM^{-1} &= \begin{bmatrix}
@@ -223,7 +223,7 @@ the partitioned inverse formula without proof.
              &= \begin{bmatrix}
       \mE^{-1} + \mE^{-1} \mF (\mM / \mE)^{-1} \mG \mE^{-1} & - \mE^{-1} \mF (\mM / \mE)^{-1} \\
       -(\mM / \mE)^{-1} \mG \mE^{-1} & (\mM / \mE)^{-1}
-    \end{bmatrix}
+    \end{bmatrix},
     \label{eq:matrix-inversion-lemma}
   \end{align}
 
@@ -256,7 +256,7 @@ $\vx_1$ and $\vx_2$ such that
 
 We also partition the mean vector $\vmu$ and the covariance matrix $\mSigma$
 into a block matrix, and name the inverse of the covariance matrix $\mLambda =
-\mSigma^{-1}$, which will simplify a few of the equations that follow. We will
+\mSigma^{-1}$, which simplifies a few of the equations that follow. We
 derive the exact form of $\mLambda$ and of its individual blocks later in this
 section. For now we simply use the fact that $\mSigma$ is positive-definite,
 and thus it is invertible. The matrix $\mLambda$ is also known as a
@@ -274,15 +274,15 @@ and $\ml{22}$ are all symmetrical.
 Before we derive the parameters of the conditional, we show that the
 conditional distribution $p(x_1 | x_2)$ is a Gaussian. To do this, we take the
 joint distribution $p(x_1, x_2)$ and fix the value of $x_2$
-\citep{bishop2016pattern}. Using the definition of conditional probability
+\citep{bishop2016pattern}. Using the definition of the conditional probability
 $p(x_1, x_2) = p(x_1 | x_2) p(x_2)$ we can see that after fixing the value of
 $x_2$, $p(x_2)$ is simply a normalization constant, and the remaining term
 $p(x_1 | x_2)$ is a function of $x_1$ which together with the normalization
 constant gives us the conditional probability distribution on $x_1$.
 We now use the partitioned form of the multivariate Gaussian defined by
-\eqref{eq:mvn-partition} to show that $p(x_1 | x_2)$ is actually a Gaussian.
+\autoref{eq:mvn-partition} to show that $p(x_1 | x_2)$ is actually a Gaussian.
 
-Let us begin by looking at the exponent in \eqref{eq:mvn-definition}:
+Let us begin by looking at the exponent in \autoref{eq:mvn-definition}:
 
 \begin{align}
   -\frac{1}{2} (\vx - \vmu)^T \mLambda (\vx - \vmu) &=
@@ -312,7 +312,7 @@ To make the next few equations easier to follow we set $\vy_1 = \vx_1 - \vmu_1$ 
 \end{align}
 
 We see that this is a quadratic form in $x_1$, and hence the corresponding
-conditional distribution $p(x_1 | x_2)$ will be Gaussian. Because we know
+conditional distribution $p(x_1 | x_2)$ is a Gaussian. Because we know
 $p(x₁, x₂) = p(x₁|x₂)p(x₂)$ and that both $p(x₁, x₂)$ and $p(x₁|x₂)$ are
 multivariate Gaussians, fixing the value of $x₁$ means that $p(x₁|x₂)$ as a
 function of $x₂$ is just a normalization constant, and $p(x₂)$ must have the
@@ -395,17 +395,17 @@ also know that $\mSigma^T_{12} = \mSigma_{21}$.
     \label{eq:mvn-quadratic-form-12}
 \end{align}
 
-In \eqref{eq:mvn-quadratic-form-12} we again see a Gaussian density with
+In \autoref{eq:mvn-quadratic-form-12} we again observe a Gaussian density with
 parameters
 \begin{align}
   \vmu_{1|2} &= \vmu_1 + \mSigma_{12}\mSigma_{22}^{-1} (\vx_2 - \vmu_2) \\
   \mSigma_{1|2} &= (\mSigma/\mSigma_{22})^{-1} =  \ms{11} - \ms{12} \ms{22}^{-1} \ms{21}.
   \label{eq:mvn-conditional-parameters}
 \end{align}
-This formula extremely important for the use of GPs as a probabilistic
-model in bayesian optimization. It will allow us to compute the exact
+This formula is extremely important for the use of GPs as a probabilistic
+model in Bayesian optimization. It allows us to compute the exact
 parameters of the posterior $p(f|x)$ at any given point, and as a result
-compute the acquisition function.
+to compute the acquisition function.
 
 \todo{marginal}
 \label{eq:mvn-marginal-parameters}
@@ -420,30 +420,30 @@ $m(\vx)$ and a covariance function $\kappa(\vx, \vx')$. Formally, we write
   p(\vx) \sim 𝓖𝓟 (m(\vx), \kappa(\vx, \vx')).
 \end{equation}
 Any finite subset $\vx = (x_1, \ldots, x_n)$ is jointly Gaussian with mean vector
-$m(\vx)$ and covariance matrix $\mSigma(\vx)$ where $\mSigma(\vx)_{ij} =
-\kappa(\vx_i, \vx_j)$, where $\kappa$ is any positive definite kernel
+$m(\vx)$ and covariance matrix $\mSigma(\vx)$, where $\mSigma(\vx)_{ij} =
+\kappa(\vx_i, \vx_j)$, with $\kappa$ being any positive definite kernel
 function \citep{murphy2012machine}.
 
 The GP defines a prior distribution over functions $f$, which when
 combined with data $x$ can be converted into a posterior distribution
 over functions $p(f|x)$.
 
-\subsection{GP regression with noise-free observations}
+\subsection{GP Regression with Noise-free Observations}
 
-Consider the case when we are interested in predicting a function $f$
+Consider the case when we are predicting a function $f$
 based on a few observations $𝓓 = \{(\vx_1, y_1), \ldots, (\vx_n, y_n)\}$,
-and we are interested in predicting the value of $y_\star$ at a new point
+and we are interested in predicting the value of $y_\star = f(x_\star)$ at a new point
 $x_\star$.
 
-Using the definition of a GP, we know that $y$ and $y_\star$ are jointly
-Gaussian. We also know, that these are the only points we are interested
+Using the definition of a GP, we know that all $y_i$ and $y_\star$ are jointly
+Gaussian. Furthermore, these are the only points we are interested
 in.  Even though the GP is a distribution over functions, that is over
-infintiely dimensional vectors, we only need to look at finitely many
-points and can ignore the rest.  This is a crucial property of the GP and
-essentially makes everything we are about to do possible.
+infinitely dimensional vectors, we only need to consider finitely many
+points and we can ignore the rest.  This is a crucial property of a GP and
+essentially makes everything we are interested in performing possible.
 
 By assuming a GP, we get all of the properties of a multivariate Gaussian
-for free, including a closed form solution to the conditional and marginal
+automatically, including a closed form solution to the conditional and marginal
 distribution parameters. Let us now write the joint distribution of $\vy$ and $\vy_\star$ in
 a partitioned form
 $$
@@ -452,11 +452,11 @@ $$
   \begin{pmatrix} \mK & \mK_\star \\ \mK_\star^T & \mK_{\star\star} \end{pmatrix}
   \end{pmatrix}
 $$
-where $\mK = \kappa(\mX, \mX)$, $\mK_\star = \kappa(\mX, \mX_\star)$ and
+where $\mK = \kappa(\mX, \mX)$, $\mK_\star = \kappa(\mX, \mX_\star)$, and
 $\mK_{\star\star} = \kappa(\mX_\star, \mX_\star)$ \citep{williams2006gaussian}.
-Note that $\vy$ and $\vy_\star$ can be either single points, or they can be
+Note that $\vy$ and $\vy_\star$ can be either single points or
 vectors, as we might be interested in computing the posterior over multiple
-points at once given an existing dataset.  Because this is just a multivariate
+points at once given an existing dataset.  Because the posterior is just a multivariate
 Gaussian, we can make use of the conditioning formula and compute the posterior
 $p(\vy_\star | \mX_\star, \mX, \vy)$ exactly as
 \begin{align}
@@ -464,16 +464,16 @@ $p(\vy_\star | \mX_\star, \mX, \vy)$ exactly as
   \\
   \vmu_\star &= \vmu(\mX_\star) + \mK_\star^T \mK^{-1} (\vy - \vmu(\mX))
   \\
-  \mSigma_\star &= \mK_{\star\star} - \mK_\star^T \mK^{-1} \mK_\star.
+  \mSigma_\star &= \mK_{\star\star} - \mK_\star^T \mK^{-1} \mK_\star,
 \end{align}
-where $\vmu_\star$ is the mean and $\mSigma_\star$ the covariance of the multivariate
-Gaussian on $\vy_\star$.
+where $\vmu_\star$ is the mean and $\mSigma_\star$ is the covariance of the multivariate
+Gaussian on~$\vy_\star$.
 
-\subsection{GP regression with noisy observations}
+\subsection{GP Regression with Noisy Observations}
 
 Consider the case when $f$ is not a deterministic function, but rather a
-stochastic function which returns a noisy output $y$ given some fixed input
-$\vx$ (meaning $f(\vx)$ is a random variable). GP regression is flexible enough
+stochastic function returning a noisy output $y$ given some fixed input
+$\vx$ (in other words, $f(\vx)$ is a random variable). GP regression is flexible enough
 to model Gaussian noise in the output directly. For now, let us consider the noise
 having a fixed variance $σ²$.
 
@@ -486,7 +486,7 @@ $$
 $$
 
 See \autoref{figure:gp-noise} for a comparison of noise-less and noisy
-regression. It should also be noted that in principle nothing is preventing us
+regression. It should also be noted that in principle nothing prevents us
 from specifying a different noise value for each element of the diagonal. This
 could be useful if we had additional prior information about the function $f$.
 It could, for example, be an output of a measurement for which we know exactly
@@ -507,7 +507,7 @@ the amount of noise for each~$\vx$.
 
 So far we have considered the covariance function $κ$ to be an arbitrary
 positive-definite kernel. Even though in theory there are no restrictions on
-what kernel we can choose, there are a few more popular choices that are
+what kernel we can choose, there are a few popular choices that are
 commonly used.
 
 A prototypical example is the squared exponential (SE) kernel, also called the
@@ -516,25 +516,25 @@ $$
 κ(x₁, x₂) = σₖ²\exp\left\{ -\frac{1}{2\mathcal{l}} (x₁ - x₂)² \right\}.
 $$
 This kernel, among many others, falls under the category of stationary kernels.
-A \newterm{stationary kernel} is one which is shift-invariant, which means its
+A \newterm{stationary kernel} is a kernel which is shift-invariant, which means its
 value does not depend on the absolute values of $x₁$ and $x₂$, but only on
-their distance $d = |x₁ - x₂|$. We can thus write it as
+their distance $d = |x₁ - x₂|$. We can thus write the kernel as
 $$
 κ(x₁, x₂) = σₖ²\exp\left\{ -\frac{1}{2\mathcal{l}} d² \right\}.
 $$
 
-The values $σₖ$ and $l$ are called the variance and lengthscale, and control
+The values $σₖ$ and $l$ are called the variance and the lengthscale, and control
 the behavior of the kernel, where $σₖ$ changes the vertical scale of the
 function, and $l$ changes the horizontal scale. Changing the lengthscale
-essentially allows the kernel to re-normalize the data. If $\vx$ is a vector we
-can define a lengthscale parameter $lᵢ$ for each of the components. This
-becomes very useful in the context of hyperparameters where each hyperparameter
-can have a very different scale, and the individual lengtscale per component
-allows the kernel to capture it.
+essentially allows the kernel to re-normalize the data. If $\vx$ is a vector, we
+can define a lengthscale parameter $lᵢ$ for each of the components. Such
+component-specific lengthscale becomes very useful in the context of hyperparameters where each hyperparameter
+can have quite a different scale, and the individual lengthscales per component
+allow the kernel to capture the phenomenon.
 
-Figure \autoref{figure:gp-lengthscale} show how the behavior of the kernel
-changes based on the changed value of the lengthscale $l$. When the lengthscale
-is set too low the values of $y$ become essentially uncorrelated, leading to a
+\autoref{figure:gp-lengthscale} shows how the behavior of the kernel
+changes based on the value of the lengthscale $l$. When the lengthscale
+is set too low, the values of $y$ become essentially uncorrelated, leading to a
 function with many spikes. On the other hand, a larger value for the lengthscale
 yields a much smoother function.
 
@@ -551,15 +551,15 @@ A popular kernel in the context of Bayesian optimization is the Mat\'ern kernel
 $$
 \kappa(d) = \frac{2^{1 - \nu}}{\Gamma(\nu)} \left( \frac{\sqrt{2\nu}d}{\mathcal{l}} \right)^\nu K_\nu \left( \frac{\sqrt{2\nu}d}{\mathcal{l}} \right)
 $$
-where $\nu$ and $\mathcal{l}$ are the parameters and $K_\nu$ is a modified Bessel function \citep{williams2006gaussian}. In practice, we will restrict ourselves to a half-integer variant of the matern kernel, that is when $\nu = p + 1/2$, where $p$ is a non-negative integer. In this case the Mat\'ern kernel has a simplified form, specifically let us show for $\nu = 5/2$, which is popular in ML. The covariance function then simplifies to
+where $\nu$ and $\mathcal{l}$ are the parameters and $K_\nu$ is a modified Bessel function \citep{williams2006gaussian}. In practice, we restrict ourselves to a half-integer variant of the Mat\'ern kernel, that is when $\nu = p + 1/2$, with $p$ being a non-negative integer. In this case the Mat\'ern kernel has a simplified form -- for example for $\nu = 5/2$, which is popular choice in ML, the covariance function simplifies to
 $$
-\kappa(d) = \left( 1 + \frac{\sqrt{5}d}{\mathcal{l}} + \frac{5d^2}{3\mathcal{l}^2} \right) \exp \left( - \frac{\sqrt{5}d}{\mathcal{l}} \right)
+\kappa(d) = \left( 1 + \frac{\sqrt{5}d}{\mathcal{l}} + \frac{5d^2}{3\mathcal{l}^2} \right) \exp \left( - \frac{\sqrt{5}d}{\mathcal{l}} \right),
 $$
 which ends causing the GP posterior to be $2$ times differentiable \citep{williams2006gaussian}, as compared to the RBF kernel shown above, which is infinitely differentiable. As a side note, the Mat\'ern kernel converges to the RBF kernel as $\nu \rightarrow \infty$.
 
-In a general setting it could prove useful to examine many different kernel functions and use one that works best in a particular domain. As our case is Bayesian optimization, we will stick with the kernels shown above, as those are most often shown to perform well in literature, especially the $5/2$ Mat\'ern kernel \citep{snoek2012practical}.
+In a general setting it could prove useful to examine many different kernel functions and use one that works best in a particular domain. However, in the case of Bayesian optimization, which should be sample-efficient, we consider only the kernels shown above, which have been shown to perform well in related work, especially the $5/2$ Mat\'ern kernel \citep{snoek2012practical}.
 
-\subsection{Optimizing GP hyperparameters}
+\subsection{Optimizing GP Hyperparameters}
 
 \begin{figure}
 	\begin{center}
@@ -567,7 +567,7 @@ In a general setting it could prove useful to examine many different kernel func
 		\caption{GP regression without optimizing kernel parameters on the left,
 			and after optimizing using maximum likelihood on the right. Notice that
 			the noise parameter is also optimized, as the regression model does not
-			go directly through the data points, but instead considers the small
+			pass directly through the data points, but instead considers the small
 			variation as due to noise.}
 		\label{figure:gp-kernel-param-optimization}
 	\end{center}
@@ -578,34 +578,34 @@ So far we have considered the noise, variance and lengthscale parameters to be
 fixed, but in this section we show how their value can be determined
 automatically form the data using maximum likelihood estimation.
 
-Since the GP is a probabilistic model, we can ask it directly what is the
-likelihood of our data. Using the definition of a GP, we know that the
-likelihood of our data is a multivariate Gaussian, that is $p(\vy | \mX) =
+Since the GP is a probabilistic model, we can query it directly about the
+likelihood of the data. Using the definition of a GP, we know that the
+likelihood is a multivariate Gaussian, that is $p(\vy | \mX) =
 𝓝(\vy | \mZero, \mK)$, giving us a log likelihood of
-$$
+\begin{equation}
 \log p(\vy | \mX) = -\frac{1}{2}\vy \mK^{-1}\vy - \frac{1}{2} \log \det \mK - \frac{N}{2} \log (2 π).
 \label{eq:kernel-marginal-likelihood}
-$$
+\end{equation}
 
-We leave out the technical details (see \cite{williams2006gaussian} for more
-details) including the gradient of the marginal likelihood with respect to the
-kernel parameters, as they do not provide any useful insights.
+We leave out the technical details (see \cite{williams2006gaussian} for
+a detailed treatment) including the gradient of the marginal likelihood with respect to the
+kernel parameters, because they do not provide any useful insights.
 
 One important detail we want to stress out is that computing $K^{-1}$ takes
-$O(N³)$, which puts a serious restriction on the size of the data we can fit
+$𝓞(N³)$, which puts a serious restriction on the size of the data we can fit
 with exact GP regression. This does not concern us in the context of
-hyperparamter optimization as we would always stay within low hundreds of
-evaluations anyway, but for other tasks it becomes a serious limitation. As a
-result many workarounds for approximate inference were developed
-\citep{williams2006gaussian}, which again, we omit from this text, because they
+hyperparameter optimization, where we prefer to stay within low hundreds of
+evaluations anyway, but for other tasks it becomes a serious limitation.
+Understandably, many workarounds for approximate inference were developed
+\citep{williams2006gaussian}, which again we omit from this text, because they
 are not relevant for hyperparameter optimization.
 
 Implementing the kernel parameter optimization is simple in practice. One can
 simply implement the marginal likelihood formula shown in
-\autoref{eq:kernel-marginal-likelihood} \todo{neni oznaceno jako rovnice} and
-use a package for automatic differentiation with an optimizer like SGD or
-L-BFGS to optimize the parameters. Since the objective is non-linear, a common
-practice \citep{gpy2014} is to optimize with mutliple restarts.
+\autoref{eq:kernel-marginal-likelihood} and
+use a package for automatic differentiation with an SGD or L-BFGS optimizer
+to fit the parameters. Since the objective is non-linear, a common
+practice \citep{gpy2014} is to optimize with multiple restarts.
 \autoref{figure:gp-kernel-param-optimization} shows the effect of optimizing
 kernel parameters using maximum likelihood. More details on optimizing the kernel
 parameters can be found in \autoref{section:priors-on-kernel-params}.
