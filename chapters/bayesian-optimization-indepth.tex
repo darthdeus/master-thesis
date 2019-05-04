@@ -14,17 +14,17 @@ An intuitive choice for an acquisition function is to maximize the probability
 of improving over our currently best achieved value, which is called the
 \newterm{probability of improvement}. This can be computed in closed form as
 $$
-PI(\vx) = Φ \left( \frac{μ(\vx) - y_{\max}}{σ(\vx)} \right)
+\operatorname{PI}(\vx) = Φ \left( \frac{μ(\vx) - y_{\max}}{σ(\vx)} \right)
 $$
 where $y_{\max}$ is the maximum value achieved by sampling $f(\vx)$.
 
 A natural extension is the \newterm{expected improvement} (EI) acquisition function
 which is simply the expected improvement over the currently achieved maximum.
-We define it as $$EI(x) = 𝔼[f(x) - y_{\max}].$$ At first it might seem that
+We define it as $$\operatorname{EI}(x) = 𝔼[\max(0, f(x) - y_{\max})].$$ At first it might seem that
 the expectation would be an intractable integral, but fortunately even this
 equation can be computed in closed form as
 $$
-EI(x) = Δ(x) + σ(x) φ \left( \frac{Δ(x)}{σ(x)} \right) - |Δ(x)| Φ \left( \frac{Δ(x)}{σ(x)} \right)
+\operatorname{EI}(x) = Δ(x) + σ(x) φ \left( \frac{Δ(x)}{σ(x)} \right) - |Δ(x)| Φ \left( \frac{Δ(x)}{σ(x)} \right)
 $$
 where $Δ(x) = μ(x) - y_{\max}$. In practice, improvement shows better results
 than probability of improvement. For more examples of acquisition functions see

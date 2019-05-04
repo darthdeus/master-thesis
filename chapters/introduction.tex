@@ -122,7 +122,7 @@ possible functions given the observed data. As the next step, it computes an
 represents the potential usefulness of the next sample. A popular example is
 the \newterm{expected improvement} function (\autoref{chapter:bo-indepth}), which is
 roughly defined as \emph{the expected improvement over the maximum obtained so
-far}, or more formally $$\operatorname{EI}(x) = \mathrm{E}\left[f(x) - y_{\max}\right],$$ where $y_{\max}$ is the currently attained maximum. By sampling at the maximum of the acquisition function we obtain the
+far}, or more formally $$\operatorname{EI}(x) = \mathrm{E}\left[\max(0, f(x) - y_{\max})\right],$$ where $y_{\max}$ is the currently attained maximum. By sampling at the maximum of the acquisition function we obtain the
 point that is most likely going to help us the most. A key insight here is that
 the model is probabilistic. It does not simply fit a regression line through
 the data points and find the maximum.  Instead, we fit a \newterm{Gaussian
