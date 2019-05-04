@@ -3,18 +3,56 @@
 
 This chapter goes over some of the experiments we have conducted to evaluate the viability of Bayesian optimization. All of the cases are examples of optimizing neural networks, as that is the area of interest of this work.
 
-We present one example from reinforcement learning, specifically the REINFORCE algorithm \citep{suttonbarto2018reinforcement}, as an example of a smaller and simpler network. This case also compares Bayesian optimization with random search. Next we show a larger experiment where we train a recurrent neural network (RNN, \cite{dlbook}), specifically a tagger, on a SIGMORPHON 2019 shared task \citep{sigmorphon2019task2}, where the network is trained on a significantly larger dataset. Lastly, we show two smaller examples, one of a tokenizer written in C++, and second a network for speech recognition.
+We present one example from reinforcement learning, specifically the REINFORCE algorithm \citep{suttonbarto2018reinforcement}, as an example of a smaller and simpler network. This case also compares Bayesian optimization with random search. Next we show a larger experiment where we train a recurrent neural network \citep{dlbook}, specifically a tagger, on a SIGMORPHON 2019 shared task \citep{sigmorphon2019task2}, where the network is trained on a significantly larger dataset. Lastly, we show two smaller examples, one of a tokenizer written in C++, and second a network for speech recognition.
 
 \section{REINFORCE}
-
-TODO: lower variance than random search?
-
-\subsection{Comparing Priors on Kernel Parameters}
 \label{section:experiments-empirical-bayes}
 
-In this section we show the effect of setting kernel prior parameters from the data based on a simple heuristic.
+\begin{figure}
+	\begin{center}
+		\includegraphics[width=1.0\textwidth]{images/cartpole.png}
+		\caption{The objective of the task is to balance the pole on top of a cart moving along
+			a track. A failure occurs if the pole falls beyond a certain angle, and the agent
+			is rewarded $+1$ for every time step when the pole has not fallen over.}
+		\label{figure:cartpole}
+	\end{center}
+\end{figure}
 
-TODO: empirical bayes
+In order to evaluate the effectiveness of Bayesian optimization and compare it to random search. We chose the REINFORCE algorithm on a simple task in reinforcement learning, as the network is small and fast to train, but at the same time sensitive to hyperparameters. The goal of the agent is balance a pole on top of a cart by moving either left or right, as shown in \autoref{figure:cartpole}. For each time step when the pole has not fallen over the agent receives $+1$ reward, up to a maximum $500$. Because the episode can end rather quickly when the agent performs a few bad actions, some combinations of hyperparameters will result very low values of the objective function (e.g., $< 50$). On the other hand, reaching the perfect $500$ reward is not very difficult after some exploration of the search space. Out of our $60$ different runs of the experiment, only one was not able to find the perfect score in the allotted $50$ evaluations of the objective function.
+
+Overall, we ran the experiment three times. Once purely with random search, once with a non-informative prior, and once with an informative prior where the mean was set to the mean of the hyperparameter range (per hyperparameter) and standard deviation to a quarter of the range. Each of these setups was then run $20$ times, each with $50$ evaluations of the objective function. Because of the noisy aspect of reinforcement learning, we modified the objective function so that instead of training and evaluating the network once, we trained it yet another $20$ times from scratch, evaluated each separately, and reporte the average objective achieved. This means that if the optimizer sees an objective value of $500$ then all $20$ of the sub-evaluations managed to train to achieve that score.
+
+We show the numeric results in \autoref{table:reinforce-results}. The $AUC$ column measures the area under the convergence plot (see \autoref{figure:convergence-plot}), specifically the area under the cumulative maximum. The value was then normalized so that it would be $1$ exactly when a score of $500$ was achieved on the first sample. We then measure the mean $\mu_{\text{time to max}}$ and standard deviation $\sigma_{\text{time to max}}$ of the time (number of evaluations) it tooks the optimizer to achieve the score of $500$.
+
+\begin{center}
+	\begin{tabular}{||c c c c||} 
+		\hline
+		Optimizer & AUC & $\mu_{\text{time to max}}$ & $\sigma_{\text{time to max}}$ \\ [0.5ex] 
+		\hline\hline
+		Random Search & $0.89$ & $19.35$ & $15.73$ \\ 
+		\hline
+		Non-informative Prior & $0.91$ & $12.75$ & $10.73$ \\
+		\hline
+		Informative Prior & $0.90$ & $12.25$ & $9.74$  \\ [1ex] 
+		\hline
+	\end{tabular}
+	\label{table:reinforce-results}
+\end{center}
+
+Intuitively, the $\mu_{\text{time to max}}$ shows how fast the optimizer is able to find the maximum of the objective function, and $\sigma_{\text{time to max}}$ measures its consistency. Both of these clearly show that Bayesian optimization as compared to random search is almost twice as fast at finding the maximum, and also achieves lower variance.
+
+\begin{figure}
+	\begin{center}
+		\includegraphics[width=1.0\textwidth]{images/informative-priors.png}
+		\caption{Kernel parameters over time in the case of informative priors, where the prior is set based on the hyperparameter range.}
+		\label{figure:informative-priors}
+	\end{center}
+\end{figure}
+
+
+The informative prior also achieves a slightly lower variance than the non-informative one, which matches our intuition of guiding the GP regression model into a more stable area of the kernel parameter space. We confirm this with a kernel parameter visualization as shown in \autoref{figure:informative-priors} where we can clearly see the parameters be more stable, than in the case of non-informative priors as shown in \autoref{figure:kernel-parameters-over-time-jumpy}.
+
+As a side note, this experiment provided an interesting technical dilemma. Evaluating noisy objective functions is an interesting problem from the practical perspective. Even though the GP regression model is able to model noise in the objective function directly, it can only do so after it is given enough data points which show the noisy trend. But in the context of Bayesian optimization we need to use the model to make decisions about the next evaluation point even when the number of data points is low. We could run a larger number of evaluations using random search initially so that the GP could fit the noise in the data. Because of some of the problems with overfitting shown earlier in \autoref{chapter:bo-indepth} we chose not to model the noise with the model directly, as that could lead to more potential failure points. Instead, we took a practical approach and simply reduced the noise by performing multiple (specifically $20$) evaluations of the REINFORCE model for each set of hyperparameters and averaged the result. Since this method is a Monte Carlo approximation of the true objective function, its variance decreases as such (roughtly as $\frac{1}{\sqrt{N}}$), the GP will be able to fit the objective function with almost an order of magnitude lower noise parameter.
 
 
 \section{Tuning on Multiple Treebanks Simultaneously}
@@ -93,16 +131,22 @@ In this section we briefly show some interesting results from our last two exper
 
 Some of the interesting result in this case are the failure cases of the GP regression, particularly how it can overfit on seemingly uninformative dataset, as shown in \autoref{figure:gp-overfitting-batch-size}. These examples nicely show the high capacity of a GP which, even when we set informative priors, is able to find a surprising way to fit the data with high likelihood. Despite these problems, the Bayesian optimization approach still managed to find hyperparameter values with an objective very close to that find by an exhaustive grid search. Because of the acquisition function, even if the model overfits and picks a bad sample, it will be able to correct itself right afterwards, as the area that was previously receiving high value of acquisition function was explored.
 
-As a result, the model still might end up wasting computation time by evaluating incorrect areas by overfitting on the data, but we have not observed it to get stuck in a local optima. Because Bayesian optimization explicitly models exploration into its decision making it quite often ends up doing a decent job of exploring most of the search space, as is visible in all of the figures.
+\begin{figure}
+	\begin{center}
+		\includegraphics[width=1.0\textwidth]{images/2d-almost-insensitive.png}
+		\caption{Marginal 2D regression on the \emph{high\_freq} and \emph{input\_dropout} hyperparameters. The range of the hyperparameters was coincidentally chosen so that only values at the very edge end up with a low value of the objective function, and are indifferent in most of the range.}
+		\label{figure:2d-almost-insensitive}
+	\end{center}
+\end{figure}
 
 
+As a result, the model still might end up wasting computation time by evaluating incorrect areas by overfitting on the data, but we have not observed it to get stuck in a local optima. Because Bayesian optimization explicitly models exploration into its decision making it quite often ends up doing a decent job of exploring most of the search space, as is visible in all of the figures shown in this chapter.
 
-- maly ulohy
+In the second experiment we trained a speech recognition model on a single dataset. The hyperparameters in this case are however not only the parameters of the model itself, but of a pre-processing step that takes place right before the network is trained. In order to keep the number of hyperparameters lower we fix some of the network's hyperparameters to hand-tuned values and optimize the ones that have a high chance of being influenced by the preprocessing, such as \emph{batch\_size} and \emph{dropout}.
 
-- velka uloha
+\autoref{figure:2d-almost-insensitive} shows an example where we coincidentally chose the hyperparameter ranges such that only the values at the very edge have some influence over the objective function. If we were to set them only a little differently the regression could end up showing no relationship between the two hyperparameters. Setting the bounds on hyperparameters is an important but non-trivial effort. If we set the bounds too large we end up wasting lots of computation time, as the volume of an $n$-dimensional hypercube grows exponentially. On the other hand, if we set the bounds too tight, the optimizer might only find flat regions of the objective function.
 
-- interpretace vysledku
-\\
+
 
 
 \chapter{Conclusion}
