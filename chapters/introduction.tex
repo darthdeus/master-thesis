@@ -2,10 +2,10 @@
 \label{chapter:introduction}
 
 A machine learning algorithm is an algorithm that can learn from data. A
-commonly used definition is: "A computer program is said to learn form
+commonly used definition is: ``A computer program is said to learn form
 experience $E$ with respect to some class of tasks $T$ and performance measure
 $P$, if its performance at tasks in $T$, as measured by $P$, improves with
-experience $E$ \citep{mitchell-mldef}. We only provide this definition for
+experience $E$'' \citep{mitchell-mldef}. We only provide this definition for
 completeness and our following definitions will assume an intuitive translation
 to this definition.
 
@@ -21,15 +21,18 @@ parameters that the learning algorithm can not learn itself, and they usually
 control its behavior. A parameter could be chosen to be a hyperparameter
 because it would not be reasonable to infer its value from the training data.
 An example could be the type of optimizer being used to train a neural network
-(e.g. SGD or Adam \citep{kingma2014adam}). The machine learning practitioner
+\todo{MS: V americke anglictine je ``e.g., ...'' a ``i.e., ...'', v britske
+se tam ta carka nepise. Navzdory lekcim anglictiny, kde je British English
+ta ``lepsi'', se clanky pisou spis americkou; ale u thesis to nechavam na Tobe.}
+(e.g. SGD or Adam \citep{kingma2014adam}). A machine learning practitioner
 would not consider the optimizer to be a property of the data distribution, and
 as a reasult treat it as a hyperparameter set externally, rather than trying to
 infer it.
 
-It could also be set as a hyperparameter simply for practical reasons, where in
+A parameter could also be set as a hyperparameter simply for practical reasons, where in
 theory the parameter could be learned from the data, but optimizing it directly
 would be too difficult. An example here could be the learning rate of a
-stochastic gradient descent optimizer. Even automatic differentiation
+stochastic gradient descent optimizer. Even if automatic differentiation
 \citep{maclaurin2015autograd} allows us to compute the gradient flow through
 arbitrary code, in practice it is not being used to compute the gradients of
 hyperparameters like the parameters of an optimizer, e.g.\ the learning rate.
@@ -41,12 +44,12 @@ from the perspective of the learning algorithm.
 Bayesian statistics allows us to take a principled approach to setting
 hyperparameters. We would simply set a prior distribution on each
 hyperparameter and marginalize over them, but unfortunately this has two
-problems. The prior distribution almost always has a parameter of its own, such
+problems. The prior distribution almost always has parameters of its own, such
 as the rate parameter $\lambda$ of a Poisson distribution, or the concentration parameter vector $\symbf{\alpha}$ of a Dirichlet distribution. We could go one step further and specify
 a prior on these parameters, which are often called hyperpriors.  But the real
 problem of Bayesian methods is that the integral in the marginalization often
-ends up being intractable, and in the case of more complicated as neural
-networks, we are already computatationally bottlenecked and can not use methods
+ends up being intractable, and in the case of more complicated models as neural
+networks, we are already computationally bottlenecked and cannot use methods
 such as Markov-Chain Monte Carlo (MCMC) to approximate it.
 
 There are however cases when the Bayesian approach does work. Either the model
@@ -63,7 +66,7 @@ estimate of the parameters is close to our computational limits. For that
 reason we do not usually employ Bayesian methods, but look for alternative --
 less computationally heavy -- approaches.
 
-A simple approach to hyperparameter tuning is either via random search, where
+A simple approach to tune hyperparameter is either via random search, where
 each parameter is sampled randomly from a given prior distribution, or via grid
 search, where a fixed grid over the hyperparameter space is chosen, and then
 each point on the grid is evaluated, and the best parameter combination is
@@ -80,32 +83,33 @@ agent trying to balance the exploration-exploitation
 tradeoff~\citep{russell2016artificial}.  On one hand, we would like to explore
 different combinations of hyperparameters and explore as much of the search
 space as possible.  But once we find a combination with a high value of the
-objective function we would want to explore the space around that combination
+objective function we would like to explore the space around that combination
 to exploit the high value and possibly find a close combination that is even
 better.
 
-Therefore, we'd like our hyperparameter optimization procedure, to balance the exploration-exploitation tradeoff, and take previous
+Therefore, we would like our hyperparameter optimization procedure to balance the exploration-exploitation trade-off, and take previous
 evaluation into account when choosing which point to evaluate next. Since the
 training of machine learning models -- and neural networks in particular -- can
 be computationally costly, we need to pick an optimization procedure that is
-sample efficient. Many modern deep learning models take on the order of days,
+sample efficient. Many modern deep learning models take days,
 weeks, or even months to train on high end hardware. To give a few examples,
 the recent OpenaI Five \citep{openai-five} has consumed $800$ PETAFLOPs-days
 over the course of 10 months. In comparison, a consumer grade GPU GTX 1080 Ti
 achieves just over 11 TFLOPs. A smaller and more realistic example would be the
-NVIDIA StyleGAN \citep{nvidia-stylegan} trained on $1024\times1024$ images
-takes almost $7$ days on $8\times$ Tesla V100 GPUs. In our experiments (see
+NVIDIA StyleGAN \citep{nvidia-stylegan} trained on $1024\times1024$ images,
+which takes almost $7$ days on $8\times$ Tesla V100 GPUs. In our experiments (see
 \autoref{chapter:experiments}) we train a tagger and lemmatizer on Czech and
 English treebanks, where each evaluation takes about four GPU hours. Evaluating
-the objective function would mean training one such model from scratch with a
-given set of hyperparameters to obtain an unbiased estimate of its performance.
+the objective function translates to training one such model from scratch with a
+given set of hyperparameters and obtaining an unbiased estimate of its performance
+on a validation set.
 
 Even though we have the ability to evaluate the objective function, we have no
 way of computing its gradients, or obtain its analytic form. As a result we
-have to treat it as a black box and use optimization techniques which don't
-require either. But even with the smaller models we have just shown, it is easy
-to see that we can not perform more than a few hundred of evaluations without
-spending unreasonable costs on computational resources. This immediately
+have to treat it as a black box and use optimization techniques which do not
+require either. But even with the smaller models we have just mentioned, it is easy
+to see that we cannot perform more than a few hundred of evaluations without
+spending unreasonable computational costs. This immediately
 disqualifies many of the common black box optimization techniques, such as
 evolution strategies or simulated annealing, which require on the order of
 thousands evaluations to converge \citep{google-vizier}. These methods do not model the objective function in any way, but rather search the target space directly. Evolutionary algorithms or simulated annealing never see the space as a whole, but rather perform some variant of stochastic hill climbing, where given enough stochasticity the methods can be considered to perform \newterm{global optimization}.
@@ -113,19 +117,19 @@ thousands evaluations to converge \citep{google-vizier}. These methods do not mo
 Bayesian optimization \citep{nando-bayesian-out-of-the-loop} is a black box
 optimization technique which utilizes a probabilistic model to take a set of
 evaluations of the objective function and computes a posterior over all
-possible functions give the observed data. As the next step, it computes an
+possible functions given the observed data. As the next step, it computes an
 \newterm{acquisition function}, which is a function of the posterior, and
 represents the potential usefulness of the next sample. A popular example is
 the \newterm{expected improvement} function (\autoref{chapter:bo-indepth}), which is
 roughly defined as \emph{the expected improvement over the maximum obtained so
-far}, or more formally $$EI(x) = \mathrm{E}[f(x) - y_{\max}],$$ where $y_{\max}$ is the currently attained maximum. By sampling at the maximum of the acquisition function we obtain the
+far}, or more formally $$\operatorname{EI}(x) = \mathrm{E}\left[f(x) - y_{\max}\right],$$ where $y_{\max}$ is the currently attained maximum. By sampling at the maximum of the acquisition function we obtain the
 point that is most likely going to help us the most. A key insight here is that
 the model is probabilistic. It does not simply fit a regression line through
 the data points and find the maximum.  Instead, we fit a \newterm{Gaussian
 Process} (GP) which allows us to capture the uncertainty in the
 predictions. This uncertainty is taken into account by the acquisition
 function, and as a result it ends up balancing the exploration-exploitation
-trade off by both taking into account the predicted value, and our uncertainty
+trade-off by both taking into account the predicted value, and our uncertainty
 in that value.
 
 A key benefit is that the GP is fitted to the whole space, as compared to the search based methods mentioned earlier. We can treat the GP as a surrogate model of the objective function, and optimize it instead, as evaluating the GP at any given point is usually orders of magnitude faster than evaluating the objective function.
@@ -144,11 +148,11 @@ A key benefit is that the GP is fitted to the whole space, as compared to the se
 We implemented a tool for optimizing arbitrary programs' hyperparameters using
 Bayesian optimization, including a scheduler which runs the evaluations on a
 cluster, and a web interface visualizing the results. We do not provide any
-theoretical extensions to Bayesian optimization -- the benefit is only in
+theoretical extensions to Bayesian optimization -- the benefit is only in the
 implementation. This work however also serves as a thorough introduction to the
 theoretical background, specifically on GP. Understanding the theoretical
 aspects of GPs allows the user to interpret the behavior of the optimizer, as
-well as better understand why some result visualizations might look the way
+well as to better understand why some result visualizations might look the way
 they do.
 
 Our implementation of Bayesian optimization utilizes the GPy library \citep{gpy2014}
@@ -174,7 +178,7 @@ line utilities that allow the user a fine grained control over the experiment.
 Lastly, running real-life experiments can be a time consuming process, and
 having the ability to monitor the process and interfere if needed is an
 important feature. This is why we provide a web interface that can visualize
-the progress of the optimization. The user can look at the evaluated samples,
+the progress of the optimization. The user can explore the evaluated samples,
 as well as the regression model at any point in time during the optimization.
 
 
