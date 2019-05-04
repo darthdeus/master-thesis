@@ -88,6 +88,7 @@ Since larger experiments will most likely always be run on a compute cluster we 
 All commands are executed as \inlinecode{bopt COMMAND} and support the conventional \inlinecode{--help} command line arugment, which prints out all of the available options, as well as their descriptions.
 
 \subsection{Meta Directory, Data Corruption and \inlinecode{-C}}
+\label{section:meta-dir}
 
 When an experiment is initialized all of its information will be stored in its own directory. This includes both the meta information about hyperparameters, run configurations and evaluations, as well as the job outputs themselves.
 
@@ -223,9 +224,10 @@ The kernel parameters for the conditioned GP are set to the exact values compute
 	\begin{center}
 		\includegraphics[width=1.0\textwidth]{images/timeline-view.png}
 		\caption{A timeline showing all of the evaluated experiments, together with their objective value, model type (shown in color), and the hyperparameters used for evaluation. The user can select any of the evaluations on the timeline and all of the plots will be shown from the perspective of that evaluation, i.e. what the model \emph{saw} when choosing the hyperparameters of that specific evaluation.}
+		\label{figure:timeline-view}
 	\end{center}
 \end{figure}
-\label{figure:timeline-view}
+
 
 \subsection{Kernel Parameter Visualization}
 \label{section:kernel-parameter-visualization}
@@ -234,15 +236,26 @@ The kernel parameters for the conditioned GP are set to the exact values compute
 	\begin{center}
 		\includegraphics[width=1.0\textwidth]{images/kernel-params-over-time.png}
 		\caption{Visualization of the kernel parameters over time as the Bayesian optimization progresses. In this case the model was allowed one lengthscale $\mathcal{l}$ parameter for each element of $x$, in essence allowing it to normalize each column independently. Since there are $9$ different hyperparameters the search space is $9$-dimensional, and as a result it takes the model up to $20$ samples to find a good fit in the data. After that, it automatically determines the scale of each parameter, such as the \emph{high\_freq} parameter, which was optimized on the scale of $1000$ -- $8000$. We can see the model clearly adapting its lengthscale to a similar range. As a general rule of thumb, when the lengthscale parameter is on the same order as the hyperparameter range, the model will scale that parameter to roughly unit range.}
+		\label{figure:kernel-parameters-over-time}
 	\end{center}
 \end{figure}
-\label{figure:kernel-parameters-over-time}
+
+\begin{figure}
+	\begin{center}
+		\includegraphics[width=1.0\textwidth]{images/kernel-parameters-over-time-jumpy.png}
+		\caption{Visualization of a less stable model with kernel parameters rapidly changing until around 50 samples are evaluated. In this case we attribute the instability to a very noisy objective function, where the model took a long time to fit the right value of variance to counteract the effect of the noise.}
+		\label{figure:kernel-parameters-over-time-jumpy}
+	\end{center}
+\end{figure}
 
 As a method of debugging possible issues in the model, as well as just general high level inspection of the quality of the fit, we provide a visualization of the kernel parameters as they change over time of the Bayesian optimization, as shown in \autoref{figure:kernel-parameters-over-time}.
 
-\todo{dopsat}
+The kernel hyperparameters roughly determine the general properties of the regression curve and confidence intervals. A large lengthscale results in smooth functions, while small lengthscale results in many spikes without larger continuous regions. Plotting the value of each kernel parameter as the optimization progresses allows us to judge how much does the regression model's view of the objective function change over time.
+
+Intuitively, after we have sampled enough data points, we would expect that adding one additional sample would have an effect on the regression curve itself, but not as much on its quality, such as smoothness. A large change in the kernel parameters signifies that it now sees the objective function completely differently than what it saw before. We would expect the parameters to change over time as the model refines itself to more data, but there should be a visible trend. In \autoref{figure:kernel-parameters-over-time} we show an example where for most of the samples the kernel parameters don't change by much, but there are two visible drops (around 45 and 55) in the \emph{high\_freq} lengthscale, which signify a possible issue in the GP regression at that point. Based on our experience with the model, we would still consider the example to be quite stable, as compared to another example shown in \autoref{figure:kernel-parameters-over-time-jumpy}, where until around 50 samples the model was not sure how to scale individual hyperparameters, and only stabilized afterwards. In this case we attribute the problem to a much noisier model.
 
 \subsection{Convergence}
+\label{section:convergence}
 
 Looking at the results in a table does not always explain how well is the Bayesian optimization process doing. We add a convergence plot, which shows both the intermediate values of the objective, as well as a cumulative maximum. 
 
@@ -265,6 +278,10 @@ In some cases the model might be achieving steady increase in the objective, as 
 \label{figure:convergence-plot-long-exp}
 
 
-\section{Jak to pustit a co mame za experimenty}
+\section{Inspecting Attached Experiments}
+
+We provide results for some of the experiments as an attachment to this work. Because of the design described in \autoref{section:meta-dir} we only need to store the \inlinecode{meta.yml} file after the results have been collected, as the collection copies all of the results in.
+
+Inspecting the results is then simply a matter of running either \inlinecode{bopt web -C dir} for the web interface, or \inlinecode{bopt exp -C dir} for the command line inspector, where \inlinecode{dir} is a directory containing the \inlinecode{meta.yml} file.
 
 
