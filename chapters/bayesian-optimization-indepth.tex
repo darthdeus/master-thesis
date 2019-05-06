@@ -78,7 +78,6 @@ We adopt a simple solution working independently on Bayesian optimization, by si
 We now present the algorithm for Bayesian optimization in greater detail compared to \autoref{alg:bopt}. Let $𝓓_n = \{ (\vx_i, y_i), i \in 1:n\}$ denote a set of $n$ samples (evaluations) of the objective function $f$, with $y_i = f(\vx_i)$. Our goal is to pick the next $\vx_{n+1}$ to maximize our chance of finding the optimum quickly, assuming that already enough points were evaluated for us to fit the GP. \autoref{alg:bopt-detailed} shows one iteration of Bayesian optimization as it proposes $\vx_{n+1}$.
 
 \begin{algorithm}
-	\label{alg:bopt-detailed}
 	\DontPrintSemicolon
 	\SetAlgoLined
 	Let $\mX$ be the matrix of all $\vx_i$, and $\vy$ be a column vector of all $y_i$. \;
@@ -87,6 +86,7 @@ We now present the algorithm for Bayesian optimization in greater detail compare
 	Sample $y_{n+1} = f(\vx)$, where $\vx = \argmax A(\mX, \vy, \mathcal{G}\mathcal{P})$. \;
 	Add $y_{n+1}$ to the dataset as $𝓓_{i+1} = 𝓓_i \cup (\vx_{i+1}, y_{i+1})$.
 	\caption{Bayesian Optimization with implementation details.}
+	\label{alg:bopt-detailed}
 \end{algorithm}
 
 While this algorithm explains how Bayesian optimization works, there are a few cases where numerical issues can arise, and we point them out next.
