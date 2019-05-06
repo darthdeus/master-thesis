@@ -57,14 +57,16 @@ For a more thorough treatment, see \cite{bishop2016pattern} and \cite{murphy2012
 \end{rem}
 
 \begin{thm}
-  If a random variable $\mX ∈ ℝⁿ$ is a multivariate Gaussian, then $\rX_i,
-  \rX_j$ are independent if and only if $cov(\rX_i, \rX_j) = 0$. Note that
+  If a random variable $\mX ∈ ℝⁿ$ is a multivariate Gaussian, then $\mX_i,
+  \mX_j$ are independent if and only if $cov(\mX_i, \mX_j) = 0$. Note that
   this statement is not true for any random variable, and it is only a special property of the
   multivariate Gaussian.
 \end{thm}
 
 \begin{proof}
-  TODO
+	Consider the case of only a two-dimensional random vector $\mX$ with a multivariate Gaussian distribution. When $\operatorname{cov}(\mX_1, \mX_2) = 0$ the covariance matrix $\mSigma$ is a diagonal matrix, and the density factorizes into a product of two marginal densities.
+	
+	In case $\mX$ and $\mY$ are jointly Gaussian random vectors which are uncorrelated, their covariance will be a block diagonal matrix, which again trivially factors in two marginal densities.
 \end{proof}
 
 \begin{thm}
