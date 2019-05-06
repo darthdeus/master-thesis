@@ -66,21 +66,56 @@ The informative prior also achieves slightly lower variance than the non-informa
 As a side note, this experiment provided an interesting technical dilemma. Evaluating noisy objective functions is an interesting problem from the practical perspective. Even though the GP regression model is able to model noise in the objective function directly, it can only do so after it is given enough data points which show the noisy trend. But in the context of Bayesian optimization we need to use the model to make decisions about the next evaluation point, even when the number of data points is low. We could run a larger number of evaluations using random search initially, so that the GP could fit the noise in the data. Because of some of the problems with overfitting shown earlier in \autoref{chapter:bo-indepth}, we chose not to model the noise with the model directly, because that could lead to more potential failure points. Instead, we took a practical approach and simply reduced the noise by performing multiple (specifically $20$) evaluations of the REINFORCE model for each set of hyperparameters, and averaged the result. Since this method is a Monte Carlo approximation of the true objective function, its variance decreases as such (roughly as $\frac{1}{\sqrt{N}}$), the GP will be able to fit the objective function with almost an order of magnitude lower noise parameter.
 
 
+\section{Tagger on a Single Treebank}
+\label{section:exp-cestina}
+
+\begin{figure}
+	\begin{center}
+		\includegraphics[width=1.0\textwidth]{images/czech-2d-marginal.png}
+		\caption{Marginal regression on the \emph{label\_smoothing} and \emph{dropout} hyperparameters for the SIGMORPHON 2019 shared task when training on a single Czech treebank. A correlation between the two parameters is clearly visible, showing that setting only one of them to the correct value is not enough to achieve a high value of the objective function.}
+		\label{figure:czech-2d-marginal}
+	\end{center}
+\end{figure}
+
+\begin{figure}
+	\begin{center}
+		\includegraphics[width=1.0\textwidth]{images/czech-convergence.png}
+		\caption{Convergence plot showing the process of Bayesian optimization with a cumulative maximum shown in orange.}
+		\label{figure:czech-convergence}
+	\end{center}
+\end{figure}
+
+\begin{figure}
+	\begin{center}
+		\includegraphics[width=1.0\textwidth]{images/czech-hyperparam-trends.png}
+		\caption{Marginal regression on the \emph{batch\_size}, \emph{dropout} and $\beta_2$ hyperparameters for the SIGMORPHON 2019 shared task when training on a single Czech treebank. All three cases show a visible increasing trend.}
+		\label{figure:czech-batch-size}
+	\end{center}
+\end{figure}
+
+
+Contrary to the experiment shown in \autoref{section:multiple-treebanks-failed} in this experiment we train the same model but only on a single treebank at a time. We tried two different treebanks, Czech and English, which are both quite large. We chose larger treebanks because they provide a more consistent evaluation metric, with the smaller ones being several orders of magnitude smaller, and pose a greater risk of overfitting even on a validation set.
+
+While the next experiment (see \autoref{section:multiple-treebanks-failed}) did not find any trends in the hyperparameters, the one we present here did find a clear trend in most, as shown for example in \autoref{figure:czech-batch-size}, where larger \emph{batch\_size} is better. In some cases we also found clear relationships between two hyperparameters, such as in the case of \emph{label\_smoothing} and \emph{dropout} shown in \autoref{figure:czech-2d-marginal}.
+
+The experiment used five parallel evaluations, the first of which were seeded with random search. The baseline model achieved $97.4\%$ accuracy, while the random search achieved only $97.32\%$, and the remaining search with Bayesian optimization surpassed the baseline with final $97.44\%$ (see \autoref{figure:czech-convergence}).
+
+
 \section{Tuning on Multiple Treebanks Simultaneously}
 \label{section:multiple-treebanks-failed}
 
 \begin{figure}
 	\begin{center}
-		\includegraphics[width=1.0\textwidth]{images/sigmorphon-convergence.png}
-		\caption{Convergence plot for a model trained on the SIGMORPHON 2019 shared task. No significant improvement over the baseline was found.}
+		\includegraphics[width=1.0\textwidth]{images/sig-convergence.png}
+		\caption{Convergence plot for a model trained on the SIGMORPHON 2019 shared task. No significant improvement over the baseline was found when training on all 105 treebanks simultaneously.}
 		\label{figure:sigmorphon-convergence}
 	\end{center}
 \end{figure}
 
 \begin{figure}
 	\begin{center}
-		\includegraphics[width=1.0\textwidth]{images/sigmorphon-dropout.png}
-		\caption{Marginal regression on the dropout hyperparameter for the SIGMORPHON 2019 shared task when training on all 105 treebanks.}
+		\includegraphics[width=1.0\textwidth]{images/sig-dropout.png}
+		\caption{Marginal regression on the \emph{dropout} hyperparameter for the SIGMORPHON 2019 shared task when training on all 105 treebanks.}
 		\label{figure:sigmorphon-dropout}
 	\end{center}
 \end{figure}
@@ -99,42 +134,54 @@ Instead, we omit the treebank from the list of hyperparameters, so that the opti
 
 Unfortunately, our experimental results did not find a significant improvement over the hyperparameters found by hand-tuning the network (see \autoref{figure:sigmorphon-convergence}). One of the reasons is that the size of the treebank affects which hyperparameter combinations result in value of the objective function. An example of using tuning the same model on a larger treebank is shown in \autoref{section:exp-cestina}.
 
-To give a specific example, when the \emph{batch\_size} hyperparameter is set to a larger value, it works well on a larger treebank, but the opposite is true for a smaller treebank, where a smaller \emph{batch\_size} acts as a regularizer. This means our samples at the same batch size will be spread as far as is the objective on all treebanks. Unfortunately, this spread ends up being so large that all of the hyperparameter end up having no visible trend, as no value is clearly better than the others, as shown in \autoref{figure:sigmorphon-dropout}.\todo{MS: V te figure je urizly "dropout" na spodku}
+To give a specific example, when the \emph{batch\_size} hyperparameter is set to a larger value, it works well on a larger treebank, but the opposite is true for a smaller treebank, where a smaller \emph{batch\_size} acts as a regularizer. This means our samples at the same batch size will be spread as far as is the objective on all treebanks. Unfortunately, this spread ends up being so large that all of the hyperparameter end up having no visible trend, as no value is clearly better than the others, as shown in \autoref{figure:sigmorphon-dropout}.
 
+We tried splitting the treebanks into two groups, one with the largest $25\%$ and one with the smallest $25\%$ (based on number of words in the treebank). Then we ran the same optimization procedure on the same hyperparameters, and confirmed our earlier theory about smaller \emph{batch\_size} working better for smaller treebanks and vice versa. \autoref{figure:sig-small-batch} shows the marginal plot on the smaller treebanks, while \autoref{figure:sig-large-batch} shows the same on larger treebanks.
 
-\section{Tagger on a Single Treebank}
-\label{section:exp-cestina}
+\begin{figure}
+	\begin{center}
+		\includegraphics[width=1.0\textwidth]{images/sig-small-batch.png}
+		\caption{Marginal regression on the \emph{batch\_size} hyperparameter when trained on the smallest $25\%$ treebanks.}
+		\label{figure:sig-small-batch}
+	\end{center}
+\end{figure}
+
+\begin{figure}
+	\begin{center}
+		\includegraphics[width=1.0\textwidth]{images/sig-large-batch.png}
+		\caption{Marginal regression on the \emph{batch\_size} hyperparameter when trained on the largest $25\%$ treebanks.}
+		\label{figure:sig-large-batch}
+	\end{center}
+\end{figure}
+
+We also compare the convergence plots on both the smaller (see \autoref{figure:sig-small-convergence}) and larger (see \autoref{figure:sig-large-convergence}) subsets of treebanks. The size difference between the largest and smallest treebank is over three orders of magnitude, specifically $1,207,922$ words for Czech and $230$ words for Tagalog.
 
 
 \begin{figure}
 	\begin{center}
-		\includegraphics[width=1.0\textwidth]{images/czech-batch-size.png}
-		\caption{Marginal regression on the \emph{batch\_size} hyperparameter for the SIGMORPHON 2019 shared task when training on a single Czech treebank.}
-		\label{figure:czech-batch-size}
+		\includegraphics[width=1.0\textwidth]{images/sig-small-convergence.png}
+		\caption{Convergence plot when training on the smallest $25\%$ treebanks, showing maximum improvement of $4\%$ accuracy over the baseline model.}
+		\label{figure:sig-small-convergence}
 	\end{center}
 \end{figure}
 
 
 \begin{figure}
 	\begin{center}
-		\includegraphics[width=1.0\textwidth]{images/czech-2d-marginal.png}
-		\caption{Marginal regression on the \emph{label\_smoothing} and \emph{dropout} hyperparameters for the SIGMORPHON 2019 shared task when training on a single Czech treebank. A correlation between the two parameters is clearly visible, showing that setting only one of them to the correct value is not enough to achieve a high value of the objective function.}
-		\label{figure:czech-2d-marginal}
+		\includegraphics[width=1.0\textwidth]{images/sig-large-convergence.png}
+		\caption{Convergence plot when training on the largest $25\%$ treebanks with no improvement over the baseline model.}
+		\label{figure:sig-large-convergence}
 	\end{center}
 \end{figure}
 
-Contrary to the experiment shown in \autoref{section:multiple-treebanks-failed} in this experiment we train the same model but only on a single treebank at a time. We tried two different treebanks, Czech and English, which are both quite large. We chose larger treebanks because they provide a more consistent evaluation metric, with the smaller ones being several orders of magnitude smaller, and pose a greater risk of overfitting even on a validation set.
+\clearpage
+\section{Segmentation}
 
-While the previous experiment (see \autoref{section:multiple-treebanks-failed}) did not find any trends in the hyperparameters, the one we present here did find a clear trend in most, as shown for example in \autoref{figure:czech-batch-size}, where larger \emph{batch\_size} is better. In some cases we also found clear relationships between two hyperparameters, such as in the case of \emph{label\_smoothing} and \emph{dropout} shown in \autoref{figure:czech-2d-marginal}.
-
-
-\section{Other Smaller Experiments}
-
-In this section we briefly show some interesting results from our last two experiments. First, let us show the experiment where we optimized hyperparameters of UDPipe \citep{udpipe:2017} on tokenization of Czech, English and Ancient Greek.
+In this experiment we optimize hyperparameters of UDPipe \citep{udpipe:2017} on tokenization of Czech, English and Ancient Greek.
 
 \begin{figure}
 	\begin{center}
-		\includegraphics[width=1.0\textwidth]{images/gp-overfitting-batch-size.png}
+		\includegraphics[width=1.0\textwidth]{images/tokenizer-overfitting-batch-size.png}
 		\caption{GP regression overfitting on the marginal distribution of \emph{batch\_size}.}
 		\label{figure:gp-overfitting-batch-size}
 	\end{center}
@@ -142,18 +189,31 @@ In this section we briefly show some interesting results from our last two exper
 
 Some of the interesting result in this case are the failure cases of the GP regression, particularly how it can overfit on seemingly uninformative dataset, as shown in \autoref{figure:gp-overfitting-batch-size}. These examples nicely show the high capacity of a GP, which, even when we set informative priors, is able to find a surprising way to fit the data with high likelihood. Despite these problems, the Bayesian optimization approach still managed to find hyperparameter values with an objective very close to that find by an exhaustive grid search. Because of the acquisition function, even if the model overfits and picks a bad sample, it will be able to correct itself right afterwards, as the area that was previously receiving high value of acquisition function was explored.
 
+As a result, the model still might end up wasting computation time by evaluating incorrect areas by overfitting on the data, but we have not observed it to get stuck in a local optima. Because Bayesian optimization explicitly models exploration into its decision making it quite often ends up doing a decent job of exploring most of the search space, as is visible in all of the figures shown in this chapter.
+
 \begin{figure}
 	\begin{center}
-		\includegraphics[width=1.0\textwidth]{images/2d-almost-insensitive.png}
+		\includegraphics[width=1.0\textwidth]{images/tokenizer-convergence.png}
+		\caption{Convergence plot for the tokenizer model showing the progress of Bayesian optimization.}
+		\label{figure:tokenizer-convergence}
+	\end{center}
+\end{figure}
+
+In this case the result tuned with Bayesian optimization did not surpass the hand-tuned baseline, although an upward trend is visible in the convergence plot shown in \autoref{figure:tokenizer-convergence}. We intentionally limited the number of evaluations to $50$ to make comparisons with the hand-tuned baselines, because the goal of Bayesian optimization is to find the optimum quickly.
+
+We compare our achieved accuracy of $97.21\%$ to 10 repeats of the experiment with random search, which managed to achieve a higher value of accuracy in $3$ out of those $10$ attempts, which an overall best $97.28\%$. \todo{zkontrolovat jak dopadlo 10 boptu}
+
+\section{Speech Recognition}
+
+\begin{figure}
+	\begin{center}
+		\includegraphics[width=1.0\textwidth]{images/speech-2d-almost-insensitive.png}
 		\caption{Marginal 2D regression on the \emph{high\_freq} and \emph{input\_dropout} hyperparameters. The range of the hyperparameters was coincidentally chosen so that only values at the very edge end up with a low value of the objective function, and are indifferent in most of the range.}
 		\label{figure:2d-almost-insensitive}
 	\end{center}
 \end{figure}
 
-
-As a result, the model still might end up wasting computation time by evaluating incorrect areas by overfitting on the data, but we have not observed it to get stuck in a local optima. Because Bayesian optimization explicitly models exploration into its decision making it quite often ends up doing a decent job of exploring most of the search space, as is visible in all of the figures shown in this chapter.
-
-In the second experiment we trained a speech recognition model on a single dataset. The hyperparameters in this case are however not only the parameters of the model itself, but of a pre-processing step that takes place right before the network is trained. In order to keep the number of hyperparameters lower we fix some of the network's hyperparameters to hand-tuned values, and optimize the ones that have a high chance of being influenced by the preprocessing, such as \emph{batch\_size} and \emph{dropout}.
+In the last experiment we trained a speech recognition model on a single dataset. The hyperparameters in this case are however not only the parameters of the model itself, but of a pre-processing step that takes place right before the network is trained, with the capacity of the model kept fixed. We only optimize the ones that have a high chance of being influenced by the preprocessing without changing the model capacity, such as \emph{batch\_size} and \emph{dropout}.
 
 \autoref{figure:2d-almost-insensitive} shows an example where we coincidentally chose the hyperparameter ranges such that only the values at the very edge have some influence over the objective function. If we were to set them only a little differently the regression could end up showing no relationship between the two hyperparameters. Setting the bounds on hyperparameters is an important but non-trivial effort. If we set the bounds too large, we end up wasting lots of computation time, as the volume of an $n$-dimensional hypercube grows exponentially. On the other hand, if we set the bounds too tight, the optimizer might only find flat regions of the objective function.
 
