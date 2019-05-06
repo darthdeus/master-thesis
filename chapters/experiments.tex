@@ -47,13 +47,21 @@ Intuitively, the $\mu_{\text{time to max}}$ shows how fast the optimizer is able
 \begin{figure}
 	\begin{center}
 		\includegraphics[width=1.0\textwidth]{images/informative-priors.png}
-		\caption{Kernel parameters over time in the case of informative priors, where the prior is set based on the hyperparameter range.}
+		\caption{Kernel parameters over time in the case of informative priors, where the prior is set based on the hyperparameter range. Parameters almost never rapidly change their value after the initial few samples.}
 		\label{figure:informative-priors}
 	\end{center}
 \end{figure}
 
+\begin{figure}
+	\begin{center}
+		\includegraphics[width=1.0\textwidth]{images/reinforce-jumpy-kernel-params.png}
+		\caption{Kernel parameters over time in the case of non-informative priors, where the prior does not depend on the hyperparameter range. Some hyperparameters do not stabilize over time and their scale changes by orders of magnitude.}
+		\label{figure:reinforce-jumpy-kernel-params}
+	\end{center}
+\end{figure}
 
-The informative prior also achieves slightly lower variance than the non-informative one, which matches our intuition of guiding the GP regression model into a more stable area of the kernel parameter space. We confirm this with a kernel parameter visualization as shown in \autoref{figure:informative-priors}, where we can clearly see the parameters to be more stable, than in the case of non-informative priors as shown in \autoref{figure:kernel-parameters-over-time-jumpy}.\todo{MS: Tomu porovnani nerozumim, protoze pokazde to jsou hyperparametry jine ulohy. Jestli chces ukazovat, ze informative prior pomaha, potreboval bys vizualiazaci kernel parametru pro non-informative prior.}
+
+The informative prior also achieves slightly lower variance than the non-informative one, which matches our intuition of guiding the GP regression model into a more stable area of the kernel parameter space. We confirm this with a kernel parameter visualization as shown in \autoref{figure:informative-priors}, where we can clearly see the parameters to be more stable, than in the case of non-informative priors as shown in \autoref{figure:reinforce-jumpy-kernel-params}.
 
 As a side note, this experiment provided an interesting technical dilemma. Evaluating noisy objective functions is an interesting problem from the practical perspective. Even though the GP regression model is able to model noise in the objective function directly, it can only do so after it is given enough data points which show the noisy trend. But in the context of Bayesian optimization we need to use the model to make decisions about the next evaluation point, even when the number of data points is low. We could run a larger number of evaluations using random search initially, so that the GP could fit the noise in the data. Because of some of the problems with overfitting shown earlier in \autoref{chapter:bo-indepth}, we chose not to model the noise with the model directly, because that could lead to more potential failure points. Instead, we took a practical approach and simply reduced the noise by performing multiple (specifically $20$) evaluations of the REINFORCE model for each set of hyperparameters, and averaged the result. Since this method is a Monte Carlo approximation of the true objective function, its variance decreases as such (roughly as $\frac{1}{\sqrt{N}}$), the GP will be able to fit the objective function with almost an order of magnitude lower noise parameter.
 
