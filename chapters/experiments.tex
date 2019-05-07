@@ -138,6 +138,8 @@ To give a specific example, when the \emph{batch\_size} hyperparameter is set to
 
 We tried splitting the treebanks into two groups, one with the largest $25\%$ and one with the smallest $25\%$ (based on number of words in the treebank). Then we ran the same optimization procedure on the same hyperparameters, and confirmed our earlier theory about smaller \emph{batch\_size} working better for smaller treebanks and vice versa. \autoref{figure:sig-small-batch} shows the marginal plot on the smaller treebanks, while \autoref{figure:sig-large-batch} shows the same on larger treebanks.
 
+While we did not find any improvement over the baseline on the larger treebanks, the smaller treebanks yielded a $3.56\%$ increase over the baseline on the Akkadian treebank. Unfortunately, that is the only treebank on which we managed to improve over the baseline by more than $0.1\%$. This experiment shows how noise can negatively affect the underlying probabilistic model, since training on multiple larger treebanks did not yield any improvement, but training on a larger treebank in isolation in the previous experiment did (see \autoref{section:exp-cestina}).
+
 \begin{figure}
 	\begin{center}
 		\includegraphics[width=1.0\textwidth]{images/sig-small-batch.png}
@@ -213,15 +215,39 @@ We compare our achieved accuracy of $97.21\%$ to 10 repeats of the experiment wi
 	\end{center}
 \end{figure}
 
+\begin{figure}
+	\begin{center}
+		\includegraphics[width=1.0\textwidth]{images/speech-convergence.png}
+		\caption{Convergence plot for the speech recognition experiment. The objective is shown in negative numbers because it is set to the negative normalized edit distance between the target and prediction, that is we are maximizing a negative loss.}
+		\label{figure:speech-convergence}
+	\end{center}
+\end{figure}
+
 In the last experiment we trained a speech recognition model on a single dataset. The hyperparameters in this case are however not only the parameters of the model itself, but of a pre-processing step that takes place right before the network is trained, with the capacity of the model kept fixed. We only optimize the ones that have a high chance of being influenced by the preprocessing without changing the model capacity, such as \emph{batch\_size} and \emph{dropout}.
 
 \autoref{figure:2d-almost-insensitive} shows an example where we coincidentally chose the hyperparameter ranges such that only the values at the very edge have some influence over the objective function. If we were to set them only a little differently the regression could end up showing no relationship between the two hyperparameters. Setting the bounds on hyperparameters is an important but non-trivial effort. If we set the bounds too large, we end up wasting lots of computation time, as the volume of an $n$-dimensional hypercube grows exponentially. On the other hand, if we set the bounds too tight, the optimizer might only find flat regions of the objective function.
 
-
+Similarly to the previous experiments the speech recognition model also has a steady convergence curve as shown in \autoref{figure:1d-marginal}. The best achieved value was $-26.81$, which \todo{doplnit podle toho kolik je baseline} the hand-tuned baseline model which achieved \todo{doplnit}.
 
 
 \chapter{Conclusion}
 
-- future work
+The goal of this thesis was to implement a practical tool for optimizing hyperparameters of neural networks using Bayesian optimization. We showed the theoretical foundations of Bayesian optimization, including the necessary mathematical background for Gaussian Process regression, and some of the extensions to Bayesian optimization such as parallel evaluations, as well as an architectural overview of our implementation. We also performed multiple experiments evaluating its performance on different neural network architectures and tasks.
 
-- pribalit vysledky experimentu a jak jednoduse pustit web
+In our comparison to random search (see \autoref{section:experiments-empirical-bayes}) we showed how Bayesian optimization can in some cases optimize faster and with lower variance, and the underlying GP regression can also aid in visualizing the effects of each hyperparameter on the fitness function.
+
+Unfortunately, not all of our experiments were successful at optimizing the target network. In our largest experiment (see \autoref{section:multiple-treebanks-failed}) we tried to train a network on multiple different datasets at once, and ultimately were not able to achieve good optimization results because of the introduced noise. This experiment serves as an important lesson that just because a model is able to model the noise in the data directly, it does not mean that it will be immune to it, and perform just as well as in the case of a less noisy dataset.
+
+While some of our results were positive, it remains unclear whether Bayesian optimization is a superior alternative to random search. Regardless, our tool remains flexible enough that should any future evidence supporting options such as better prior choices or acquisition functions arise, it could be easily incorporated within the optimization framework.
+
+
+\section{Future Work}
+
+Both Bayesian optimization and GP regression are broad areas of research with many possibilities to be tried. While we restricted ourselves to using GPs as a probabilistic model we mainly did so to limit the scope of this work. Evaluating random forests on neural network hyperparameters could be interesting, as they have the ability to naturally capture categorical parameters, and perhaps blur the lines between hyperparameter tuning and architecture search.
+
+In the context of GP regression, we also restricted ourselves to simple $\operatorname{Gamma}$ priors and point estimates for kernel parameter inference. Perhaps using Hamiltonian Monte Carlo for full Bayesian posterior inference, as implemented in \cite{gpy2014}, could alleviate some of our problems with unstable kernel parameters.
+
+Another improvement on GP regression is the handling of integer and categorical variables (see \autoref{section:integer-hyperparameters}), which even though would be useful in practice, would most likely not affect the experiments we performed very much, as the scale of our integer hyperparameters (mainly \emph{batch\_size}) was large.
+
+
+\todo{pribalit vysledky experimentu a jak jednoduse pustit web}
