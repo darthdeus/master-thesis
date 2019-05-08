@@ -1,9 +1,35 @@
 \chapter{Experiments}
 \label{chapter:experiments}
 
-This chapter presents experiments we have conducted to evaluate the viability of Bayesian optimization. All of the cases are examples of optimizing neural networks, because that is the area of interest of this work.
+This chapter presents experiments we have conducted to evaluate the viability of Bayesian optimization. All but the first of the experiments are examples of optimizing neural networks, because that is the area of interest of this work.
 
-We present one example from reinforcement learning, specifically the REINFORCE algorithm \citep{suttonbarto2018reinforcement}, as an example of a smaller and simpler network. In this settings, we also compare Bayesian optimization with a random search. Next we show a larger experiment where we train a recurrent neural network \citep{dlbook}, specifically a tagger, on a SIGMORPHON 2019 shared task \citep{sigmorphon2019task2}, where the network is trained on a significantly larger dataset in multiple languages. Lastly, we show two smaller examples, one of a tokenizer written in C++, and second a network for speech recognition.
+In the first experiment we chose the Eggholder function \citep{eggholder}, commonly used to measure the performance of optimizers, and use it as an additional baseline for comparison with random search. The Eggholder function is an interesting optimization target, because it has only one global minimum, but many local minima with an unpredictable landscape.
+
+Next we present one experiment from reinforcement learning, specifically the REINFORCE algorithm \citep{suttonbarto2018reinforcement}, as an example of a smaller and simpler network. In this setting, we also compare Bayesian optimization with a random search. Next we show a larger experiment where we train a recurrent neural network \citep{dlbook}, specifically a tagger, on a SIGMORPHON 2019 shared task \citep{sigmorphon2019task2}, where the network is trained on a significantly larger dataset in multiple languages. Lastly, we show two more experiments, one of a tokenizer written in C++, and second a network for speech recognition.
+
+\section{The Eggholder Function}
+
+As our first experiment we chose the Eggholder function \cite{eggholder} due to its popularity as a test function for evaluating optimizer performance. We ran $50$ repetitions of the experiment with Bayesian optimization and random search each, and show the results in \autoref{figure:eggholder-comparison}. The average rank on the total $100$ experiments is $25.5$ for Bayesian optimization, and $75.5$ for random search.
+
+While a toy example, this experiment shows first evidence of Bayesian optimization outperforming random search when optimizing a non-convex function.
+
+\begin{figure}
+	\begin{center}
+		\includegraphics[width=0.6\textwidth]{images/eggholder.png}
+		% JA: Ten text je trochu divny, ale nepovedlo se mi jinak zaridit, aby ta definice byla na dalsi radce a nevypadalo to divne.
+		\caption{The Eggholder objective function defined on $(x, y) \in \mathrm{R}^2$ analytically as $f(x, y) = -(y + 47) \sin \sqrt{| \frac{x}{2} + (y + 47)|} - x \sin \sqrt{| x - (y + 47)|} $. It has one global minimum at $(512, 404.23)$ with $y = -959.64$. When optimizing the function we instead optimize $-f(x,y)$ as our implementation always maximizes the objective.}
+		\label{figure:eggholder}
+	\end{center}
+\end{figure}
+
+
+\begin{figure}
+	\begin{center}
+		\includegraphics[width=0.6\textwidth]{images/eggholder-comparison.png}
+		\caption{A plot comparing the results of Bayesian optimization (blue) and random search (red) when optimizing the Eggholder function.}
+		\label{figure:eggholder-comparison}
+	\end{center}
+\end{figure}
 
 \section{REINFORCE}
 \label{section:experiments-empirical-bayes}
@@ -94,7 +120,7 @@ As a side note, this experiment provided an interesting technical dilemma. Evalu
 \end{figure}
 
 
-Contrary to the experiment shown in \autoref{section:multiple-treebanks-failed} in this experiment we train the same model but only on a single treebank at a time. We tried two different treebanks, Czech and English, which are both quite large. We chose larger treebanks because they provide a more consistent evaluation metric, with the smaller ones being several orders of magnitude smaller, and pose a greater risk of overfitting even on a validation set.
+Contrary to the experiment shown in \autoref{section:multiple-treebanks-failed} in this experiment we train the same model but only on a single treebank at a time. We tried one of our largest treebanks, specifically for the Czech language. We chose a larger treebank because it provides a more consistent evaluation metric, with the smaller ones being several orders of magnitude smaller, which may result in overfitting even on the validation set.
 
 While the next experiment (see \autoref{section:multiple-treebanks-failed}) did not find any trends in the hyperparameters, the one we present here did find a clear trend in most, as shown for example in \autoref{figure:czech-batch-size}, where larger \emph{batch\_size} is better. In some cases we also found clear relationships between two hyperparameters, such as in the case of \emph{label\_smoothing} and \emph{dropout} shown in \autoref{figure:czech-2d-marginal}.
 
@@ -170,24 +196,25 @@ We also compare the convergence plots on both the smaller (see \autoref{figure:s
 
 \begin{figure}
 	\begin{center}
-		\includegraphics[width=1.0\textwidth]{images/sig-large-convergence.png}
+		\includegraphics[width=1\textwidth]{images/sig-large-convergence.png}
 		\caption{Convergence plot when training on the largest $25\%$ treebanks with no improvement over the baseline model.}
 		\label{figure:sig-large-convergence}
+	\end{center}
+\end{figure}
+
+
+\begin{figure}
+	\begin{center}
+		\includegraphics[width=1\textwidth]{images/tokenizer-overfitting-batch-size.png}
+		\caption{GP regression overfitting on the marginal distribution of \emph{batch\_size}.}
+		\label{figure:gp-overfitting-batch-size}
 	\end{center}
 \end{figure}
 
 \clearpage
 \section{Segmentation}
 
-In this experiment we optimize hyperparameters of UDPipe \citep{udpipe:2017} on tokenization of Czech, English and Ancient Greek.
-
-\begin{figure}
-	\begin{center}
-		\includegraphics[width=1.0\textwidth]{images/tokenizer-overfitting-batch-size.png}
-		\caption{GP regression overfitting on the marginal distribution of \emph{batch\_size}.}
-		\label{figure:gp-overfitting-batch-size}
-	\end{center}
-\end{figure}
+In this experiment we optimize hyperparameters of UDPipe \citep{udpipe:2017} on tokenization of Czech.
 
 Some of the interesting result in this case are the failure cases of the GP regression, particularly how it can overfit on seemingly uninformative dataset, as shown in \autoref{figure:gp-overfitting-batch-size}. These examples nicely show the high capacity of a GP, which, even when we set informative priors, is able to find a surprising way to fit the data with high likelihood. Despite these problems, the Bayesian optimization approach still managed to find hyperparameter values with an objective very close to that find by an exhaustive grid search. Because of the acquisition function, even if the model overfits and picks a bad sample, it will be able to correct itself right afterwards, as the area that was previously receiving high value of acquisition function was explored.
 
@@ -196,20 +223,28 @@ As a result, the model still might end up wasting computation time by evaluating
 \begin{figure}
 	\begin{center}
 		\includegraphics[width=1.0\textwidth]{images/tokenizer-convergence.png}
-		\caption{Convergence plot for the tokenizer model showing the progress of Bayesian optimization.}
+		\caption{Convergence plot for the segmentation experiment showing the progress of Bayesian optimization.}
 		\label{figure:tokenizer-convergence}
+	\end{center}
+\end{figure}
+
+\begin{figure}
+	\begin{center}
+		\includegraphics[width=1.0\textwidth]{images/tokenizer-comparison.png}
+		\caption{Comparison between Bayesian optimization (blue) and random search (red) on $10$ different runs of the segmentation experiment.}
+		\label{figure:tokenizer-comparison}
 	\end{center}
 \end{figure}
 
 In this case the result tuned with Bayesian optimization did not surpass the hand-tuned baseline, although an upward trend is visible in the convergence plot shown in \autoref{figure:tokenizer-convergence}. We intentionally limited the number of evaluations to $50$ to make comparisons with the hand-tuned baselines, because the goal of Bayesian optimization is to find the optimum quickly.
 
-We compare our achieved accuracy of $97.21\%$ to 10 repeats of the experiment with random search, which managed to achieve a higher value of accuracy in $3$ out of those $10$ attempts, which an overall best $97.28\%$. \todo{zkontrolovat jak dopadlo 10 boptu}
+We compare our achieved accuracy over $10$ runs of Bayesian optimization with $10$ runs of random search in \autoref{figure:tokenizer-comparison}. The average rank is $5.5$ for Bayesian optimization, and $15.5$ for random search.
 
 \section{Speech Recognition}
 
 \begin{figure}
 	\begin{center}
-		\includegraphics[width=1.0\textwidth]{images/speech-2d-almost-insensitive.png}
+		\includegraphics[width=0.7\textwidth]{images/speech-2d-almost-insensitive.png}
 		\caption{Marginal 2D regression on the \emph{high\_freq} and \emph{input\_dropout} hyperparameters. The range of the hyperparameters was coincidentally chosen so that only values at the very edge end up with a low value of the objective function, and are indifferent in most of the range.}
 		\label{figure:2d-almost-insensitive}
 	\end{center}
@@ -217,7 +252,7 @@ We compare our achieved accuracy of $97.21\%$ to 10 repeats of the experiment wi
 
 \begin{figure}
 	\begin{center}
-		\includegraphics[width=1.0\textwidth]{images/speech-convergence.png}
+		\includegraphics[width=0.7\textwidth]{images/speech-convergence.png}
 		\caption{Convergence plot for the speech recognition experiment. The objective is shown in negative numbers because it is set to the negative normalized edit distance between the target and prediction, that is we are maximizing a negative loss.}
 		\label{figure:speech-convergence}
 	\end{center}
