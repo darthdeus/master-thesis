@@ -9,11 +9,9 @@ Next we present one experiment from reinforcement learning, specifically the REI
 
 \section{The Eggholder Function}
 
-As our first experiment we chose the Eggholder function \cite{eggholder} due to its popularity as a test function for evaluating optimizer performance. We ran $50$ repetitions of the experiment with Bayesian optimization and random search each, and show the results in \autoref{figure:eggholder-comparison}. The average rank on the total $100$ experiments is $25.5$ for Bayesian optimization, and $75.5$ for random search.
+As our first experiment, we evaluate the Eggholder function \cite{eggholder} due to its popularity as a test function for evaluating optimizer performance. A visualization of the Eggholder function is presented in \autoref{figure:eggholder}.
 
-While a toy example, this experiment shows first evidence of Bayesian optimization outperforming random search when optimizing a non-convex function.
-
-\begin{figure}
+\begin{figure}[h!]
 	\begin{center}
 		\includegraphics[width=0.6\textwidth]{images/eggholder.png}
 		% JA: Ten text je trochu divny, ale nepovedlo se mi jinak zaridit, aby ta definice byla na dalsi radce a nevypadalo to divne.
@@ -22,6 +20,9 @@ While a toy example, this experiment shows first evidence of Bayesian optimizati
 	\end{center}
 \end{figure}
 
+We ran $50$ repetitions of the experiment with Bayesian optimization and random search each, and display the results in \autoref{figure:eggholder-comparison}. The average rank on the total $100$ experiments is $25.5$ for Bayesian optimization, and $75.5$ for random search.
+
+While a toy example, this experiment shows a first evidence of Bayesian optimization outperforming random search when optimizing a non-convex function.
 
 \begin{figure}
 	\begin{center}
