@@ -116,7 +116,7 @@ visualization purposes with GPs.
                  &= E[\mA (\mX - E[\mX])(\mX - E[\mX])^T \mA^T] \\
                  &= \mA E[(\mX - E[\mX])(\mX - E[\mX])^T] \mA^T \\
                  &= \mA cov[\mX] \mA^T \\
-                 &= \mA \Sigma \mA^T
+                 &= \mA \mSigma \mA^T
     \label{eq:gaussian-ax}
   \end{align}
 \end{proof}
@@ -134,7 +134,7 @@ visualization purposes with GPs.
 \begin{proof}
   We can immediately use \autoref{eq:gaussian-ax}.
   \begin{align}
-    \mL \mX \sim N(0, \mL \mI \mL^T) = N(0, \mL \mL^T) = N(0, \mSigma).
+    \mL \mX \sim N(\mZero, \mL \mI \mL^T) = N(\mZero, \mL \mL^T) = N(\mZero, \mSigma).
   \end{align}
 \end{proof}
 
@@ -162,7 +162,7 @@ achieved using the Box-Muller transform \citep{box-muller1958note}.
 \section{Geometric Properties}
 
 If $\mSigma$ is positive-definite, then $\mY \sim \gN(\vmu, \mSigma)$ implies
-$\mA^{-1} (\mY - \vmu) \sim \mathcal{N}(0, \mI)$ where $\mSigma = \mA \mA^T$.  The random
+$\mA^{-1} (\mY - \vmu) \sim \mathcal{N}(\mZero, \mI)$ where $\mSigma = \mA \mA^T$.  The random
 variable $\mA^{-1} (\mY - \vmu)$ has a spherical shape in $n$-dimensional
 space.
 
@@ -530,14 +530,14 @@ commonly used.
 A prototypical example is the squared exponential (SE) kernel, also called the
 radial-basis function (RBF) kernel
 $$
-\kappa(x_1, x_2) = \sigma_k^2\exp\left\{ -\frac{1}{2\mathcal{l}} (x_1 - x_2)^2 \right\}.
+\kappa(x_1, x_2) = \sigma_k^2\exp\left\{ -\frac{1}{2 l} (x_1 - x_2)^2 \right\}.
 $$
 This kernel, among many others, falls under the category of stationary kernels.
 A \newterm{stationary kernel} is a kernel which is shift-invariant, which means its
 value does not depend on the absolute values of $x_1$ and $x_2$, but only on
 their distance $d = |x_1 - x_2|$. We can thus write the kernel as
 $$
-\kappa(x_1, x_2) = \sigma_k^2\exp\left\{ -\frac{1}{2\mathcal{l}} d^2 \right\}.
+\kappa(x_1, x_2) = \sigma_k^2\exp\left\{ -\frac{1}{2l} d^2 \right\}.
 $$
 
 The values $\sigma_k$ and $l$ are called the variance and the lengthscale, and control
@@ -566,11 +566,11 @@ yields a much smoother function.
 
 A popular kernel in the context of Bayesian optimization is the Mat\'ern kernel
 $$
-\kappa(d) = \frac{2^{1 - \nu}}{\Gamma(\nu)} \left( \frac{\sqrt{2\nu}d}{\mathcal{l}} \right)^\nu K_\nu \left( \frac{\sqrt{2\nu}d}{\mathcal{l}} \right)
+\kappa(d) = \frac{2^{1 - \nu}}{\Gamma(\nu)} \left( \frac{\sqrt{2\nu}d}{l} \right)^\nu K_\nu \left( \frac{\sqrt{2\nu}d}{l} \right)
 $$
-where $\nu$ and $\mathcal{l}$ are the parameters and $K_\nu$ is a modified Bessel function \citep{williams2006gaussian}. In practice, we restrict ourselves to a half-integer variant of the Mat\'ern kernel, that is when $\nu = p + 1/2$, with $p$ being a non-negative integer. In this case the Mat\'ern kernel has a simplified form -- for example for $\nu = 5/2$, which is popular choice in ML, the covariance function simplifies to
+where $\nu$ and $l$ are the parameters and $K_\nu$ is a modified Bessel function \citep{williams2006gaussian}. In practice, we restrict ourselves to a half-integer variant of the Mat\'ern kernel, that is when $\nu = p + 1/2$, with $p$ being a non-negative integer. In this case the Mat\'ern kernel has a simplified form -- for example for $\nu = 5/2$, which is popular choice in ML, the covariance function simplifies to
 $$
-\kappa(d) = \left( 1 + \frac{\sqrt{5}d}{\mathcal{l}} + \frac{5d^2}{3\mathcal{l}^2} \right) \exp \left( - \frac{\sqrt{5}d}{\mathcal{l}} \right),
+\kappa(d) = \left( 1 + \frac{\sqrt{5}d}{l} + \frac{5d^2}{3l^2} \right) \exp \left( - \frac{\sqrt{5}d}{l} \right),
 $$
 which ends causing the GP posterior to be $2$ times differentiable \citep{williams2006gaussian}, as compared to the RBF kernel shown above, which is infinitely differentiable. As a side note, the Mat\'ern kernel converges to the RBF kernel as $\nu \rightarrow \infty$.
 
