@@ -52,7 +52,7 @@ can perform. See \autoref{alg:bopt} for a pseudocode.
   Initialize $\vx_1$ randomly and evaluate $y_1 = f(\vx_1), \mathcal{D}_1 = {(\vx_1, y_1)}$. \;
   \For{$i = 1, 2, \ldots$}{
     Find $\vx_{i+1}$ by maximizing the acquisition function. \;
-    Evaluate $y_{i+1} = f(\vx(x_{i+1})$. \;
+    Evaluate $y_{i+1} = f(\vx(x_{i+1}))$. \;
     Add the sample to the dataset $\mathcal{D}_{i+1} = \mathcal{D}_i \cup (\vx_{i+1}, y_{i+1})$. \;
     Update the probabilistic model. \;
   }
