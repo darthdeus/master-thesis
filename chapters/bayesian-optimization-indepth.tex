@@ -8,7 +8,7 @@ The contents of this chapter deals largely with implementation details and is no
 \section{Acquisition Functions}
 \label{section:acq-fn}
 
-An acquisition function is a key component of Bayesian optimization. Together with the GP regression it allows for balancing the exploration-exploitation dilemma in search. The only limitation we impose on the acquisition function is tractability, and possibly continuity, because we need to optimize it. The tractability requirement is mandatory, since without being able to compute the function we could hardly find its maximum. But the continuity requirement is useful given the fact that an acquisition function is often optimized using stochastic gradient optimizers such as L-BFGS.
+An acquisition function is a key component of Bayesian optimization. Together with the Gaussian Process regression it allows for balancing the exploration-exploitation dilemma in search. The only limitation we impose on the acquisition function is tractability, and possibly continuity, because we need to optimize it. The tractability requirement is mandatory, since without being able to compute the function we could hardly find its maximum. But the continuity requirement is useful given the fact that an acquisition function is often optimized using stochastic gradient optimizers such as L-BFGS.
 
 An intuitive choice for an acquisition function is to maximize the probability
 of improving over our currently best achieved value, which is called the

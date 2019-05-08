@@ -237,9 +237,19 @@ As a result, the model still might end up wasting computation time by evaluating
 	\end{center}
 \end{figure}
 
+\begin{figure}
+	\begin{center}
+		\includegraphics[width=1.0\textwidth]{images/tokenizer-bopt-vs-grid.png}
+		\caption{Comparison between Bayesian optimization (blue) and grid search (red) on $10$ different runs of Bayesian optimization versus $72$ evaluations of grid search.}
+		\label{figure:tokenizer-comparison-bopt-grid-search}
+	\end{center}
+\end{figure}
+
 In this case the result tuned with Bayesian optimization did not surpass the hand-tuned baseline, although an upward trend is visible in the convergence plot shown in \autoref{figure:tokenizer-convergence}. We intentionally limited the number of evaluations to $50$ to make comparisons with the hand-tuned baselines, because the goal of Bayesian optimization is to find the optimum quickly.
 
-We compare our achieved accuracy over $10$ runs of Bayesian optimization with $10$ runs of random search in \autoref{figure:tokenizer-comparison}. The average rank is $5.5$ for Bayesian optimization, and $15.5$ for random search.
+We compare our achieved accuracy over $10$ runs of Bayesian optimization with $10$ runs of random search in \autoref{figure:tokenizer-comparison}. The average rank is $5.5$ for Bayesian optimization, and $15.5$ for random search. In \autoref{figure:tokenizer-comparison-bopt-grid-search} we also compare the same $10$ runs of Bayesian optimization to $72$ evaluations of grid search. Only one of the grid search results managed to achieve a superior value of the objective function, with the remaining values being significantly worse. The overall rank is $5.5$ for Bayesian optimization, and $46.5$ for grid search (out of total $82$ evaluations).
+
+Despite grid search achieving a maximum in one sample, we believe the overall ranking shows how Bayesian optimization consistently out-performs grid search using fewer evaluations.
 
 \section{Speech Recognition}
 
@@ -263,7 +273,7 @@ In the last experiment we trained a speech recognition model on a single dataset
 
 \autoref{figure:2d-almost-insensitive} shows an example where we coincidentally chose the hyperparameter ranges such that only the values at the very edge have some influence over the objective function. If we were to set them only a little differently the regression could end up showing no relationship between the two hyperparameters. Setting the bounds on hyperparameters is an important but non-trivial effort. If we set the bounds too large, we end up wasting lots of computation time, as the volume of an $n$-dimensional hypercube grows exponentially. On the other hand, if we set the bounds too tight, the optimizer might only find flat regions of the objective function.
 
-Similarly to the previous experiments the speech recognition model also has a steady convergence curve as shown in \autoref{figure:1d-marginal}. The best achieved value was $-26.81$, which surpassed the hand-tuned baseline model achieving $-30.2$.
+Similarly to the previous experiments the speech recognition model also has a steady convergence curve as shown in \autoref{figure:speech-convergence}. The best achieved value of the objective function was $-26.81$, which surpassed the hand-tuned baseline model achieving $-30.2$.
 
 
 \chapter{Conclusion}
@@ -286,5 +296,3 @@ In the context of a GP regression, we also restricted ourselves to simple $\oper
 
 A GP regression could be further improved to properly handle integer and categorical variables (see \autoref{section:integer-hyperparameters}), which even though would be useful in practice, would most likely not affect the experiments we performed, given that the scale of our integer hyperparameters (mainly \emph{batch\_size}) was large.
 
-
-\todo{pribalit vysledky experimentu a jak jednoduse pustit web}
