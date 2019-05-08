@@ -3,13 +3,13 @@
 
 In this chapter we explore Bayesian optimization from a higher level perspective. We describe the steps of the algorithm and give more motivation for choosing GPs as a probabilistic model. We also explain the difference between hyperparameter tuning and architecture search, which, even though similar at first, are completely different tasks. Lastly, we present some examples of related work, both from the point of hyperparameter tuning, as well as related areas, such as \cite{automl}.
 
-Consider the problem of optimizing an arbitrary continuous function $f: \mathbfcal{X} \rightarrow \mathbb{R}$
-where $\mathbfcal{X} \subset \mathbb{R}^d, d \in \mathbb{N}$. We call $f$ the \emph{objective function} and treat it
+Consider the problem of optimizing an arbitrary continuous function $f: \mathcal{X} \rightarrow \mathbb{R}$
+where $\mathcal{X} \subset \mathbb{R}^d, d \in \mathbb{N}$. We call $f$ the \emph{objective function} and treat it
 as a black box, making no other assumptions on its analytical form, or on our
 ability to compute its derivatives. Our goal is to find the global minimum
-$\vx_\text{opt}$ over the set $\mathbfcal{X}$, that is
+$\vx_\text{opt}$ over the set $\mathcal{X}$, that is
 $$
-\vx_\text{opt} = \argmin_{\vx ∈ \mathbfcal{X}} f(\vx).
+\vx_\text{opt} = \argmin_{\vx \in \mathcal{X}} f(\vx).
 $$
 
 We also assume that the evaluation of $f$ is expensive, as the goal of Bayesian
@@ -49,11 +49,11 @@ can perform. See \autoref{alg:bopt} for a pseudocode.
 \begin{algorithm}
   \DontPrintSemicolon
   \SetAlgoLined
-  Initialize $\vx_1$ randomly and evaluate $y_1 = f(\vx_1), \mathbfcal{D}_1 = {(\vx_1, y_1)}$. \;
+  Initialize $\vx_1$ randomly and evaluate $y_1 = f(\vx_1), \mathcal{D}_1 = {(\vx_1, y_1)}$. \;
   \For{$i = 1, 2, \ldots$}{
     Find $\vx_{i+1}$ by maximizing the acquisition function. \;
     Evaluate $y_{i+1} = f(\vx(x_{i+1})$. \;
-    Add the sample to the dataset $\mathbfcal{D}_{i+1} = \mathbfcal{D}_i \cup (\vx_{i+1}, y_{i+1})$. \;
+    Add the sample to the dataset $\mathcal{D}_{i+1} = \mathcal{D}_i \cup (\vx_{i+1}, y_{i+1})$. \;
     Update the probabilistic model. \;
   }
   \caption{Bayesian Optimization, \cite{nando-bopt-tutorial}}
@@ -91,7 +91,7 @@ jointly Gaussian with some mean $m(\vx)$ and covariance $\mSigma(\vx)$. A GP is
 defined by its mean function $m$ and covariance function $\kappa$
 \citep{murphy2012machine}. We write
 $$
-  \mathbfcal{G}\mathbfcal{P}(m(\vx), \kappa(\vx, \vx')).
+  \mathcal{G}\mathcal{P}(m(\vx), \kappa(\vx, \vx')).
 $$
 
 \begin{figure}
@@ -101,7 +101,7 @@ $$
     black circles. The black line signifies the mean prediction, while the
     purple filled area shows one standard deviation at each point. The three
     points marked as $x_1, x_2, x_3$ are where we are computing the posterior, that
-    is $p(x_1, x_2, x_3 | \mathbfcal{D})$. These points together have a
+    is $p(x_1, x_2, x_3 | \mathcal{D})$. These points together have a
     multivariate Gaussian distribution, with a marginal 1D distribution shown
     vertically at each point. In order to draw a plot like this one we compute the
     posterior over a fine grid on the $X$ axis, and plot the mean parameter and the
@@ -120,7 +120,7 @@ the values of the function at those points will be similar.
 
 \autoref{figure:gp-regression-1d} shows an example of a GP regression in one
 dimension. Because GP is a non-parametric model, it uses the whole dataset
-$\mathbfcal{D}$ in order to compute the posterior parameters. A theoretical
+$\mathcal{D}$ in order to compute the posterior parameters. A theoretical
 benefit of this approach, as compared to using a parametric model like a random
 forest, is that we reduce the number of ways our model can underfit or overfit
 the data. Because we assume the mean to be zero, our only parameter is the

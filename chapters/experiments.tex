@@ -1,28 +1,53 @@
 \chapter{Experiments}
 \label{chapter:experiments}
 
-This chapter presents experiments we have conducted to evaluate the viability of Bayesian optimization. All but the first of the experiments are examples of optimizing neural networks, because that is the area of interest of this work.
+This chapter presents experiments we have conducted to evaluate the viability
+of Bayesian optimization. All but the first of the experiments are examples of
+optimizing neural networks, because that is the area of interest of this work.
 
-In the first experiment we chose the Eggholder function \citep{eggholder}, commonly used to measure the performance of optimizers, and use it as an additional baseline for comparison with random search. The Eggholder function is an interesting optimization target, because it has only one global minimum, but many local minima with an unpredictable landscape.
+In the first experiment we chose the Eggholder function \citep{eggholder},
+commonly used to measure the performance of optimizers, and use it as an
+additional baseline for comparison with random search. The Eggholder function
+is an interesting optimization target, because it has only one global minimum,
+but many local minima with an unpredictable landscape.
 
-Next we present one experiment from reinforcement learning, specifically the REINFORCE algorithm \citep{suttonbarto2018reinforcement}, as an example of a smaller and simpler network. In this setting, we also compare Bayesian optimization with a random search. Next we show a larger experiment where we train a recurrent neural network \citep{dlbook}, specifically a tagger, on a SIGMORPHON 2019 shared task \citep{sigmorphon2019task2}, where the network is trained on a significantly larger dataset in multiple languages. Lastly, we show two more experiments, one of a tokenizer written in C++, and second a network for speech recognition.
+Next we present one experiment from reinforcement learning, specifically the
+REINFORCE algorithm \citep{suttonbarto2018reinforcement}, as an example of a
+smaller and simpler network. In this setting, we also compare Bayesian
+optimization with a random search. Next we show a larger experiment where we
+train a recurrent neural network \citep{dlbook}, specifically a tagger, on a
+SIGMORPHON 2019 shared task \citep{sigmorphon2019task2}, where the network is
+trained on a significantly larger dataset in multiple languages. Lastly, we
+show two more experiments, one of a tokenizer written in C++, and second a
+network for speech recognition.
 
 \section{The Eggholder Function}
 
-As our first experiment, we evaluate the Eggholder function \cite{eggholder} due to its popularity as a test function for evaluating optimizer performance. A visualization of the Eggholder function is presented in \autoref{figure:eggholder}.
+As our first experiment, we evaluate the Eggholder function \cite{eggholder}
+due to its popularity as a test function for evaluating optimizer performance.
+A visualization of the Eggholder function is presented in
+\autoref{figure:eggholder}.
 
 \begin{figure}[h!]
 	\begin{center}
 		\includegraphics[width=0.6\textwidth]{images/eggholder.png}
 		% JA: Ten text je trochu divny, ale nepovedlo se mi jinak zaridit, aby ta definice byla na dalsi radce a nevypadalo to divne.
-		\caption{The Eggholder objective function defined on $(x, y) \in \mathrm{R}^2$ analytically as $f(x, y) = -(y + 47) \sin \sqrt{| \frac{x}{2} + (y + 47)|} - x \sin \sqrt{| x - (y + 47)|} $. It has one global minimum at $(512, 404.23)$ with $y = -959.64$. When optimizing the function we instead optimize $-f(x,y)$ as our implementation always maximizes the objective.}
+    \caption{The Eggholder objective function defined on $(x, y) \in
+    \mathrm{R}^2$ analytically as $f(x, y) = -(y + 47) \sin \sqrt{| \frac{x}{2}
+      + (y + 47)|} - x \sin \sqrt{| x - (y + 47)|} $. It has one global minimum at
+    $(512, 404.23)$ with $y = -959.64$. When optimizing the function we instead
+    optimize $-f(x,y)$ as our implementation always maximizes the objective.}
 		\label{figure:eggholder}
 	\end{center}
 \end{figure}
 
-We ran $50$ repetitions of the experiment with Bayesian optimization and random search each, and display the results in \autoref{figure:eggholder-comparison}. The average rank on the total $100$ experiments is $25.5$ for Bayesian optimization, and $75.5$ for random search.
+We ran $50$ repetitions of the experiment with Bayesian optimization and random
+search each, and display the results in \autoref{figure:eggholder-comparison}.
+The average rank on the total $100$ experiments is $25.5$ for Bayesian
+optimization, and $75.5$ for random search.
 
-While a toy example, this experiment shows a first evidence of Bayesian optimization outperforming random search when optimizing a non-convex function.
+While a toy example, this experiment shows a first evidence of Bayesian
+optimization outperforming random search when optimizing a non-convex function.
 
 \begin{figure}
 	\begin{center}
@@ -45,11 +70,40 @@ While a toy example, this experiment shows a first evidence of Bayesian optimiza
 	\end{center}
 \end{figure}
 
-In order to evaluate the effectiveness of Bayesian optimization and compare it to random search, we chose the REINFORCE algorithm on a simple task in reinforcement learning, because the network is small and fast to train, but at the same time sensitive to hyperparameters. The goal of the agent is to balance a pole on top of a cart by moving either left or right, as shown in \autoref{figure:cartpole}. For each time step when the pole has not fallen over the agent receives $+1$ reward, up to a maximum of $500$. Because an episode can end rather quickly when the agent performs a few bad actions, some combinations of hyperparameters results in very low values of the objective function (e.g., $< 50$). On the other hand, reaching the perfect $500$ reward is not very difficult after some exploration of the search space. Out of our $60$ different runs of the experiment, only one was not able to find the perfect score in the allotted $50$ evaluations of the objective function.
+In order to evaluate the effectiveness of Bayesian optimization and compare it
+to random search, we chose the REINFORCE algorithm on a simple task in
+reinforcement learning, because the network is small and fast to train, but at
+the same time sensitive to hyperparameters. The goal of the agent is to balance
+a pole on top of a cart by moving either left or right, as shown in
+\autoref{figure:cartpole}. For each time step when the pole has not fallen over
+the agent receives $+1$ reward, up to a maximum of $500$. Because an episode
+can end rather quickly when the agent performs a few bad actions, some
+combinations of hyperparameters results in very low values of the objective
+function (e.g., $< 50$). On the other hand, reaching the perfect $500$ reward
+is not very difficult after some exploration of the search space. Out of our
+$60$ different runs of the experiment, only one was not able to find the
+perfect score in the allotted $50$ evaluations of the objective function.
 
-Overall, we repeated the experiment three times. Once purely with a random search, once with a non-informative prior, and once with an informative prior, where the mean was set to the mean of the hyperparameter range (per hyperparameter) and standard deviation to a quarter of the range. Each of these setups was then executed $20$ times, each with $50$ evaluations of the objective function. Because of the noisy aspect of reinforcement learning, we modified the objective function so that instead of training and evaluating the network once, we trained it yet another $20$ times from scratch, evaluated each separately, and reported the average objective achieved. Therefore, if the optimizer receives an objective value of $500$, then all $20$ of the sub-evaluations managed to reach that score.
+Overall, we repeated the experiment three times. Once purely with a random
+search, once with a non-informative prior, and once with an informative prior,
+where the mean was set to the mean of the hyperparameter range (per
+hyperparameter) and standard deviation to a quarter of the range. Each of these
+setups was then executed $20$ times, each with $50$ evaluations of the
+objective function. Because of the noisy aspect of reinforcement learning, we
+modified the objective function so that instead of training and evaluating the
+network once, we trained it yet another $20$ times from scratch, evaluated each
+separately, and reported the average objective achieved. Therefore, if the
+optimizer receives an objective value of $500$, then all $20$ of the
+sub-evaluations managed to reach that score.
 
-We show the numeric results in \autoref{table:reinforce-results}. The \emph{AUC} column measures the area under the convergence plot (see \autoref{figure:convergence-plot}), specifically the area under the cumulative maximum. The value was then normalized so that it would be $1$ exactly when a score of $500$ was achieved on the first sample. We also report the mean $\mu_{\text{time to max}}$ and standard deviation $\sigma_{\text{time to max}}$ of the time (number of evaluations) it take the optimizer to achieve the score of $500$.
+We show the numeric results in \autoref{table:reinforce-results}. The
+\emph{AUC} column measures the area under the convergence plot (see
+\autoref{figure:convergence-plot}), specifically the area under the cumulative
+maximum. The value was then normalized so that it would be $1$ exactly when a
+score of $500$ was achieved on the first sample. We also report the mean
+$\mu_{\text{time to max}}$ and standard deviation $\sigma_{\text{time to max}}$
+of the time (number of evaluations) it take the optimizer to achieve the score
+of $500$.
 
 \begin{table}[t]
 	\begin{center}
@@ -69,7 +123,11 @@ We show the numeric results in \autoref{table:reinforce-results}. The \emph{AUC}
 	\end{center}
 \end{table}
 
-Intuitively, the $\mu_{\text{time to max}}$ shows how fast the optimizer is able to find the maximum of the objective function, and $\sigma_{\text{time to max}}$ measures its consistency. The results clearly show that Bayesian optimization as compared to a random search is almost twice as fast at finding the maximum, and also achieves lower variance.
+Intuitively, the $\mu_{\text{time to max}}$ shows how fast the optimizer is
+able to find the maximum of the objective function, and $\sigma_{\text{time to
+max}}$ measures its consistency. The results clearly show that Bayesian
+optimization as compared to a random search is almost twice as fast at finding
+the maximum, and also achieves lower variance.
 
 \begin{figure}
 	\begin{center}
@@ -88,9 +146,32 @@ Intuitively, the $\mu_{\text{time to max}}$ shows how fast the optimizer is able
 \end{figure}
 
 
-The informative prior also achieves slightly lower variance than the non-informative one, which matches our intuition of guiding the GP regression model into a more stable area of the kernel parameter space. We confirm this with a kernel parameter visualization as shown in \autoref{figure:informative-priors}, where we can clearly see the parameters to be more stable, than in the case of non-informative priors as shown in \autoref{figure:reinforce-jumpy-kernel-params}.
+The informative prior also achieves slightly lower variance than the
+non-informative one, which matches our intuition of guiding the GP regression
+model into a more stable area of the kernel parameter space. We confirm this
+with a kernel parameter visualization as shown in
+\autoref{figure:informative-priors}, where we can clearly see the parameters to
+be more stable, than in the case of non-informative priors as shown in
+\autoref{figure:reinforce-jumpy-kernel-params}.
 
-As a side note, this experiment provided an interesting technical dilemma. Evaluating noisy objective functions is an interesting problem from the practical perspective. Even though the GP regression model is able to model noise in the objective function directly, it can only do so after it is given enough data points which show the noisy trend. But in the context of Bayesian optimization we need to use the model to make decisions about the next evaluation point, even when the number of data points is low. We could run a larger number of evaluations using random search initially, so that the GP could fit the noise in the data. Because of some of the problems with overfitting shown earlier in \autoref{chapter:bo-indepth}, we chose not to model the noise with the model directly, because that could lead to more potential failure points. Instead, we took a practical approach and simply reduced the noise by performing multiple (specifically $20$) evaluations of the REINFORCE model for each set of hyperparameters, and averaged the result. Since this method is a Monte Carlo approximation of the true objective function, its variance decreases as such (roughly as $\frac{1}{\sqrt{N}}$), the GP will be able to fit the objective function with almost an order of magnitude lower noise parameter.
+As a side note, this experiment provided an interesting technical dilemma.
+Evaluating noisy objective functions is an interesting problem from the
+practical perspective. Even though the GP regression model is able to model
+noise in the objective function directly, it can only do so after it is given
+enough data points which show the noisy trend. But in the context of Bayesian
+optimization we need to use the model to make decisions about the next
+evaluation point, even when the number of data points is low. We could run a
+larger number of evaluations using random search initially, so that the GP
+could fit the noise in the data. Because of some of the problems with
+overfitting shown earlier in \autoref{chapter:bo-indepth}, we chose not to
+model the noise with the model directly, because that could lead to more
+potential failure points. Instead, we took a practical approach and simply
+reduced the noise by performing multiple (specifically $20$) evaluations of the
+REINFORCE model for each set of hyperparameters, and averaged the result. Since
+this method is a Monte Carlo approximation of the true objective function, its
+variance decreases as such (roughly as $\frac{1}{\sqrt{N}}$), the GP will be
+able to fit the objective function with almost an order of magnitude lower
+noise parameter.
 
 
 \section{Tagger on a Single Treebank}
@@ -121,11 +202,26 @@ As a side note, this experiment provided an interesting technical dilemma. Evalu
 \end{figure}
 
 
-Contrary to the experiment shown in \autoref{section:multiple-treebanks-failed} in this experiment we train the same model but only on a single treebank at a time. We tried one of our largest treebanks, specifically for the Czech language. We chose a larger treebank because it provides a more consistent evaluation metric, with the smaller ones being several orders of magnitude smaller, which may result in overfitting even on the validation set.
+Contrary to the experiment shown in \autoref{section:multiple-treebanks-failed}
+in this experiment we train the same model but only on a single treebank at a
+time. We tried one of our largest treebanks, specifically for the Czech
+language. We chose a larger treebank because it provides a more consistent
+evaluation metric, with the smaller ones being several orders of magnitude
+smaller, which may result in overfitting even on the validation set.
 
-While the next experiment (see \autoref{section:multiple-treebanks-failed}) did not find any trends in the hyperparameters, the one we present here did find a clear trend in most, as shown for example in \autoref{figure:czech-batch-size}, where larger \emph{batch\_size} is better. In some cases we also found clear relationships between two hyperparameters, such as in the case of \emph{label\_smoothing} and \emph{dropout} shown in \autoref{figure:czech-2d-marginal}.
+While the next experiment (see \autoref{section:multiple-treebanks-failed}) did
+not find any trends in the hyperparameters, the one we present here did find a
+clear trend in most, as shown for example in \autoref{figure:czech-batch-size},
+where larger \emph{batch\_size} is better. In some cases we also found clear
+relationships between two hyperparameters, such as in the case of
+\emph{label\_smoothing} and \emph{dropout} shown in
+\autoref{figure:czech-2d-marginal}.
 
-The experiment used five parallel evaluations, the first of which were seeded with random search. The baseline model achieved $97.4\%$ accuracy, while the random search achieved only $97.32\%$, and the remaining search with Bayesian optimization surpassed the baseline with final $97.44\%$ (see \autoref{figure:czech-convergence}).
+The experiment used five parallel evaluations, the first of which were seeded
+with random search. The baseline model achieved $97.4\%$ accuracy, while the
+random search achieved only $97.32\%$, and the remaining search with Bayesian
+optimization surpassed the baseline with final $97.44\%$ (see
+\autoref{figure:czech-convergence}).
 
 
 \section{Tuning on Multiple Treebanks Simultaneously}
@@ -147,25 +243,91 @@ The experiment used five parallel evaluations, the first of which were seeded wi
 	\end{center}
 \end{figure}
 
-In this larger experiment we tried to tune hyperparameters for a single model on multiple different datasets at once. Specifically, the model was trained for the SIGMORPHON 2019 shared task 2 \citep{sigmorphon2019task2} on 105 different treebanks, most of which are different languages.\footnote{The shared task training data consists of 107 treebanks, but we did not consider the two largest in the Bayesian optimization for performance reasons.} Our goal was to ideally find one set of hyperparameters that would work well across all of these treebanks. Even though this experiment was not ultimately successful, we still include it in the text as the problem being solved poses interesting technical challenges from the perspective of hyperparameter tuning.
+In this larger experiment we tried to tune hyperparameters for a single model
+on multiple different datasets at once. Specifically, the model was trained for
+the SIGMORPHON 2019 shared task 2 \citep{sigmorphon2019task2} on 105 different
+treebanks, most of which are different languages.\footnote{The shared task
+training data consists of 107 treebanks, but we did not consider the two
+largest in the Bayesian optimization for performance reasons.} Our goal was to
+ideally find one set of hyperparameters that would work well across all of
+these treebanks. Even though this experiment was not ultimately successful, we
+still include it in the text as the problem being solved poses interesting
+technical challenges from the perspective of hyperparameter tuning.
 
-As a fundamental problem of this task, each treebank is of different size, and the difficulty of different languages varies a lot. To give a few specific examples, on Tamil the model achieves around 95\% accuracy in tagging, while on Sanskrit it achieves only 65\%. This makes it nearly impossible to set the objective function to simply be the accuracy of the model, as the same value of hyperparameters could result in the objective varying by 30\%.
+As a fundamental problem of this task, each treebank is of different size, and
+the difficulty of different languages varies a lot. To give a few specific
+examples, on Tamil the model achieves around 95\% accuracy in tagging, while on
+Sanskrit it achieves only 65\%. This makes it nearly impossible to set the
+objective function to simply be the accuracy of the model, as the same value of
+hyperparameters could result in the objective varying by 30\%.
 
-We work around this problem by computing a baseline accuracy using an existing, hand tuned, model on the same task, pre-computing its score for each treebank with a fixed set of hyperparameters, and then subtracting its value from the accuracy of our tuned model. The objective function then explicitly becomes the improvement over an existing fixed model.
+We work around this problem by computing a baseline accuracy using an existing,
+hand tuned, model on the same task, pre-computing its score for each treebank
+with a fixed set of hyperparameters, and then subtracting its value from the
+accuracy of our tuned model. The objective function then explicitly becomes the
+improvement over an existing fixed model.
 
-A second problem we had to solve was how to incorporate the 105 treebanks into the optimization procedure. Because training the model takes multiple GPU hours even for the smaller treebanks, we realistically cannot perform more than a few hundred evaluations total. Instead of training the model on all treebanks for each set of hyperparameters, we only train the model on one treebank for each hyperparameter configuration chosen by Bayesian optimization.
+A second problem we had to solve was how to incorporate the 105 treebanks into
+the optimization procedure. Because training the model takes multiple GPU hours
+even for the smaller treebanks, we realistically cannot perform more than a few
+hundred evaluations total. Instead of training the model on all treebanks for
+each set of hyperparameters, we only train the model on one treebank for each
+hyperparameter configuration chosen by Bayesian optimization.
 
-This introduces an interesting choice. In theory, we could treat the treebank as a hyperparameter treated explicitly by Bayesian optimization. As the algorithm balances the exploration-exploitation trade-off, it should be able to pick treebanks as needed to better explore the space. But because of the different sizes and difficulties of each treebank, and the inability of Bayesian optimization to treat categorical hyperparameters well, we decided to not take this approach.
+This introduces an interesting choice. In theory, we could treat the treebank
+as a hyperparameter treated explicitly by Bayesian optimization. As the
+algorithm balances the exploration-exploitation trade-off, it should be able to
+pick treebanks as needed to better explore the space. But because of the
+different sizes and difficulties of each treebank, and the inability of
+Bayesian optimization to treat categorical hyperparameters well, we decided to
+not take this approach.
 
-Instead, we omit the treebank from the list of hyperparameters, so that the optimizer has no way of modeling it, and provide it as an explicit parameter outside of the scope of the optimizer. In theory, we could also provide the optimizer with a treebank that was used with each evaluation, not allowing it to optimize the treebank when choosing a next point by overriding its choice, but this approach would most likely yield sub-optimal choices by the optimizer, as the samples would be chosen based on a different criteria than what the optimizer considers. Instead, our way of completely removing the treebank parameter from the optimization process will be seen by the optimizer as noise on the output. If it were to evaluate the same hyperparameters multiple times, the evaluation itself would receive a different treebank, and the improvement over the baseline would be different. In effect this captures our desire to find a unique set of hyperparameters that works well across all treebanks.
+Instead, we omit the treebank from the list of hyperparameters, so that the
+optimizer has no way of modeling it, and provide it as an explicit parameter
+outside of the scope of the optimizer. In theory, we could also provide the
+optimizer with a treebank that was used with each evaluation, not allowing it
+to optimize the treebank when choosing a next point by overriding its choice,
+but this approach would most likely yield sub-optimal choices by the optimizer,
+as the samples would be chosen based on a different criteria than what the
+optimizer considers. Instead, our way of completely removing the treebank
+parameter from the optimization process will be seen by the optimizer as noise
+on the output. If it were to evaluate the same hyperparameters multiple times,
+the evaluation itself would receive a different treebank, and the improvement
+over the baseline would be different. In effect this captures our desire to
+find a unique set of hyperparameters that works well across all treebanks.
 
-Unfortunately, our experimental results did not find a significant improvement over the hyperparameters found by hand-tuning the network (see \autoref{figure:sigmorphon-convergence}). One of the reasons is that the size of the treebank affects which hyperparameter combinations result in value of the objective function. An example of using tuning the same model on a larger treebank is shown in \autoref{section:exp-cestina}.
+Unfortunately, our experimental results did not find a significant improvement
+over the hyperparameters found by hand-tuning the network (see
+\autoref{figure:sigmorphon-convergence}). One of the reasons is that the size
+of the treebank affects which hyperparameter combinations result in value of
+the objective function. An example of using tuning the same model on a larger
+treebank is shown in \autoref{section:exp-cestina}.
 
-To give a specific example, when the \emph{batch\_size} hyperparameter is set to a larger value, it works well on a larger treebank, but the opposite is true for a smaller treebank, where a smaller \emph{batch\_size} acts as a regularizer. This means our samples at the same batch size will be spread as far as is the objective on all treebanks. Unfortunately, this spread ends up being so large that all of the hyperparameter end up having no visible trend, as no value is clearly better than the others, as shown in \autoref{figure:sigmorphon-dropout}.
+To give a specific example, when the \emph{batch\_size} hyperparameter is set
+to a larger value, it works well on a larger treebank, but the opposite is true
+for a smaller treebank, where a smaller \emph{batch\_size} acts as a
+regularizer. This means our samples at the same batch size will be spread as
+far as is the objective on all treebanks. Unfortunately, this spread ends up
+being so large that all of the hyperparameter end up having no visible trend,
+as no value is clearly better than the others, as shown in
+\autoref{figure:sigmorphon-dropout}.
 
-We tried splitting the treebanks into two groups, one with the largest $25\%$ and one with the smallest $25\%$ (based on number of words in the treebank). Then we ran the same optimization procedure on the same hyperparameters, and confirmed our earlier theory about smaller \emph{batch\_size} working better for smaller treebanks and vice versa. \autoref{figure:sig-small-batch} shows the marginal plot on the smaller treebanks, while \autoref{figure:sig-large-batch} shows the same on larger treebanks.
+We tried splitting the treebanks into two groups, one with the largest $25\%$
+and one with the smallest $25\%$ (based on number of words in the treebank).
+Then we ran the same optimization procedure on the same hyperparameters, and
+confirmed our earlier theory about smaller \emph{batch\_size} working better
+for smaller treebanks and vice versa. \autoref{figure:sig-small-batch} shows
+the marginal plot on the smaller treebanks, while
+\autoref{figure:sig-large-batch} shows the same on larger treebanks.
 
-While we did not find any improvement over the baseline on the larger treebanks, the smaller treebanks yielded a $3.56\%$ increase over the baseline on the Akkadian treebank. Unfortunately, that is the only treebank on which we managed to improve over the baseline by more than $0.1\%$. This experiment shows how noise can negatively affect the underlying probabilistic model, since training on multiple larger treebanks did not yield any improvement, but training on a larger treebank in isolation in the previous experiment did (see \autoref{section:exp-cestina}).
+While we did not find any improvement over the baseline on the larger
+treebanks, the smaller treebanks yielded a $3.56\%$ increase over the baseline
+on the Akkadian treebank. Unfortunately, that is the only treebank on which we
+managed to improve over the baseline by more than $0.1\%$. This experiment
+shows how noise can negatively affect the underlying probabilistic model, since
+training on multiple larger treebanks did not yield any improvement, but
+training on a larger treebank in isolation in the previous experiment did (see
+\autoref{section:exp-cestina}).
 
 \begin{figure}
 	\begin{center}
@@ -183,7 +345,12 @@ While we did not find any improvement over the baseline on the larger treebanks,
 	\end{center}
 \end{figure}
 
-We also compare the convergence plots on both the smaller (see \autoref{figure:sig-small-convergence}) and larger (see \autoref{figure:sig-large-convergence}) subsets of treebanks. The size difference between the largest and smallest treebank is over three orders of magnitude, specifically $1,207,922$ words for Czech and $230$ words for Tagalog.
+We also compare the convergence plots on both the smaller (see
+\autoref{figure:sig-small-convergence}) and larger (see
+\autoref{figure:sig-large-convergence}) subsets of treebanks. The size
+difference between the largest and smallest treebank is over three orders of
+magnitude, specifically $1,207,922$ words for Czech and $230$ words for
+Tagalog.
 
 
 \begin{figure}
@@ -215,11 +382,27 @@ We also compare the convergence plots on both the smaller (see \autoref{figure:s
 \clearpage
 \section{Segmentation}
 
-In this experiment we optimize hyperparameters of UDPipe \citep{udpipe:2017} on tokenization of Czech.
+In this experiment we optimize hyperparameters of UDPipe \citep{udpipe:2017} on
+tokenization of Czech.
 
-Some of the interesting result in this case are the failure cases of the GP regression, particularly how it can overfit on seemingly uninformative dataset, as shown in \autoref{figure:gp-overfitting-batch-size}. These examples nicely show the high capacity of a GP, which, even when we set informative priors, is able to find a surprising way to fit the data with high likelihood. Despite these problems, the Bayesian optimization approach still managed to find hyperparameter values with an objective very close to that find by an exhaustive grid search. Because of the acquisition function, even if the model overfits and picks a bad sample, it will be able to correct itself right afterwards, as the area that was previously receiving high value of acquisition function was explored.
+Some of the interesting result in this case are the failure cases of the GP
+regression, particularly how it can overfit on seemingly uninformative dataset,
+as shown in \autoref{figure:gp-overfitting-batch-size}. These examples nicely
+show the high capacity of a GP, which, even when we set informative priors, is
+able to find a surprising way to fit the data with high likelihood. Despite
+these problems, the Bayesian optimization approach still managed to find
+hyperparameter values with an objective very close to that find by an
+exhaustive grid search. Because of the acquisition function, even if the model
+overfits and picks a bad sample, it will be able to correct itself right
+afterwards, as the area that was previously receiving high value of acquisition
+function was explored.
 
-As a result, the model still might end up wasting computation time by evaluating incorrect areas by overfitting on the data, but we have not observed it to get stuck in a local optima. Because Bayesian optimization explicitly models exploration into its decision making it quite often ends up doing a decent job of exploring most of the search space, as is visible in all of the figures shown in this chapter.
+As a result, the model still might end up wasting computation time by
+evaluating incorrect areas by overfitting on the data, but we have not observed
+it to get stuck in a local optima. Because Bayesian optimization explicitly
+models exploration into its decision making it quite often ends up doing a
+decent job of exploring most of the search space, as is visible in all of the
+figures shown in this chapter.
 
 \begin{figure}
 	\begin{center}
@@ -245,11 +428,26 @@ As a result, the model still might end up wasting computation time by evaluating
 	\end{center}
 \end{figure}
 
-In this case the result tuned with Bayesian optimization did not surpass the hand-tuned baseline, although an upward trend is visible in the convergence plot shown in \autoref{figure:tokenizer-convergence}. We intentionally limited the number of evaluations to $50$ to make comparisons with the hand-tuned baselines, because the goal of Bayesian optimization is to find the optimum quickly.
+In this case the result tuned with Bayesian optimization did not surpass the
+hand-tuned baseline, although an upward trend is visible in the convergence
+plot shown in \autoref{figure:tokenizer-convergence}. We intentionally limited
+the number of evaluations to $50$ to make comparisons with the hand-tuned
+baselines, because the goal of Bayesian optimization is to find the optimum
+quickly.
 
-We compare our achieved accuracy over $10$ runs of Bayesian optimization with $10$ runs of random search in \autoref{figure:tokenizer-comparison}. The average rank is $5.5$ for Bayesian optimization, and $15.5$ for random search. In \autoref{figure:tokenizer-comparison-bopt-grid-search} we also compare the same $10$ runs of Bayesian optimization to $72$ evaluations of grid search. Only one of the grid search results managed to achieve a superior value of the objective function, with the remaining values being significantly worse. The overall rank is $5.5$ for Bayesian optimization, and $46.5$ for grid search (out of total $82$ evaluations).
+We compare our achieved accuracy over $10$ runs of Bayesian optimization with
+$10$ runs of random search in \autoref{figure:tokenizer-comparison}. The
+average rank is $5.5$ for Bayesian optimization, and $15.5$ for random search.
+In \autoref{figure:tokenizer-comparison-bopt-grid-search} we also compare the
+same $10$ runs of Bayesian optimization to $72$ evaluations of grid search.
+Only one of the grid search results managed to achieve a superior value of the
+objective function, with the remaining values being significantly worse. The
+overall rank is $5.5$ for Bayesian optimization, and $46.5$ for grid search
+(out of total $82$ evaluations).
 
-Despite grid search achieving a maximum in one sample, we believe the overall ranking shows how Bayesian optimization consistently out-performs grid search using fewer evaluations.
+Despite grid search achieving a maximum in one sample, we believe the overall
+ranking shows how Bayesian optimization consistently out-performs grid search
+using fewer evaluations.
 
 \section{Speech Recognition}
 
@@ -269,30 +467,77 @@ Despite grid search achieving a maximum in one sample, we believe the overall ra
 	\end{center}
 \end{figure}
 
-In the last experiment we trained a speech recognition model on a single dataset. The hyperparameters in this case are however not only the parameters of the model itself, but of a pre-processing step that takes place right before the network is trained, with the capacity of the model kept fixed. We only optimize the ones that have a high chance of being influenced by the preprocessing without changing the model capacity, such as \emph{batch\_size} and \emph{dropout}.
+In the last experiment we trained a speech recognition model on a single
+dataset. The hyperparameters in this case are however not only the parameters
+of the model itself, but of a pre-processing step that takes place right before
+the network is trained, with the capacity of the model kept fixed. We only
+optimize the ones that have a high chance of being influenced by the
+preprocessing without changing the model capacity, such as \emph{batch\_size}
+and \emph{dropout}.
 
-\autoref{figure:2d-almost-insensitive} shows an example where we coincidentally chose the hyperparameter ranges such that only the values at the very edge have some influence over the objective function. If we were to set them only a little differently the regression could end up showing no relationship between the two hyperparameters. Setting the bounds on hyperparameters is an important but non-trivial effort. If we set the bounds too large, we end up wasting lots of computation time, as the volume of an $n$-dimensional hypercube grows exponentially. On the other hand, if we set the bounds too tight, the optimizer might only find flat regions of the objective function.
+\autoref{figure:2d-almost-insensitive} shows an example where we coincidentally
+chose the hyperparameter ranges such that only the values at the very edge have
+some influence over the objective function. If we were to set them only a
+little differently the regression could end up showing no relationship between
+the two hyperparameters. Setting the bounds on hyperparameters is an important
+but non-trivial effort. If we set the bounds too large, we end up wasting lots
+of computation time, as the volume of an $n$-dimensional hypercube grows
+exponentially. On the other hand, if we set the bounds too tight, the optimizer
+might only find flat regions of the objective function.
 
-Similarly to the previous experiments the speech recognition model also has a steady convergence curve as shown in \autoref{figure:speech-convergence}. The best achieved value of the objective function was $-26.81$, which surpassed the hand-tuned baseline model achieving $-30.2$.
+Similarly to the previous experiments the speech recognition model also has a
+steady convergence curve as shown in \autoref{figure:speech-convergence}. The
+best achieved value of the objective function was $-26.81$, which surpassed the
+hand-tuned baseline model achieving $-30.2$.
 
 
 \chapter{Conclusion}
 
-The goal of this thesis was to implement a practical tool for optimizing hyperparameters of neural networks using Bayesian optimization. We showed the theoretical foundations of Bayesian optimization, including the necessary mathematical background for Gaussian Process regression, and some of the extensions to Bayesian optimization such as parallel evaluations, as well as an architectural overview of our implementation. We also performed multiple experiments to evaluate the performance on different neural network architectures and tasks.
+The goal of this thesis was to implement a practical tool for optimizing
+hyperparameters of neural networks using Bayesian optimization. We showed the
+theoretical foundations of Bayesian optimization, including the necessary
+mathematical background for Gaussian Process regression, and some of the
+extensions to Bayesian optimization such as parallel evaluations, as well as an
+architectural overview of our implementation. We also performed multiple
+experiments to evaluate the performance on different neural network
+architectures and tasks.
 
-In our comparison to a random search (see \autoref{section:experiments-empirical-bayes}), Bayesian optimization usually obtained a higher objective function value, and achieved lower variance in repeated experiments. Furthermore, in three out of four experiments, the hyperparameters discovered by Bayesian optimization outperformed the manually designed ones. In the largest experiment, where we tried to train a network on multiple different datasets at once (see \autoref{section:multiple-treebanks-failed}), Bayesian optimization did not improve over the baseline. We hypothesize that Bayesian optimization was influenced by the introduced noise, and that the ability of directly modelling the noise does not mean, that the model will be immune to the noise and the noise will not affect its performance.
+In our comparison to a random search (see
+\autoref{section:experiments-empirical-bayes}), Bayesian optimization usually
+obtained a higher objective function value, and achieved lower variance in
+repeated experiments. Furthermore, in three out of four experiments, the
+hyperparameters discovered by Bayesian optimization outperformed the manually
+designed ones. In the largest experiment, where we tried to train a network on
+multiple different datasets at once (see
+\autoref{section:multiple-treebanks-failed}), Bayesian optimization did not
+improve over the baseline. We hypothesize that Bayesian optimization was
+influenced by the introduced noise, and that the ability of directly modelling
+the noise does not mean, that the model will be immune to the noise and the
+noise will not affect its performance.
 
-Furthermore, the underlying Gaussian Process regression offers a useful tool for visualizing the effects of each hyperparameter on the fitness function.
-
-
-%While some of our results were positive, it remains unclear whether Bayesian optimization is a superior alternative to random search. Regardless, our tool remains flexible enough that should any future evidence supporting options such as better prior choices or acquisition functions arise, it could be easily incorporated within the optimization framework.
+Furthermore, the underlying Gaussian Process regression offers a useful tool
+for visualizing the effects of each hyperparameter on the fitness function.
 
 
 \section{Future Work}
 
-Bayesian optimization is a broad area of research with many possibilities to be tried. In this thesis, we concentrated Gaussian processes as the probabilistic model of the objective function, mainly for limit the scope of the work. Other probabilistic models, like random forests, could be beneficial in the context of neural network hyperparameter optimization, having the ability to naturally capture categorical parameters, and perhaps blurring the lines between hyperparameter tuning and architecture search.
+Bayesian optimization is a broad area of research with many possibilities to be
+tried. In this thesis, we concentrated Gaussian processes as the probabilistic
+model of the objective function, mainly for limit the scope of the work. Other
+probabilistic models, like random forests, could be beneficial in the context
+of neural network hyperparameter optimization, having the ability to naturally
+capture categorical parameters, and perhaps blurring the lines between
+hyperparameter tuning and architecture search.
 
-In the context of a GP regression, we also restricted ourselves to simple $\operatorname{Gamma}$ priors and point estimates for kernel parameter inference. Perhaps using Hamiltonian Monte Carlo for full Bayesian posterior inference, as implemented in \cite{gpy2014}, could alleviate some of our problems with unstable kernel parameters.
+In the context of a GP regression, we also restricted ourselves to simple
+$\operatorname{Gamma}$ priors and point estimates for kernel parameter
+inference. Perhaps using Hamiltonian Monte Carlo for full Bayesian posterior
+inference, as implemented in \cite{gpy2014}, could alleviate some of our
+problems with unstable kernel parameters.
 
-A GP regression could be further improved to properly handle integer and categorical variables (see \autoref{section:integer-hyperparameters}), which even though would be useful in practice, would most likely not affect the experiments we performed, given that the scale of our integer hyperparameters (mainly \emph{batch\_size}) was large.
+A GP regression could be further improved to properly handle integer and
+categorical variables (see \autoref{section:integer-hyperparameters}), which
+even though would be useful in practice, would most likely not affect the
+experiments we performed, given that the scale of our integer hyperparameters
+(mainly \emph{batch\_size}) was large.
 

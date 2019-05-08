@@ -42,12 +42,14 @@ Bayesian statistics allows us to take a principled approach to setting
 hyperparameters. We would simply set a prior distribution on each
 hyperparameter and marginalize over them, but unfortunately this has two
 problems. The prior distribution almost always has parameters of its own, such
-as the rate parameter $\lambda$ of a Poisson distribution, or the concentration parameter vector $\symbf{\alpha}$ of a Dirichlet distribution. We could go one step further and specify
-a prior on these parameters, which are often called hyperpriors.  But the real
-problem of Bayesian methods is that the integral in the marginalization often
-ends up being intractable, and in the case of more complicated models as neural
-networks, we are already computationally bottlenecked and cannot use methods
-such as Markov-Chain Monte Carlo (MCMC) to approximate it.
+as the rate parameter $\lambda$ of a Poisson distribution, or the concentration
+parameter vector ${\bm \alpha}$ of a Dirichlet distribution. We could go one
+step further and specify a prior on these parameters, which are often called
+hyperpriors.  But the real problem of Bayesian methods is that the integral in
+the marginalization often ends up being intractable, and in the case of more
+complicated models as neural networks, we are already computationally
+bottlenecked and cannot use methods such as Markov-Chain Monte Carlo (MCMC) to
+approximate it.
 
 There are however cases when the Bayesian approach does work. Either the model
 is small and simple enough so that the integral can be actually computed, or

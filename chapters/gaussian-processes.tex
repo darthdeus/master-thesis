@@ -19,41 +19,41 @@ For a more thorough treatment, see \cite{bishop2016pattern} and \cite{murphy2012
 
 \begin{defn}
   A random variable $\rX$ has a \newterm{univariate Gaussian distribution},
-  written as $\rX ∼ 𝓝(μ, σ^2)$, when its density is
+  written as $\rX \sim \mathcal{N}(\mu, \sigma^2)$, when its density is
   $$
-    p(x) = \frac{1}{\sqrt{2πσ²}} \exp{\left\{ -\frac{1}{2σ²} (x - μ)² \right\}}.
+    p(x) = \frac{1}{\sqrt{2\pi\sigma^2}} \exp{\left\{ -\frac{1}{2\sigma^2} (x - \mu)^2 \right\}}.
   $$
-  The parameters $μ$ and $σ$ are its \emph{mean} and \emph{standard deviation}.
+  The parameters $\mu$ and $\sigma$ are its \emph{mean} and \emph{standard deviation}.
 \end{defn}
 
 \begin{defn}
-  We say that $\rX$ has a \newterm{degenerate Gaussian distribution} when $\rX ∼ 𝓝(μ, 0)$, which formally becomes a Dirac delta function centered around $\mu$.
+  We say that $\rX$ has a \newterm{degenerate Gaussian distribution} when $\rX \sim \mathcal{N}(\mu, 0)$, which formally becomes a Dirac delta function centered around $\mu$.
 \end{defn}
 
 % TODO: \mX vs \rX pro vicerozmerne rv
 \begin{defn}
-  A random variable $\mX \in ℝ^n$ has a \newterm{multivariate Gaussian distribution} if
+  A random variable $\mX \in \mathbb{R}^n$ has a \newterm{multivariate Gaussian distribution} if
   any linear combination of its components is a univariate Gaussian, i.e.
-  $\va^T \rX = \mSigma_{i=1}^n \va_i \mX_i$ is a Gaussian for all $\va ∈ ℝ^n$.
+  $\va^T \rX = \mSigma_{i=1}^n \va_i \mX_i$ is a Gaussian for all $\va \in \mathrm{R}^n$.
   % TODO: cov sequence?
-  We then write $\mX ∼ 𝓝(\vmu, \mSigma)$ where $𝔼[\mX_i] = μ_i$
+  We then write $\mX \sim \mathcal{N}(\vmu, \mSigma)$ where $\mathbb{E}[\mX_i] = \mu_i$
   and $cov(\mX_i, \mX_j) = \mSigma_{ij}$.
 \end{defn}
 
 
 \begin{rem}
-  The parameters $\vmu$ and $\mSigma$ uniquely determine the distribution $𝓝(\vmu, \mSigma)$.
+  The parameters $\vmu$ and $\mSigma$ uniquely determine the distribution $\mathcal{N}(\vmu, \mSigma)$.
 \end{rem}
 
 \begin{defn}
-  A random variable $\mX ∼ 𝓝(\vmu, \mSigma)$ has a \newterm{degenerate multivariate Gaussian distribution}
+  A random variable $\mX \sim \mathcal{N}(\vmu, \mSigma)$ has a \newterm{degenerate multivariate Gaussian distribution}
   if $\det \mSigma = \mZero$.
 \end{defn}
 
 \begin{rem}
-  Given a random variable $\mX ∼ 𝓝(\vmu, \mSigma)$, random variables $\mX_1, \ldots,
-  \mX_n$ are independent with distributions $\mX_i ∼ 𝓝(μ_i, σ_i^2)$ if and only
-  if $\vmu = (μ_1, \ldots, μ_n)$ and $\mSigma = diag(σ₁², \ldots, σₙ²)$.
+  Given a random variable $\mX \sim \mathcal{N}(\vmu, \mSigma)$, random variables $\mX_1, \ldots,
+  \mX_n$ are independent with distributions $\mX_i \sim \mathcal{N}(\mu_i, \sigma_i^2)$ if and only
+  if $\vmu = (\mu_1, \ldots, \mu_n)$ and $\mSigma = diag(\sigma_1^2, \ldots, \sigma_n^2)$.
 \end{rem}
 
 \begin{thm}
@@ -69,32 +69,32 @@ For a more thorough treatment, see \cite{bishop2016pattern} and \cite{murphy2012
 \end{proof}
 
 \begin{thm}
-  A Gaussian random variable $\rX ∼ 𝓝(\vmu, \mSigma)$ has density if and only if
+  A Gaussian random variable $\rX \sim \mathcal{N}(\vmu, \mSigma)$ has density if and only if
   it is non-degenerate (i.e.\ $\det \mSigma \neq 0$, alternatively $\mSigma$
   is positive-definite). In this case, the density is
 
   \begin{equation}
     \label{eq:mvn-definition}
-    p(\vx) = \frac{1}{\sqrt{\det(2 π \mSigma)}} \exp{ \left\{ - \frac{1}{2}
+    p(\vx) = \frac{1}{\sqrt{\det(2 \pi \mSigma)}} \exp{ \left\{ - \frac{1}{2}
     (\vx - \vmu)^T \mSigma^{-1} (\vx - \vmu) \right\} }.
   \end{equation}
 \end{thm}
 
 \begin{rem}
   The normalizing constant in the denominator is also often presented in an alternate
-  form $$\det(2 π \mSigma) = (2π)^n \det(\mSigma),$$ which follows from basic
+  form $$\det(2 \pi \mSigma) = (2\pi)^n \det(\mSigma),$$ which follows from basic
   determinant properties. Alternatively, we can also move the square root in the
   exponent and write $(2 \pi)^{n/2} (\det \mSigma)^{1/2}$.
 \end{rem}
 
 \begin{rem}
   In a special case of the multivariate Gaussian with $n = 1$, we have
-  $\mSigma = σ²$ (meaning $cov(X, X) = σ²$) and $\mSigma^{-1} =
-  \frac{1}{σ²}$, and hence the multivariate Gaussian formula becomes
+  $\mSigma = \sigma^2$ (meaning $cov(X, X) = \sigma^2$) and $\mSigma^{-1} =
+  \frac{1}{\sigma^2}$, and hence the multivariate Gaussian formula becomes
   a univariate one:
 
   \begin{equation}
-    p(x) = \frac{1}{\sqrt{2 π σ²}} \exp{\left\{ - \frac{1}{2σ²} (x - μ)² \right\}}.
+    p(x) = \frac{1}{\sqrt{2 \pi \sigma^2}} \exp{\left\{ - \frac{1}{2\sigma^2} (x - \mu)^2 \right\}}.
   \end{equation}
 \end{rem}
 
@@ -162,7 +162,7 @@ achieved using the Box-Muller transform \citep{box-muller1958note}.
 \section{Geometric Properties}
 
 If $\mSigma$ is positive-definite, then $\mY \sim \gN(\vmu, \mSigma)$ implies
-$\mA^{-1} (\mY - \vmu) ∼ 𝓝(0, \mI)$ where $\mSigma = \mA \mA^T$.  The random
+$\mA^{-1} (\mY - \vmu) \sim \mathcal{N}(0, \mI)$ where $\mSigma = \mA \mA^T$.  The random
 variable $\mA^{-1} (\mY - \vmu)$ has a spherical shape in $n$-dimensional
 space.
 
@@ -318,7 +318,7 @@ Because the Gaussian distribution is completely defined by its mean and
 covariance, we do not need to figure out the value of the normalization
 constant. We simply have to derive the equations for $\vmu$ and $\mSigma$.
 
-% Because we know $p(x₁, x₂) = p(x₁|x₂)p(x₂)$ and that both $p(x₁, x₂)$ and $p(x₁|x₂)$ are multivariate Gaussians, fixing the value of $x₁$ means that $p(x₁|x₂)$ as a function of $x₂$ is just a normalization constant, and $p(x₂)$ must have the same form as $p(x₁, x₂)$ and therefore is also a multivariate Gaussian. \todo{tady ten marginal nevim jiste}
+% Because we know $p(x_1, x_2) = p(x_1|x_2)p(x_2)$ and that both $p(x_1, x_2)$ and $p(x_1|x_2)$ are multivariate Gaussians, fixing the value of $x_1$ means that $p(x_1|x_2)$ as a function of $x_2$ is just a normalization constant, and $p(x_2)$ must have the same form as $p(x_1, x_2)$ and therefore is also a multivariate Gaussian. \todo{tady ten marginal nevim jiste}
 
 % TODO: x2 je spatne (marignal)
 
@@ -434,7 +434,7 @@ variables), such that every subset of those random variables has a
 multivariate Gaussian distribution. It is defined by a mean function
 $m(\vx)$ and a covariance function $\kappa(\vx, \vx')$. Formally, we write
 \begin{equation}
-  p(\vx) \sim 𝓖𝓟 (m(\vx), \kappa(\vx, \vx')).
+  p(\vx) \sim \mathcal{G}\mathcal{P} (m(\vx), \kappa(\vx, \vx')).
 \end{equation}
 Any finite subset $\vx = (x_1, \ldots, x_n)$ is jointly Gaussian with mean vector
 $m(\vx)$ and covariance matrix $\mSigma(\vx)$, where $\mSigma(\vx)_{ij} =
@@ -448,7 +448,7 @@ over functions $p(f|x)$.
 \subsection{GP Regression with Noise-free Observations}
 
 Consider the case when we are predicting a function $f$
-based on a few observations $𝓓 = \{(\vx_1, y_1), \ldots, (\vx_n, y_n)\}$,
+based on a few observations $\mathcal{D} = \{(\vx_1, y_1), \ldots, (\vx_n, y_n)\}$,
 and we are interested in predicting the value of $y_\star = f(x_\star)$ at a new point
 $x_\star$.
 
@@ -464,7 +464,7 @@ automatically, including a closed form solution to the conditional and marginal
 distribution parameters. Let us now write the joint distribution of $\vy$ and $\vy_\star$ in
 a partitioned form
 $$
-  \begin{pmatrix} \vy \\ \vy_\star \end{pmatrix} ∼ 𝓝\begin{pmatrix}
+\begin{pmatrix} \vy \\ \vy_\star \end{pmatrix} \sim \mathcal{N}\begin{pmatrix}
   \begin{pmatrix} \vmu \\ \vmu_\star \end{pmatrix},
   \begin{pmatrix} \mK & \mK_\star \\ \mK_\star^T & \mK_{\star\star} \end{pmatrix}
   \end{pmatrix}
@@ -477,7 +477,7 @@ points at once given an existing dataset.  Because the posterior is just a multi
 Gaussian, we can make use of the conditioning formula and compute the posterior
 $p(\vy_\star | \mX_\star, \mX, \vy)$ exactly as
 \begin{align}
-  p(\vy_\star | \mX_\star, \mX, \vy) &= 𝓝(\vy_\star | \vmu_\star, \mSigma_\star)
+  p(\vy_\star | \mX_\star, \mX, \vy) &= \mathcal{N}(\vy_\star | \vmu_\star, \mSigma_\star)
   \\
   \vmu_\star &= \vmu(\mX_\star) + \mK_\star^T \mK^{-1} (\vy - \vmu(\mX))
   \\
@@ -492,14 +492,14 @@ Consider the case when $f$ is not a deterministic function, but rather a
 stochastic function returning a noisy output $y$ given some fixed input
 $\vx$ (in other words, $f(\vx)$ is a random variable). GP regression is flexible enough
 to model Gaussian noise in the output directly. For now, let us consider the noise
-having a fixed variance $σ²$.
+having a fixed variance $\sigma^2$.
 
 In practice, the noise becomes a baseline for the variance of each point of the posterior,
 as the variance can never be lower than the noise. Since the variance is represented on the
-diagonal of the covariance matrix computed by the kernel function $κ$, we can model the noise
+diagonal of the covariance matrix computed by the kernel function $\kappa$, we can model the noise
 directly by simply adding a diagonal matrix to the output of the kernel, that is
 $$
-  \cov(\vy) = κ(\mX, \mX) + σ²\mI.
+  \cov(\vy) = \kappa(\mX, \mX) + \sigma^2\mI.
 $$
 
 See \autoref{figure:gp-noise} for a comparison of noise-less and noisy
@@ -522,7 +522,7 @@ the amount of noise for each~$\vx$.
 \subsection{Kernels}
 \label{section:kernels}
 
-So far we have considered the covariance function $κ$ to be an arbitrary
+So far we have considered the covariance function $\kappa$ to be an arbitrary
 positive-definite kernel. Even though in theory there are no restrictions on
 what kernel we can choose, there are a few popular choices that are
 commonly used.
@@ -530,21 +530,21 @@ commonly used.
 A prototypical example is the squared exponential (SE) kernel, also called the
 radial-basis function (RBF) kernel
 $$
-κ(x₁, x₂) = σₖ²\exp\left\{ -\frac{1}{2\mathcal{l}} (x₁ - x₂)² \right\}.
+\kappa(x_1, x_2) = \sigma_k^2\exp\left\{ -\frac{1}{2\mathcal{l}} (x_1 - x_2)^2 \right\}.
 $$
 This kernel, among many others, falls under the category of stationary kernels.
 A \newterm{stationary kernel} is a kernel which is shift-invariant, which means its
-value does not depend on the absolute values of $x₁$ and $x₂$, but only on
-their distance $d = |x₁ - x₂|$. We can thus write the kernel as
+value does not depend on the absolute values of $x_1$ and $x_2$, but only on
+their distance $d = |x_1 - x_2|$. We can thus write the kernel as
 $$
-κ(x₁, x₂) = σₖ²\exp\left\{ -\frac{1}{2\mathcal{l}} d² \right\}.
+\kappa(x_1, x_2) = \sigma_k^2\exp\left\{ -\frac{1}{2\mathcal{l}} d^2 \right\}.
 $$
 
-The values $σₖ$ and $l$ are called the variance and the lengthscale, and control
-the behavior of the kernel, where $σₖ$ changes the vertical scale of the
+The values $\sigma_k$ and $l$ are called the variance and the lengthscale, and control
+the behavior of the kernel, where $\sigma_k$ changes the vertical scale of the
 function, and $l$ changes the horizontal scale. Changing the lengthscale
 essentially allows the kernel to re-normalize the data. If $\vx$ is a vector, we
-can define a lengthscale parameter $lᵢ$ for each of the components. Such
+can define a lengthscale parameter $l_i$ for each of the components. Such
 component-specific lengthscale becomes very useful in the context of hyperparameters where each hyperparameter
 can have quite a different scale, and the individual lengthscales per component
 allow the kernel to capture the phenomenon.
@@ -598,9 +598,9 @@ automatically form the data using maximum likelihood estimation.
 Since the GP is a probabilistic model, we can query it directly about the
 likelihood of the data. Using the definition of a GP, we know that the
 likelihood is a multivariate Gaussian, that is $p(\vy | \mX) =
-𝓝(\vy | \mZero, \mK)$, giving us a log likelihood of
+\mathcal{N}(\vy | \mZero, \mK)$, giving us a log likelihood of
 \begin{equation}
-\log p(\vy | \mX) = -\frac{1}{2}\vy \mK^{-1}\vy - \frac{1}{2} \log \det \mK - \frac{N}{2} \log (2 π).
+\log p(\vy | \mX) = -\frac{1}{2}\vy \mK^{-1}\vy - \frac{1}{2} \log \det \mK - \frac{N}{2} \log (2 \pi).
 \label{eq:kernel-marginal-likelihood}
 \end{equation}
 
@@ -609,7 +609,7 @@ a detailed treatment) including the gradient of the marginal likelihood with res
 kernel parameters, because they do not provide any useful insights.
 
 One important detail we want to stress out is that computing $K^{-1}$ takes
-$𝓞(N³)$, which puts a serious restriction on the size of the data we can fit
+$\mathcal{O}(N^3)$, which puts a serious restriction on the size of the data we can fit
 with exact GP regression. This does not concern us in the context of
 hyperparameter optimization, where we prefer to stay within low hundreds of
 evaluations anyway, but for other tasks it becomes a serious limitation.

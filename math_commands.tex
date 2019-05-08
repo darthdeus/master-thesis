@@ -55,7 +55,7 @@
 
 \def\ceil#1{\lceil #1 \rceil}
 \def\floor#1{\lfloor #1 \rfloor}
-\def\1{\symbf{1}}
+\def\1{\bm{1}}
 \newcommand{\train}{\mathcal{D}}
 \newcommand{\valid}{\mathcal{D_{\mathrm{valid}}}}
 \newcommand{\test}{\mathcal{D_{\mathrm{test}}}}
@@ -249,7 +249,8 @@
 % Vectors
 \def\vzero{{\boldsymbol{0}}}
 \def\vone{{\boldsymbol{1}}}
-\def\vmu{{\symbfit{\mu}}}
+% TODO: symbfit?
+\def\vmu{{\boldsymbol{\mu}}}
 \def\vtheta{{\boldsymbol{\theta}}}
 \def\va{{\boldsymbol{a}}}
 \def\vb{{\boldsymbol{b}}}
@@ -316,42 +317,42 @@
 \def\evz{{z}}
 
 % Matrix
-\def\mA{{\symbf{A}}}
-\def\mB{{\symbf{B}}}
-\def\mC{{\symbf{C}}}
-\def\mD{{\symbf{D}}}
-\def\mE{{\symbf{E}}}
-\def\mF{{\symbf{F}}}
-\def\mG{{\symbf{G}}}
-\def\mH{{\symbf{H}}}
-\def\mI{{\symbf{I}}}
-\def\mJ{{\symbf{J}}}
-\def\mK{{\symbf{K}}}
-\def\mL{{\symbf{L}}}
-\def\mM{{\symbf{M}}}
-\def\mN{{\symbf{N}}}
-\def\mO{{\symbf{O}}}
-\def\mP{{\symbf{P}}}
-\def\mQ{{\symbf{Q}}}
-\def\mR{{\symbf{R}}}
-\def\mS{{\symbf{S}}}
-\def\mT{{\symbf{T}}}
-\def\mU{{\symbf{U}}}
-\def\mV{{\symbf{V}}}
-\def\mW{{\symbf{W}}}
-\def\mX{{\symbf{X}}}
-\def\mY{{\symbf{Y}}}
-\def\mZ{{\symbf{Z}}}
-\def\mBeta{{\symbf{\beta}}}
-\def\mPhi{{\symbf{\Phi}}}
-\def\mLambda{{\symbf{\Lambda}}}
-\def\mSigma{{\symbf{\Sigma}}}
-\def\mZero{{\symbf{0}}}
+\def\mA{{\bm{A}}}
+\def\mB{{\bm{B}}}
+\def\mC{{\bm{C}}}
+\def\mD{{\bm{D}}}
+\def\mE{{\bm{E}}}
+\def\mF{{\bm{F}}}
+\def\mG{{\bm{G}}}
+\def\mH{{\bm{H}}}
+\def\mI{{\bm{I}}}
+\def\mJ{{\bm{J}}}
+\def\mK{{\bm{K}}}
+\def\mL{{\bm{L}}}
+\def\mM{{\bm{M}}}
+\def\mN{{\bm{N}}}
+\def\mO{{\bm{O}}}
+\def\mP{{\bm{P}}}
+\def\mQ{{\bm{Q}}}
+\def\mR{{\bm{R}}}
+\def\mS{{\bm{S}}}
+\def\mT{{\bm{T}}}
+\def\mU{{\bm{U}}}
+\def\mV{{\bm{V}}}
+\def\mW{{\bm{W}}}
+\def\mX{{\bm{X}}}
+\def\mY{{\bm{Y}}}
+\def\mZ{{\bm{Z}}}
+\def\mBeta{{\bm{\beta}}}
+\def\mPhi{{\bm{\Phi}}}
+\def\mLambda{{\bm{\Lambda}}}
+\def\mSigma{{\bm{\Sigma}}}
+\def\mZero{{\bm{0}}}
 
 % Tensor
 \DeclareMathAlphabet{\mathsfit}{\encodingdefault}{\sfdefault}{m}{sl}
 \SetMathAlphabet{\mathsfit}{bold}{\encodingdefault}{\sfdefault}{bx}{n}
-\newcommand{\tens}[1]{\symbf{\mathsfit{#1}}}
+\newcommand{\tens}[1]{\bm{\mathsfit{#1}}}
 \def\tA{{\tens{A}}}
 \def\tB{{\tens{B}}}
 \def\tC{{\tens{C}}}

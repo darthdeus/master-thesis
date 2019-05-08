@@ -4,10 +4,10 @@ all: thesis.pdf
 
 # LaTeX must be run multiple times to get references right
 thesis.pdf: thesis.tex $(wildcard chapters/*.tex) bibliography.bib thesis.xmpdata
-	lualatex $<
+	pdflatex $<
 	bibtex thesis
-	lualatex $<
-	lualatex $<
+	pdflatex $<
+	pdflatex $<
 
 clean:
 	rm -f tmp/*
